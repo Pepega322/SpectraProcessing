@@ -1,7 +1,7 @@
 ﻿using Model.Command;
 
 namespace Model.Visual;
-internal interface IVisual
+public interface IVisual
 {
     void Edit(IVisualEditCommand command);
     IVisual CreateCopy();

@@ -1,7 +1,7 @@
 ﻿using Model.Data;
 
 namespace Model.Command;
-internal interface ICommand
+public interface ICommand
 {
-    IData Execute();
+    IData Execute(IData data);
 }

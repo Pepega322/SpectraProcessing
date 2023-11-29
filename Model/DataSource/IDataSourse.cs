@@ -1,8 +1,8 @@
 ﻿using Model.Data;
 
 namespace Model.DataSource;
-internal interface IDataSourse
+public interface IDataSourse
 {
     IData ReadFile(string path);
-    void WriteFile(string path, IData data);
+    void WriteFile(IWriteable data, string path);
 }

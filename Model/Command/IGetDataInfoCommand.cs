@@ -1,4 +1,4 @@
 ﻿namespace Model.Command;
-internal interface IGetDataInfoCommand : ICommand
+public interface IGetDataInfoCommand : ICommand
 {
 }

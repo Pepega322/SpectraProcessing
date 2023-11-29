@@ -1,4 +1,4 @@
 ﻿namespace Model.Command;
-internal interface IDataEditCommand : ICommand
+public interface IDataEditCommand : ICommand
 {
 }

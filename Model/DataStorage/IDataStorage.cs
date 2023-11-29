@@ -1,9 +1,9 @@
 ﻿using Model.Data;
 
 namespace Model.DataStorage;
-internal interface IDataStorage
+public interface IDataStorage
 {
-    void Add(IData data);
-    IData Get(string dataId);
-    void Remove(string dataId);
+    void Add(string id, IData data);
+    IData Get(string id);
+    void Remove(string id);
 }
