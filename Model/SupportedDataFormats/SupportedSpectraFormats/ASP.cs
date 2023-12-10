@@ -4,22 +4,18 @@ using Model.SupportedCommands.DataEdit.Base;
 using Model.SupportedCommands.GetData.Base;
 using Model.SupportedDataFormats.Base;
 using Model.SupportedDataFormats.SupportedSpectraFormats.Base;
-using Model.SupportedVisualFormats.Base;
 
 namespace Model.SupportedDataFormats.SupportedSpectraFormats;
 internal class ASP : Spectra
 {
+    private const int FirstPointLineIndex = 7;
+
     private readonly int _pointCount;
     private readonly float _startWavenumber;
     private readonly float _endWavenumber;
     private readonly int _fourLine;
     private readonly int _fiveLine;
     private readonly float _delta;
-
-    static ASP()
-    {
-        s_firstPointLineIndex = 7;
-    }
 
     public ASP(string name, string[] contents)
     {
@@ -50,7 +46,7 @@ internal class ASP : Spectra
         for (int i = 0; i < _pointCount; i++)
         {
             float readWavenumber = wavenumber / (float)(2 * Math.PI);
-            float intensity = float.Parse(contents[s_firstPointLineIndex + 1], CultureInfo.InvariantCulture);
+            float intensity = float.Parse(contents[FirstPointLineIndex + i], CultureInfo.InvariantCulture);
             _points.Add(new PointF(readWavenumber, intensity));
             wavenumber += _delta;
         }
@@ -75,6 +71,4 @@ internal class ASP : Spectra
     public override void Edit(DataEditCommand command) => throw new NotImplementedException();
 
     public override Data GetInfo(GetDataCommand command) => throw new NotImplementedException();
-
-    public override Visual GetVisualization() => throw new NotImplementedException();
 }

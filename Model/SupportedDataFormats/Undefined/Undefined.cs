@@ -4,7 +4,7 @@ using Model.SupportedDataFormats.Base;
 using Model.SupportedDataFormats.Interfaces;
 
 namespace Model.SupportedDataFormats.Undefined;
-internal class Undefined : Data, IWriteable
+public class Undefined : Data, IWriteable
 {
     private readonly IEnumerable<string> _contents;
 

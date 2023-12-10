@@ -1,13 +1,10 @@
 ﻿using System.Drawing;
 using Model.SupportedDataFormats.Base;
 using Model.SupportedDataFormats.Interfaces;
-using Model.SupportedVisualFormats.Base;
 
 namespace Model.SupportedDataFormats.SupportedSpectraFormats.Base;
-internal abstract class Spectra : Data, IWriteable, IVisualizable
+public abstract class Spectra : Data, IWriteable
 {
-    protected static int s_firstPointLineIndex { get; set; }
-
     protected readonly List<PointF> _points;
 
     protected Spectra()
@@ -21,6 +18,10 @@ internal abstract class Spectra : Data, IWriteable, IVisualizable
     }
 
     public abstract IEnumerable<string> ToContents();
-    public abstract Visual GetVisualization();
     public virtual IEnumerable<string> PointsToContents() => _points.Select(p => $"{p.X} {p.X}").ToArray();
+    public IEnumerable<PointF> GetPoints()
+    {
+        foreach (var point in _points)
+            yield return point;
+    }
 }

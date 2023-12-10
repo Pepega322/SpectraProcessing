@@ -4,18 +4,14 @@ using Model.SupportedCommands.DataEdit.Base;
 using Model.SupportedCommands.GetData.Base;
 using Model.SupportedDataFormats.Base;
 using Model.SupportedDataFormats.SupportedSpectraFormats.Base;
-using Model.SupportedVisualFormats.Base;
 
 namespace Model.SupportedDataFormats.SupportedSpectraFormats;
 internal class ESP : Spectra
 {
+    private const int FirstPointLineIndex = 2;
+
     private readonly string _expCfg;
     private readonly string _procCfg;
-
-    static ESP()
-    {
-        s_firstPointLineIndex = 2;
-    }
 
     internal ESP(string name, string[] contents)
     {
@@ -34,7 +30,7 @@ internal class ESP : Spectra
 
     private void ExtractPoints(string[] contents)
     {
-        for (int i = s_firstPointLineIndex; i < contents.Length; i++)
+        for (int i = FirstPointLineIndex; i < contents.Length; i++)
         {
             float[] pointData = contents[i]
                 .Split(' ')
@@ -56,5 +52,4 @@ internal class ESP : Spectra
 
     public override void Edit(DataEditCommand command) => throw new NotImplementedException();
     public override Data GetInfo(GetDataCommand command) => throw new NotImplementedException();
-    public override Visual GetVisualization() => throw new NotImplementedException();
 }

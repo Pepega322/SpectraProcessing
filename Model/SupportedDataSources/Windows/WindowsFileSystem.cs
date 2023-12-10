@@ -6,18 +6,16 @@ using Model.SupportedDataSources.Base;
 
 namespace Model.SupportedDataSources.Windows;
 
-public class WindowsFileSystem : DataSourse
+public class WindowsFileSystem : DataSource
 {
     public override Data ReadFile(string fullName)
     {
         var file = new FileInfo(fullName);
-        if (!file.Exists)
-            throw new FileNotFoundException(fullName);
         return file.Extension switch
         {
             ".asp" => new ASP(file.Name, File.ReadAllLines(file.FullName)),
             ".esp" => new ESP(file.Name, File.ReadAllLines(file.FullName)),
-            _ => new Undefined(file.Name, File.ReadAllLines(file.FullName))
+            _ => new Undefined(file.Name, new string[] { file.FullName })
         };
     }
 
