@@ -5,25 +5,36 @@ using Model.SupportedDataFormats.Interfaces;
 namespace Model.SupportedDataFormats.SupportedSpectraFormats.Base;
 public abstract class Spectra : Data, IWriteable
 {
-    protected readonly List<PointF> _points;
+    public int PointsCount => _xS.Length;
+    protected double[] _xS { get; set; } = null!;
+    protected double[] _yS { get; set; } = null!;
 
     protected Spectra()
     {
-        _points = [];
+        //_xS = GetXS();
+        //_yS = GetYS();
     }
 
-    protected Spectra(List<PointF> points)
+    protected Spectra(Spectra reference)
     {
-        _points = points.ToList();
+        _xS = reference._xS;
+        _yS = reference._yS.ToArray();
     }
 
-    public virtual IEnumerable<string> ToContents() => _points.Select(p => $"{p.X} {p.Y}").ToArray();
+    public virtual IEnumerable<string> ToContents()
+    {
+        for (var i = 0; i < PointsCount; i++)
+            yield return $"{_xS[i]} {_yS[i]}";
+    }
 
     public abstract IEnumerable<string> ToOriginalContents();
 
-    public IEnumerable<PointF> GetPoints()
+    public abstract double[] GetXS(params string[] contents);
+
+    public abstract double[] GetYS(params string[] contents);
+
+    public (double[] xS, double[] yS) GetPoints()
     {
-        foreach (var point in _points)
-            yield return point;
+        return (_xS.ToArray(), _yS.ToArray());
     }
 }

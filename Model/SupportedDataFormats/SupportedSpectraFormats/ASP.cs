@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System.Globalization;
+﻿using System.Globalization;
 using Model.SupportedCommands.DataEdit.Base;
 using Model.SupportedCommands.GetData.Base;
 using Model.SupportedDataFormats.Base;
@@ -8,28 +7,31 @@ using Model.SupportedDataFormats.SupportedSpectraFormats.Base;
 namespace Model.SupportedDataFormats.SupportedSpectraFormats;
 internal class ASP : Spectra
 {
+    private static Dictionary<int, double[]> s_xSPlots = [];
+
     public const int FirstPointLineIndex = 7;
 
     private readonly int _pointCount;
-    private readonly float _startWavenumber;
-    private readonly float _endWavenumber;
+    private readonly double _startWavenumber;
+    private readonly double _endWavenumber;
     private readonly int _fourLine;
     private readonly int _fiveLine;
-    private readonly float _delta;
+    private readonly double _delta;
 
     public ASP(string name, string[] contents)
     {
         Name = name;
         _pointCount = int.Parse(contents[0]);
-        _startWavenumber = float.Parse(contents[1], CultureInfo.InvariantCulture);
-        _endWavenumber = float.Parse(contents[2], CultureInfo.InvariantCulture);
+        _startWavenumber = double.Parse(contents[1], CultureInfo.InvariantCulture);
+        _endWavenumber = double.Parse(contents[2], CultureInfo.InvariantCulture);
         _fourLine = int.Parse(contents[3], CultureInfo.InvariantCulture);
         _fiveLine = int.Parse(contents[4], CultureInfo.InvariantCulture);
-        _delta = float.Parse(contents[5], CultureInfo.InvariantCulture);
-        ExtractPoints(contents);
+        _delta = double.Parse(contents[5], CultureInfo.InvariantCulture);
+        _xS = GetXS(contents);
+        _yS = GetYS(contents);
     }
 
-    private ASP(ASP spectra) : base(spectra._points)
+    private ASP(ASP spectra) : base(spectra)
     {
         Name = spectra.Name + "(Copy)";
         _pointCount = spectra._pointCount;
@@ -40,16 +42,32 @@ internal class ASP : Spectra
         _delta = spectra._delta;
     }
 
-    private void ExtractPoints(string[] contents)
+    public override double[] GetXS(params string[] contents)
     {
-        float wavenumber = _startWavenumber;
-        for (int i = 0; i < _pointCount; i++)
+        var hash = HashCode.Combine(_pointCount, _startWavenumber, _delta);
+        lock (s_xSPlots)
         {
-            float readWavenumber = wavenumber / (float)(2 * Math.PI);
-            float intensity = float.Parse(contents[FirstPointLineIndex + i], CultureInfo.InvariantCulture);
-            _points.Add(new PointF(readWavenumber, intensity));
-            wavenumber += _delta;
+            if (!s_xSPlots.ContainsKey(hash))
+            {
+                var xS = new double[_pointCount];
+                var wavenumber = _startWavenumber;
+                for (int i = 0; i < _pointCount; i++)
+                {
+                    xS[i] = wavenumber / (2 * Math.PI);
+                    wavenumber += _delta;
+                }
+                s_xSPlots.Add(hash, xS);
+            }
         }
+        return s_xSPlots[hash];
+    }
+
+    public override double[] GetYS(params string[] contents)
+    {
+        var yS = new double[PointsCount];
+        for (var i = 0; i < yS.Length; ++i)
+            yS[i] = double.Parse(contents[FirstPointLineIndex + i], CultureInfo.InvariantCulture);
+        return yS;
     }
 
     public override IEnumerable<string> ToOriginalContents()
@@ -61,8 +79,8 @@ internal class ASP : Spectra
         yield return _fiveLine.ToString();
         yield return _delta.ToString();
         yield return "\n";
-        foreach (var p in _points)
-            yield return p.Y.ToString();
+        foreach (var point in ToContents())
+            yield return point;
     }
 
     public override Data CreateCopy() => new ASP(this);
@@ -70,4 +88,5 @@ internal class ASP : Spectra
     public override void Edit(DataEditCommand command) => throw new NotImplementedException();
 
     public override Data GetInfo(GetDataCommand command) => throw new NotImplementedException();
+
 }

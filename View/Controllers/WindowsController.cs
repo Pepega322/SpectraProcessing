@@ -55,7 +55,7 @@ public class WindowsController
             ChangeRoot(_root.Parent);
     }
 
-    public void RootSelectDoubleClick(TreeNodeMouseClickEventArgs args)
+    public void RootStepInDoubleClick(TreeNodeMouseClickEventArgs args)
 
     {
         if (args.Node.Tag is DirectoryInfo newRoot)
@@ -143,7 +143,7 @@ public class WindowsController
 
     #region ConvertingMethods
 
-    public async void SaveAllSeriesAsESP()
+    public async void SaveAllSeriesAsESPAsync()
     {
         var path = SelectPathInExplorer();
         if (path is null) return;
@@ -151,7 +151,7 @@ public class WindowsController
         await Task.Run(() => SaveAllSpectrasAs(SelectedNode, output, ".esp"));
     }
 
-    public async void SaveThisSeriesAsESP()
+    public async void SaveThisSeriesAsESPAsync()
     {
         var path = SelectPathInExplorer();
         if (path is null) return;
@@ -159,7 +159,7 @@ public class WindowsController
         await Task.Run(() => SaveThisSpectrasAs(SelectedNode, output, ".esp"));
     }
 
-    public async void SaveAsESP()
+    public async void SaveAsESPAsync()
     {
         if (SelectedData is not Spectra spectra) return;
         var path = SelectPathInExplorer();
@@ -242,12 +242,9 @@ public class WindowsController
 
     #region PlotMethodsMethods
 
-    public static (double[] sX, double[] sY) GetSpectraPoints(Spectra spectra)
+    public void AddToPlotTemp()
     {
-        var points = spectra.GetPoints();
-        var sX = points.Select(p => (double)p.X).ToArray();
-        var sY = points.Select(p => (double)p.Y).ToArray();
-        return (sX, sY);
+
     }
 
     #endregion

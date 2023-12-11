@@ -16,33 +16,59 @@ public partial class MainForm : Form
         _controller.OnRootChange += () => UpdateTreeViewAsync(rootTreeView, _controller.GetRootNodes);
         _controller.OnDataChange += () => UpdateTreeViewAsync(dataTreeView, _controller.GetDataNodes);
 
+        plotView.Plot.Palette = ScottPlot.Palette.Category20;
+        plotView.Plot.XLabel("Raman shift, cm-1");
+        plotView.Plot.YLabel("Intensity");
+
         rootSelectButton.Click += (sender, args) => _controller.RootSelect();
         rootReadAllButton.Click += (sender, args) => _controller.ReadAllRootAsync();
         rootReadThisButton.Click += (sender, args) => _controller.ReadThisRootAsync();
 
         rootBackButton.Click += (sender, args) => _controller.RootStepBack();
-        rootTreeView.NodeMouseDoubleClick += (sender, args) => _controller.RootSelectDoubleClick(args);
+        rootTreeView.NodeMouseDoubleClick += (sender, args) => _controller.RootStepInDoubleClick(args);
 
         dataUpdateButton.Click += (sender, args) => UpdateTreeViewAsync(dataTreeView, _controller.GetDataNodes);
-        dataTreeView.NodeMouseDoubleClick += (sender, args) => DrawPlotAsync(args);
+        dataTreeView.NodeMouseDoubleClick += (sender, args) => DataDoubleClick(args);
 
         dataTreeView.NodeMouseClick += (sender, args) => DrawContextMenu(args);
 
-        dataNodeContextSaveThisButton.Click += (sender, args) => _controller.SaveThisSeriesAsESP();
-        dataNodeContextSaveAllButton.Click += (sender, args) => _controller.SaveAllSeriesAsESP();
+        dataNodeContextSaveThisButton.Click += (sender, args) => _controller.SaveThisSeriesAsESPAsync();
+        dataNodeContextSaveAllButton.Click += (sender, args) => _controller.SaveAllSeriesAsESPAsync();
         //dataNodeContextPlotThisButton += (sender, args) => _controller.PlotThisSeries();
         //dataNodeContextPlotAllButton += (sender, args) => _controller.PlotAllSeries();
         //dataNodeContextAddToPlotThisButton += (sender, args) => _controller.AddToPlotThisSeries();
         //dataNodeContextAddToPlotAllButton += (sender, args) => _controller.AddToPlotAllSeries();
         dataNodeContextDeleteButton.Click += (sender, args) => _controller.DeleteNode();
 
-        dataContextSaveAsESPButton.Click += (sender, args) => _controller.SaveAsESP();
-        //dataContextAddToPlotButton.Click += (sender, args) => _controller.AddToPlot();
+        dataContextSaveAsESPButton.Click += (sender, args) => _controller.SaveAsESPAsync();
+        dataContextAddToPlotButton.Click += (sender, args) => AddDataToPlot();
         dataContextDeleteButton.Click += (sender, args) => _controller.DeleteData();
 
         plotClearButton.Click += (sender, args) => ClearPlot();
         plotView.MouseMove += (sender, args) => DrawMouseCoordinates();
 
+    }
+
+    private void AddDataToPlot()
+    {
+        if (_controller.SelectedData is Spectra spectra)
+        {
+            var (sX, sY) = spectra.GetPoints();
+            plotView.Plot.AddScatterLines(sX, sY);
+            plotView.Refresh();
+        }
+    }
+
+    private async void DataDoubleClick(TreeNodeMouseClickEventArgs args)
+    {
+        if (args.Node.Tag is Spectra spectra)
+        {
+            var (sX, sY) = await Task.Run(spectra.GetPoints);
+            plotView.Plot.Clear();
+            plotView.Plot.AddScatterLines(sX, sY);
+            plotView.Plot.Title(spectra.Name);
+            plotView.Refresh();
+        }
     }
 
     private void DrawMouseCoordinates()
@@ -79,26 +105,13 @@ public partial class MainForm : Form
         view.EndUpdate();
     }
 
-    private async void DrawPlotAsync(TreeNodeMouseClickEventArgs args)
-    {
-        if (args.Node.Tag is Spectra spectra)
-        {
-            var (sX, sY) = await Task.Run(() => WindowsController.GetSpectraPoints(spectra));
-            plotView.Plot.Clear();
-            plotView.Plot.AddScatterLines(sX, sY, Color.Black);
-            plotView.Plot.XLabel("Raman shift, cm-1");
-            plotView.Plot.YLabel("Intensity");
-            plotView.Plot.Title(spectra.Name);
-            plotView.Refresh();
-        }
-    }
 
     private void ClearPlot()
     {
         plotView.Plot.Clear();
-        plotView.Plot.Title("");
-        plotView.Plot.XLabel("");
-        plotView.Plot.YLabel("");
+        //plotView.Plot.Title("");
+        //plotView.Plot.XLabel("");
+        //plotView.Plot.YLabel("");
         plotView.Refresh();
     }
 }
