@@ -3,7 +3,7 @@ using Model.SupportedCommands.GetData.Base;
 using Model.SupportedDataFormats.Base;
 using Model.SupportedDataFormats.Interfaces;
 
-namespace Model.SupportedDataFormats.Undefined;
+namespace Model.SupportedDataFormats.Unsupported;
 public class Undefined : Data, IWriteable
 {
     private readonly IEnumerable<string> _contents;

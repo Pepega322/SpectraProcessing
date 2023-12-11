@@ -8,7 +8,7 @@ using Model.SupportedDataFormats.SupportedSpectraFormats.Base;
 namespace Model.SupportedDataFormats.SupportedSpectraFormats;
 internal class ESP : Spectra
 {
-    private const int FirstPointLineIndex = 2;
+    public const int FirstPointLineIndex = 2;
 
     private readonly string _expCfg;
     private readonly string _procCfg;
@@ -42,7 +42,7 @@ internal class ESP : Spectra
 
     public override Data CreateCopy() => new ESP(this);
 
-    public override IEnumerable<string> ToContents()
+    public override IEnumerable<string> ToOriginalContents()
     {
         yield return _expCfg;
         yield return _procCfg;

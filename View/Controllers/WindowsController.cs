@@ -1,4 +1,6 @@
-﻿using Model.SupportedDataFormats.SupportedSpectraFormats.Base;
+﻿using Model.SupportedDataFormats.Base;
+using Model.SupportedDataFormats.Interfaces;
+using Model.SupportedDataFormats.SupportedSpectraFormats.Base;
 using Model.SupportedDataSources.Windows;
 using View.Storage;
 
@@ -8,8 +10,10 @@ public class WindowsController
     private readonly WindowsFileSystem _source;
     private readonly WindowsStorage _storage;
     private DirectoryInfo _root;
+    public DataNode SelectedNode { get; set; }
+    public Data? SelectedData { get; set; }
 
-    public event Action? OnDataAdd;
+    public event Action? OnDataChange;
     public event Action? OnRootChange;
 
     public WindowsController(string storageName)
@@ -17,29 +21,32 @@ public class WindowsController
         _root = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
         _source = new();
         _storage = new(storageName, _source);
+        SelectedNode = _storage.DefaultDataNode;
     }
 
-    public async void ReadRootAsSeriesAsync()
+    #region DataReadMethods
+
+    public async void ReadAllRootAsync()
     {
-        await Task.Run(() => _storage.AddDirectoryAsOneDataSet(_root.Name, _root));
-        OnDataAdd?.Invoke();
+        await Task.Run(() => _storage.ReadAllDirectory($"{_root.Name} (all)", _root));
+        OnDataChange?.Invoke();
     }
 
-    private void ChangeRoot(DirectoryInfo newRoot)
+    public async void ReadThisRootAsync()
     {
-        _root = newRoot;
-        OnRootChange?.Invoke();
+        await Task.Run(() => _storage.ReadThisDirectory($"{_root.Name} (only this)", _root));
+        OnDataChange?.Invoke();
     }
+
+    #endregion
+
+    #region RootNavigationMethods
 
     public void RootSelect()
     {
-        using (FolderBrowserDialog dialog = new())
-        {
-            dialog.SelectedPath = _root.FullName;
-            DialogResult result = dialog.ShowDialog();
-            if (result == DialogResult.OK)
-                ChangeRoot(new DirectoryInfo(dialog.SelectedPath));
-        }
+        var selectedPath = SelectPathInExplorer();
+        if (selectedPath != null)
+            ChangeRoot(new DirectoryInfo(selectedPath));
     }
 
     public void RootStepBack()
@@ -60,23 +67,36 @@ public class WindowsController
         if (args.Node.Tag is FileInfo file)
         {
             _storage.AddFileToTempDataSet(file);
-            OnDataAdd?.Invoke();
+            OnDataChange?.Invoke();
         }
     }
 
-    public (double[] sX, double[] sY) GetSpectraPoints(Spectra spectra)
+    private void ChangeRoot(DirectoryInfo newRoot)
     {
-        var points = spectra.GetPoints();
-        var sX = points.Select(p => (double)p.X).ToArray();
-        var sY = points.Select(p => (double)p.Y).ToArray();
-        return (sX, sY);
+        _root = newRoot;
+        OnRootChange?.Invoke();
     }
 
-    #region GetTreeNodes
+    #endregion
+
+    #region SupportMethods
+
+    private string? SelectPathInExplorer()
+    {
+        using (FolderBrowserDialog dialog = new())
+        {
+            dialog.SelectedPath = _root.FullName;
+            DialogResult result = dialog.ShowDialog();
+            return result == DialogResult.OK ? dialog.SelectedPath : null;
+        }
+    }
+
+    #endregion
+
+    #region GetTreeNodesMethods
 
     public IEnumerable<TreeNode> GetRootNodes()
     {
-        var nodes = new List<TreeNode>();
         foreach (var dir in _root.GetDirectories())
             yield return new TreeNode { Text = dir.Name, Tag = dir, ImageIndex = 0 };
         foreach (var file in _root.GetFiles())
@@ -88,14 +108,15 @@ public class WindowsController
         foreach (var pair in _storage)
         {
             var node = new TreeNode { Text = pair.Key, Tag = pair.Value };
-            ConnectSubnodes(node);
+            ConnectDataSubnodes(node);
             yield return node;
         }
     }
 
-    private void ConnectSubnodes(TreeNode treeNode)
+    private static void ConnectDataSubnodes(TreeNode treeNode)
     {
-        var dataNode = treeNode.Tag as WindowsDataNode;
+        var dataNode = treeNode.Tag as DataNode;
+        //if (dataNode.Childrens != null)
         foreach (var child in dataNode.Childrens)
         {
             var subnode = new TreeNode
@@ -103,13 +124,13 @@ public class WindowsController
                 Text = child.Name,
                 Tag = child,
             };
-            ConnectSubnodes(subnode);
+            ConnectDataSubnodes(subnode);
             treeNode.Nodes.Add(subnode);
         }
 
         foreach (var data in dataNode.Data)
         {
-            var subnode = new TreeNode
+            var subnode = new TreeNode()
             {
                 Text = data.Name,
                 Tag = data,
@@ -119,4 +140,116 @@ public class WindowsController
     }
 
     #endregion
+
+    #region ConvertingMethods
+
+    public async void SaveAllSeriesAsESP()
+    {
+        var path = SelectPathInExplorer();
+        if (path is null) return;
+        var output = new DirectoryInfo(Path.Combine(path, $"{SelectedNode.Name} (converted all)"));
+        await Task.Run(() => SaveAllSpectrasAs(SelectedNode, output, ".esp"));
+    }
+
+    public async void SaveThisSeriesAsESP()
+    {
+        var path = SelectPathInExplorer();
+        if (path is null) return;
+        var output = new DirectoryInfo(Path.Combine(path, $"{SelectedNode.Name} (converted only this)"));
+        await Task.Run(() => SaveThisSpectrasAs(SelectedNode, output, ".esp"));
+    }
+
+    public async void SaveAsESP()
+    {
+        if (SelectedData is not Spectra spectra) return;
+        var path = SelectPathInExplorer();
+        if (path is null) return;
+        await Task.Run(() => SaveSpectraAs(spectra, new DirectoryInfo(path), ".esp"));
+    }
+
+    private void SaveAllSpectrasAs(DataNode root, DirectoryInfo outputRoot, string extension)
+    {
+        var track = LinkNodesAndOutputFolder(root, outputRoot);
+        foreach (var node in track.Keys)
+            Task.Run(() => SaveThisSpectrasAs(node, track[node], extension));
+    }
+
+    private void SaveThisSpectrasAs(DataNode node, DirectoryInfo output, string extension)
+    {
+        var spectras = node.Data.Where(data => data is Spectra);
+        if (!output.Exists) output.Create();
+        if (!spectras.Any()) return;
+        foreach (var spectra in spectras)
+            Task.Run(() => SaveSpectraAs((Spectra)spectra, output, extension));
+    }
+
+    private void SaveSpectraAs(Spectra spectra, DirectoryInfo output, string extension)
+    {
+        var fullName = Path.Combine(output.FullName, $"{spectra.Name}{extension}");
+        Task.Run(() => _source.WriteFile(spectra, fullName));
+    }
+
+    private static Dictionary<DataNode, DirectoryInfo> LinkNodesAndOutputFolder(DataNode rootNode, DirectoryInfo outputRoot)
+    {
+        var track = new Dictionary<DataNode, DirectoryInfo>
+        {
+            [rootNode] = outputRoot
+        };
+        var queue = new Queue<DataNode>();
+        queue.Enqueue(rootNode);
+        while (queue.Count != 0)
+        {
+            var nodeInReference = queue.Dequeue();
+            foreach (var nextNodeInReference in nodeInReference.Childrens)
+            {
+                DirectoryInfo inDestination = track[nodeInReference];
+                string pathInDestination = Path.Combine(inDestination.FullName, nextNodeInReference.Name);
+                DirectoryInfo nextInOutput = new(pathInDestination);
+                track[nextNodeInReference] = nextInOutput;
+                queue.Enqueue(nextNodeInReference);
+            }
+        }
+        return track;
+    }
+
+    #endregion
+
+    #region DeletingMethods
+
+    public void DeleteNode()
+    {
+        if (SelectedNode is null)
+            throw new Exception("SelectedDataNode somehow is null");
+
+        if (!_storage.Contains(SelectedNode.Name) || SelectedNode == _storage.DefaultDataNode)
+            SelectedNode.DisconnectFromParent();
+        else
+            _storage.Remove(SelectedNode.Name);
+
+        OnDataChange?.Invoke();
+    }
+
+    public void DeleteData()
+    {
+        if (SelectedData is null)
+            throw new Exception("SelectedData somehow is null");
+
+        SelectedNode.RemoveData(SelectedData);
+        OnDataChange?.Invoke();
+    }
+
+    #endregion
+
+    #region PlotMethodsMethods
+
+    public static (double[] sX, double[] sY) GetSpectraPoints(Spectra spectra)
+    {
+        var points = spectra.GetPoints();
+        var sX = points.Select(p => (double)p.X).ToArray();
+        var sY = points.Select(p => (double)p.Y).ToArray();
+        return (sX, sY);
+    }
+
+    #endregion
+
 }

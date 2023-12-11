@@ -17,8 +17,10 @@ public abstract class Spectra : Data, IWriteable
         _points = points.ToList();
     }
 
-    public abstract IEnumerable<string> ToContents();
-    public virtual IEnumerable<string> PointsToContents() => _points.Select(p => $"{p.X} {p.X}").ToArray();
+    public virtual IEnumerable<string> ToContents() => _points.Select(p => $"{p.X} {p.Y}").ToArray();
+
+    public abstract IEnumerable<string> ToOriginalContents();
+
     public IEnumerable<PointF> GetPoints()
     {
         foreach (var point in _points)

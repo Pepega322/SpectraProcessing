@@ -8,7 +8,7 @@ using Model.SupportedDataFormats.SupportedSpectraFormats.Base;
 namespace Model.SupportedDataFormats.SupportedSpectraFormats;
 internal class ASP : Spectra
 {
-    private const int FirstPointLineIndex = 7;
+    public const int FirstPointLineIndex = 7;
 
     private readonly int _pointCount;
     private readonly float _startWavenumber;
@@ -52,7 +52,7 @@ internal class ASP : Spectra
         }
     }
 
-    public override IEnumerable<string> ToContents()
+    public override IEnumerable<string> ToOriginalContents()
     {
         yield return _pointCount.ToString();
         yield return _startWavenumber.ToString();
@@ -64,7 +64,6 @@ internal class ASP : Spectra
         foreach (var p in _points)
             yield return p.Y.ToString();
     }
-
 
     public override Data CreateCopy() => new ASP(this);
 
