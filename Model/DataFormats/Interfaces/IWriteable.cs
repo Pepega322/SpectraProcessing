@@ -1,4 +1,4 @@
-﻿namespace Model.SupportedDataFormats.Interfaces;
+﻿namespace Model.DataFormats.Interfaces;
 public interface IWriteable
 {
     IEnumerable<string> ToContents();

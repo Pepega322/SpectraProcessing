@@ -1,4 +1,4 @@
-﻿namespace View;
+﻿namespace Model;
 
 internal static class Program
 {

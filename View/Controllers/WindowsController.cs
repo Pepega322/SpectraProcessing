@@ -1,16 +1,19 @@
-﻿using Model.SupportedDataFormats.Base;
-using Model.SupportedDataFormats.Interfaces;
-using Model.SupportedDataFormats.SupportedSpectraFormats.Base;
-using Model.SupportedDataSources.Windows;
-using View.Storage;
+﻿using System.Data;
+using Model.DataFormats.Base;
+using Model.DataFormats.Spectras.Base;
+using Model.DataSources.Base;
+using Model.DataSources.Windows;
+using Model.DataStorages;
+using Model.DataStorages.Base;
 
-namespace View.Controllers.Windows;
+namespace Model.Controllers.Windows;
 public class WindowsController
 {
-    private readonly WindowsFileSystem _source;
-    private readonly WindowsStorage _storage;
-    private DirectoryInfo _root;
-    public DataNode SelectedNode { get; set; }
+    private readonly DataSource _source;
+    private readonly DataStorage _storage;
+
+    private DirectoryInfo _selectedRoot;
+    public DataSetNode SelectedSet { get; set; }
     public Data? SelectedData { get; set; }
 
     public event Action? OnDataChange;
@@ -18,23 +21,28 @@ public class WindowsController
 
     public WindowsController(string storageName)
     {
-        _root = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
-        _source = new();
-        _storage = new(storageName, _source);
-        SelectedNode = _storage.DefaultDataNode;
+        //_selectedRoot = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+        _selectedRoot = new DirectoryInfo("E:\\ForProgramTest");
+        _source = new WindowsFileSystem();
+        _storage = new DirectoryBasedStorage(_source, storageName);
+        SelectedSet = _storage.DefaultDataSet;
     }
 
     #region DataReadMethods
 
-    public async void ReadAllRootAsync()
+    public async void RootReadAllAsync()
     {
-        await Task.Run(() => _storage.ReadAllDirectory($"{_root.Name} (all)", _root));
+        var setKey = $"{_selectedRoot.Name} (all)";
+        var rootSet = await Task.Run(() => new DirDataSet(_selectedRoot.Name, _source, _selectedRoot.FullName, true));
+        _storage.AddDataSet(setKey, rootSet);
         OnDataChange?.Invoke();
     }
 
-    public async void ReadThisRootAsync()
+    public async void RootReadThisAsync()
     {
-        await Task.Run(() => _storage.ReadThisDirectory($"{_root.Name} (only this)", _root));
+        var setKey = $"{_selectedRoot.Name} (only this)";
+        var rootSet = await Task.Run(() => new DirDataSet(_selectedRoot.Name, _source, _selectedRoot.FullName, false));
+        _storage.AddDataSet(setKey, rootSet);
         OnDataChange?.Invoke();
     }
 
@@ -51,8 +59,8 @@ public class WindowsController
 
     public void RootStepBack()
     {
-        if (_root.Parent != null)
-            ChangeRoot(_root.Parent);
+        if (_selectedRoot.Parent != null)
+            ChangeRoot(_selectedRoot.Parent);
     }
 
     public void RootStepInDoubleClick(TreeNodeMouseClickEventArgs args)
@@ -66,14 +74,15 @@ public class WindowsController
 
         if (args.Node.Tag is FileInfo file)
         {
-            _storage.AddFileToTempDataSet(file);
+            var data = _source.ReadData(file.FullName);
+            _storage.AddDataToDefaultSet(data);
             OnDataChange?.Invoke();
         }
     }
 
     private void ChangeRoot(DirectoryInfo newRoot)
     {
-        _root = newRoot;
+        _selectedRoot = newRoot;
         OnRootChange?.Invoke();
     }
 
@@ -85,7 +94,7 @@ public class WindowsController
     {
         using (FolderBrowserDialog dialog = new())
         {
-            dialog.SelectedPath = _root.FullName;
+            dialog.SelectedPath = _selectedRoot.FullName;
             DialogResult result = dialog.ShowDialog();
             return result == DialogResult.OK ? dialog.SelectedPath : null;
         }
@@ -97,9 +106,9 @@ public class WindowsController
 
     public IEnumerable<TreeNode> GetRootNodes()
     {
-        foreach (var dir in _root.GetDirectories())
+        foreach (var dir in _selectedRoot.GetDirectories())
             yield return new TreeNode { Text = dir.Name, Tag = dir, ImageIndex = 0 };
-        foreach (var file in _root.GetFiles())
+        foreach (var file in _selectedRoot.GetFiles())
             yield return new TreeNode { Text = file.Name, Tag = file, ImageIndex = 1, };
     }
 
@@ -115,9 +124,10 @@ public class WindowsController
 
     private static void ConnectDataSubnodes(TreeNode treeNode)
     {
-        var dataNode = treeNode.Tag as DataNode;
-        //if (dataNode.Childrens != null)
-        foreach (var child in dataNode.Childrens)
+        if (treeNode.Tag is not DataSetNode dataNode)
+            throw new Exception(nameof(ConnectDataSubnodes));
+
+        foreach (var child in dataNode.Nodes)
         {
             var subnode = new TreeNode
             {
@@ -147,16 +157,16 @@ public class WindowsController
     {
         var path = SelectPathInExplorer();
         if (path is null) return;
-        var output = new DirectoryInfo(Path.Combine(path, $"{SelectedNode.Name} (converted all)"));
-        await Task.Run(() => SaveAllSpectrasAs(SelectedNode, output, ".esp"));
+        var output = new DirectoryInfo(Path.Combine(path, $"{SelectedSet.Name} (converted all)"));
+        await Task.Run(() => SaveAllSpectrasAs(SelectedSet, output, ".esp"));
     }
 
     public async void SaveThisSeriesAsESPAsync()
     {
         var path = SelectPathInExplorer();
         if (path is null) return;
-        var output = new DirectoryInfo(Path.Combine(path, $"{SelectedNode.Name} (converted only this)"));
-        await Task.Run(() => SaveThisSpectrasAs(SelectedNode, output, ".esp"));
+        var output = new DirectoryInfo(Path.Combine(path, $"{SelectedSet.Name} (converted only this)"));
+        await Task.Run(() => SaveThisSpectrasAs(SelectedSet, output, ".esp"));
     }
 
     public async void SaveAsESPAsync()
@@ -167,14 +177,14 @@ public class WindowsController
         await Task.Run(() => SaveSpectraAs(spectra, new DirectoryInfo(path), ".esp"));
     }
 
-    private void SaveAllSpectrasAs(DataNode root, DirectoryInfo outputRoot, string extension)
+    private void SaveAllSpectrasAs(DataSetNode root, DirectoryInfo outputRoot, string extension)
     {
         var track = LinkNodesAndOutputFolder(root, outputRoot);
         foreach (var node in track.Keys)
             Task.Run(() => SaveThisSpectrasAs(node, track[node], extension));
     }
 
-    private void SaveThisSpectrasAs(DataNode node, DirectoryInfo output, string extension)
+    private void SaveThisSpectrasAs(DataSetNode node, DirectoryInfo output, string extension)
     {
         var spectras = node.Data.Where(data => data is Spectra);
         if (!output.Exists) output.Create();
@@ -186,21 +196,18 @@ public class WindowsController
     private void SaveSpectraAs(Spectra spectra, DirectoryInfo output, string extension)
     {
         var fullName = Path.Combine(output.FullName, $"{spectra.Name}{extension}");
-        Task.Run(() => _source.WriteFile(spectra, fullName));
+        Task.Run(() => _source.WriteData(spectra, fullName));
     }
 
-    private static Dictionary<DataNode, DirectoryInfo> LinkNodesAndOutputFolder(DataNode rootNode, DirectoryInfo outputRoot)
+    private static Dictionary<DataSetNode, DirectoryInfo> LinkNodesAndOutputFolder(DataSetNode rootNode, DirectoryInfo outputRoot)
     {
-        var track = new Dictionary<DataNode, DirectoryInfo>
-        {
-            [rootNode] = outputRoot
-        };
-        var queue = new Queue<DataNode>();
+        var track = new Dictionary<DataSetNode, DirectoryInfo> { [rootNode] = outputRoot };
+        var queue = new Queue<DataSetNode>();
         queue.Enqueue(rootNode);
         while (queue.Count != 0)
         {
             var nodeInReference = queue.Dequeue();
-            foreach (var nextNodeInReference in nodeInReference.Childrens)
+            foreach (var nextNodeInReference in nodeInReference.Nodes)
             {
                 DirectoryInfo inDestination = track[nodeInReference];
                 string pathInDestination = Path.Combine(inDestination.FullName, nextNodeInReference.Name);
@@ -218,13 +225,13 @@ public class WindowsController
 
     public void DeleteNode()
     {
-        if (SelectedNode is null)
+        if (SelectedSet is null)
             throw new Exception("SelectedDataNode somehow is null");
 
-        if (!_storage.Contains(SelectedNode.Name) || SelectedNode == _storage.DefaultDataNode)
-            SelectedNode.DisconnectFromParent();
+        if (!_storage.ContainsSet(SelectedSet.Name) || SelectedSet == _storage.DefaultDataSet)
+            SelectedSet.DisconnectFromParent();
         else
-            _storage.Remove(SelectedNode.Name);
+            _storage.RemoveSet(SelectedSet.Name);
 
         OnDataChange?.Invoke();
     }
@@ -234,7 +241,7 @@ public class WindowsController
         if (SelectedData is null)
             throw new Exception("SelectedData somehow is null");
 
-        SelectedNode.RemoveData(SelectedData);
+        SelectedSet.RemoveData(SelectedData);
         OnDataChange?.Invoke();
     }
 
