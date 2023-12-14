@@ -3,28 +3,28 @@ using Model.DataFormats.Base;
 using Model.DataFormats.Spectras.Base;
 
 namespace Model.DataFormats.SpectraFormats;
-internal class ASP : Spectra
+public class ASP : Spectra
 {
     private static Dictionary<int, IReadOnlyList<double>> s_xSPlots = [];
 
     public const int FirstPointIndex = 7;
 
     private readonly int _pointCount;
-    private readonly double _startWavenumber;
-    private readonly double _endWavenumber;
+    public readonly double StartWavenumber;
+    public readonly double EndWavenumber;
     private readonly int _fourLine;
     private readonly int _fiveLine;
-    private readonly double _delta;
+    public readonly double Delta;
 
-    public ASP(string name, string[] contents)
+    internal ASP(string name, string[] contents)
     {
         Name = name;
         _pointCount = int.Parse(contents[0]);
-        _startWavenumber = double.Parse(contents[1], CultureInfo.InvariantCulture);
-        _endWavenumber = double.Parse(contents[2], CultureInfo.InvariantCulture);
+        StartWavenumber = double.Parse(contents[1], CultureInfo.InvariantCulture) / (2 * Math.PI);
+        EndWavenumber = double.Parse(contents[2], CultureInfo.InvariantCulture) / (2 * Math.PI);
         _fourLine = int.Parse(contents[3], CultureInfo.InvariantCulture);
         _fiveLine = int.Parse(contents[4], CultureInfo.InvariantCulture);
-        _delta = double.Parse(contents[5], CultureInfo.InvariantCulture);
+        Delta = double.Parse(contents[5], CultureInfo.InvariantCulture) / (2 * Math.PI);
         var (xS, yS) = ReadPoints(contents);
         _xS = xS;
         _yS = yS;
@@ -34,26 +34,26 @@ internal class ASP : Spectra
     {
         Name = spectra.Name + "(Copy)";
         _pointCount = spectra._pointCount;
-        _startWavenumber = spectra._startWavenumber;
-        _endWavenumber = spectra._endWavenumber;
+        StartWavenumber = spectra.StartWavenumber;
+        EndWavenumber = spectra.EndWavenumber;
         _fourLine = spectra._fourLine;
         _fiveLine = spectra._fiveLine;
-        _delta = spectra._delta;
+        Delta = spectra.Delta;
     }
 
     protected override (IReadOnlyList<double> xS, double[] yS) ReadPoints(params string[] contents)
     {
-        var hash = HashCode.Combine(_pointCount, _startWavenumber, _delta);
+        var hash = HashCode.Combine(_pointCount, StartWavenumber, Delta);
         lock (s_xSPlots)
         {
             if (!s_xSPlots.ContainsKey(hash))
             {
                 var newXS = new double[_pointCount];
-                var wavenumber = _startWavenumber;
+                var wavenumber = StartWavenumber;
                 for (int i = 0; i < _pointCount; i++)
                 {
-                    newXS[i] = wavenumber / (2 * Math.PI);
-                    wavenumber += _delta;
+                    newXS[i] = wavenumber;
+                    wavenumber += Delta;
                 }
                 s_xSPlots.Add(hash, newXS.AsReadOnly());
             }
@@ -72,11 +72,11 @@ internal class ASP : Spectra
     public override IEnumerable<string> ToOriginalContents()
     {
         yield return _pointCount.ToString();
-        yield return _startWavenumber.ToString();
-        yield return _endWavenumber.ToString();
+        yield return StartWavenumber.ToString();
+        yield return EndWavenumber.ToString();
         yield return _fourLine.ToString();
         yield return _fiveLine.ToString();
-        yield return _delta.ToString();
+        yield return Delta.ToString();
         yield return "\n";
         foreach (var point in ToContents())
             yield return point;
