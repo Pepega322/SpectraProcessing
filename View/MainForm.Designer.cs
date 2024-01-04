@@ -46,17 +46,14 @@ partial class MainForm
         tableLayoutPanelLeftDown = new TableLayoutPanel();
         treeViewData = new TreeView();
         dataNavigation = new MenuStrip();
-        buttonDataUpdate = new ToolStripMenuItem();
         tableLayoutPanelMiddleMiddle = new TableLayoutPanel();
         plotNavigation = new MenuStrip();
-        buttonPlotViewRefresh = new ToolStripMenuItem();
         tableLayoutPanelRightUp = new TableLayoutPanel();
         mouseCoordinatesBox = new TextBox();
         plotView = new ScottPlot.FormsPlot();
         tableLayoutPanel1 = new TableLayoutPanel();
         menuStrip1 = new MenuStrip();
         buttonPlotDataClear = new ToolStripMenuItem();
-        buttonTreeViewPlotChangeVisibility = new ToolStripMenuItem();
         treeViewPlot = new TreeView();
         dataNodeContextMenu = new ContextMenuStrip(components);
         dataNodeContextSave = new ToolStripMenuItem();
@@ -76,9 +73,7 @@ partial class MainForm
         tableLayoutPanelLeftUp.SuspendLayout();
         rootNavigation.SuspendLayout();
         tableLayoutPanelLeftDown.SuspendLayout();
-        dataNavigation.SuspendLayout();
         tableLayoutPanelMiddleMiddle.SuspendLayout();
-        plotNavigation.SuspendLayout();
         tableLayoutPanelRightUp.SuspendLayout();
         tableLayoutPanel1.SuspendLayout();
         menuStrip1.SuspendLayout();
@@ -257,18 +252,11 @@ partial class MainForm
         // dataNavigation
         // 
         dataNavigation.ImageScalingSize = new Size(32, 32);
-        dataNavigation.Items.AddRange(new ToolStripItem[] { buttonDataUpdate });
         dataNavigation.Location = new Point(0, 0);
         dataNavigation.Name = "dataNavigation";
-        dataNavigation.Size = new Size(338, 40);
+        dataNavigation.Size = new Size(338, 24);
         dataNavigation.TabIndex = 6;
         dataNavigation.Text = "menuStrip1";
-        // 
-        // buttonDataUpdate
-        // 
-        buttonDataUpdate.Name = "buttonDataUpdate";
-        buttonDataUpdate.Size = new Size(111, 36);
-        buttonDataUpdate.Text = "Update";
         // 
         // tableLayoutPanelMiddleMiddle
         // 
@@ -292,18 +280,11 @@ partial class MainForm
         // 
         plotNavigation.Dock = DockStyle.Fill;
         plotNavigation.ImageScalingSize = new Size(32, 32);
-        plotNavigation.Items.AddRange(new ToolStripItem[] { buttonPlotViewRefresh });
         plotNavigation.Location = new Point(0, 0);
         plotNavigation.Name = "plotNavigation";
         plotNavigation.Size = new Size(1032, 40);
         plotNavigation.TabIndex = 8;
         plotNavigation.Text = "menuStrip1";
-        // 
-        // buttonPlotViewRefresh
-        // 
-        buttonPlotViewRefresh.Name = "buttonPlotViewRefresh";
-        buttonPlotViewRefresh.Size = new Size(113, 36);
-        buttonPlotViewRefresh.Text = "Refresh";
         // 
         // tableLayoutPanelRightUp
         // 
@@ -354,7 +335,7 @@ partial class MainForm
         // menuStrip1
         // 
         menuStrip1.ImageScalingSize = new Size(32, 32);
-        menuStrip1.Items.AddRange(new ToolStripItem[] { buttonPlotDataClear, buttonTreeViewPlotChangeVisibility });
+        menuStrip1.Items.AddRange(new ToolStripItem[] { buttonPlotDataClear });
         menuStrip1.Location = new Point(0, 0);
         menuStrip1.Name = "menuStrip1";
         menuStrip1.Size = new Size(494, 40);
@@ -366,12 +347,6 @@ partial class MainForm
         buttonPlotDataClear.Name = "buttonPlotDataClear";
         buttonPlotDataClear.Size = new Size(88, 36);
         buttonPlotDataClear.Text = "Clear";
-        // 
-        // buttonTreeViewPlotChangeVisibility
-        // 
-        buttonTreeViewPlotChangeVisibility.Name = "buttonTreeViewPlotChangeVisibility";
-        buttonTreeViewPlotChangeVisibility.Size = new Size(179, 36);
-        buttonTreeViewPlotChangeVisibility.Text = "Hide/show all";
         // 
         // treeViewPlot
         // 
@@ -473,12 +448,8 @@ partial class MainForm
         rootNavigation.PerformLayout();
         tableLayoutPanelLeftDown.ResumeLayout(false);
         tableLayoutPanelLeftDown.PerformLayout();
-        dataNavigation.ResumeLayout(false);
-        dataNavigation.PerformLayout();
         tableLayoutPanelMiddleMiddle.ResumeLayout(false);
         tableLayoutPanelMiddleMiddle.PerformLayout();
-        plotNavigation.ResumeLayout(false);
-        plotNavigation.PerformLayout();
         tableLayoutPanelRightUp.ResumeLayout(false);
         tableLayoutPanelRightUp.PerformLayout();
         tableLayoutPanel1.ResumeLayout(false);
@@ -513,7 +484,6 @@ partial class MainForm
     private ToolStripMenuItem buttonRootReadThis;
     private ToolStripMenuItem buttonRootReadAll;
     private ToolStripMenuItem buttonRootBack;
-    private ToolStripMenuItem buttonDataUpdate;
     private ContextMenuStrip dataNodeContextMenu;
     private ContextMenuStrip dataContextMenu;
     private ToolStripMenuItem dataNodeContextSave;
@@ -529,6 +499,4 @@ partial class MainForm
     private MenuStrip menuStrip1;
     private TreeView treeViewPlot;
     private ToolStripMenuItem buttonPlotDataClear;
-    private ToolStripMenuItem buttonPlotViewRefresh;
-    private ToolStripMenuItem buttonTreeViewPlotChangeVisibility;
 }

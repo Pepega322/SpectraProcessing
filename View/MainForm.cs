@@ -12,43 +12,41 @@ public partial class MainForm : Form
     {
         InitializeComponent();
         _controller = new(plotView);
-        _controller.OnRootChanged += () => BuildTreeViewAsync(treeViewRoot, _controller.GetRootTree);
-        _controller.OnDataChanged += () => BuildTreeViewAsync(treeViewData, _controller.GetDataTree);
-        _controller.OnPlotChanged += () => BuildTreeViewAsync(treeViewPlot, _controller.GetPlotTree);
+        _controller.OnRootChanged += async () => await BuildTreeViewAsync(treeViewRoot, _controller.GetRootTree);
+        _controller.OnDataChanged += async () => await BuildTreeViewAsync(treeViewData, _controller.GetDataTree);
+        _controller.OnPlotChanged += async () => await BuildTreeViewAsync(treeViewPlot, _controller.GetPlotTree);
 
-        BuildTreeViewAsync(treeViewRoot, _controller.GetRootTree);
-        BuildTreeViewAsync(treeViewData, _controller.GetDataTree);
-
-        plotView.Plot.Palette = ScottPlot.Palette.Category20;
-        plotView.Plot.XLabel("Raman shift, cm-1");
-        plotView.Plot.YLabel("Intensity");
+        _ = BuildTreeViewAsync(treeViewRoot, _controller.GetRootTree);
+        _ = BuildTreeViewAsync(treeViewData, _controller.GetDataTree);
 
         buttonRootSelect.Click += (sender, args) => _controller.RootSelect();
-        buttonRootReadAll.Click += (sender, args) => _controller.RootReadAllAsync();
-        buttonRootReadThis.Click += (sender, args) => _controller.RootReadThisAsync();
+        buttonRootReadAll.Click += async (sender, args) => await _controller.RootReadAllAsync();
+        buttonRootReadThis.Click += async (sender, args) => await _controller.RootReadThisAsync();
         buttonRootBack.Click += (sender, args) => _controller.RootStepBack();
-        treeViewRoot.NodeMouseDoubleClick += (sender, args) => _controller.RootDoubleClick(args);
+        treeViewRoot.NodeMouseDoubleClick += (sender, args) => _controller.RootDoubleClick(args.Node.Tag);
 
-        buttonDataUpdate.Click += (sender, args) => BuildTreeViewAsync(treeViewData, _controller.GetDataTree);
         treeViewData.NodeMouseClick += (sender, args) => DrawContextMenu(args);
-
-
-        buttonContextNodeSaveThis.Click += (sender, args) => _controller.SaveThisSetAsESPAsync();
-        buttonContextNodeSaveAll.Click += (sender, args) => _controller.SaveAllSetAsESPAsync();
+        buttonContextNodeSaveThis.Click += async (sender, args) => await _controller.SaveThisSetAsESPAsync();
+        buttonContextNodeSaveAll.Click += async (sender, args) => await _controller.SaveAllSetAsESPAsync();
         buttonContextNodeDelete.Click += (sender, args) => _controller.DeleteSet();
-        buttonContextNodePlot.Click += (sender, args) => _controller.PlotContext();
-        buttonContextNodeAddToPlot.Click += (sender, args) => _controller.AddContestToPlot();
+        buttonContextNodePlot.Click += async (sender, args) => await _controller.PlotContextAsync();
 
-        buttonContextDataSave.Click += (sender, args) => _controller.SaveAsESPAsync();
+        buttonContextNodeAddToPlot.Click += async (sender, args) => await _controller.AddContestToPlotAsync();
+
+        buttonContextDataSave.Click += async (sender, args) => await _controller.SaveAsESP();
         buttonContextDataDelete.Click += (sender, args) => _controller.DeleteData();
-        buttonContextDataPlot.Click += (sender, args) => _controller.PlotData();
-        treeViewData.NodeMouseDoubleClick += (sender, args) => _controller.AddDataToPlotDoubleClick(args);
+        buttonContextDataPlot.Click += async (sender, args) => await _controller.PlotDataAsync();
+        treeViewData.NodeMouseDoubleClick += async (sender, args) => await _controller.AddDataToPlotAsync(args.Node.Tag);
 
         plotView.MouseMove += (sender, args) => DrawMouseCoordinates();
         buttonPlotDataClear.Click += (sender, args) => _controller.ClearPlot();
 
-        treeViewPlot.AfterCheck += (sender, args) => _controller.ChangePlotVisibility(args);
-        //treeViewPlot.NodeMouseClick += (sender, args) => _controller.HighlightPlot(args);
+        treeViewPlot.AfterCheck += (sender, args) =>
+        {
+            if (args.Node is not null)
+                _controller.ChangePlotVisibility(args.Node.Tag, args.Node.Checked);
+        };
+        treeViewPlot.NodeMouseDoubleClick += (sender, args) => _controller.SelectPlot(args.Node.Tag);
     }
 
     private void DrawMouseCoordinates()
@@ -78,7 +76,7 @@ public partial class MainForm : Form
         }
     }
 
-    private static async void BuildTreeViewAsync(TreeView view, Func<IEnumerable<TreeNode>> nodeSource)
+    private static async Task BuildTreeViewAsync(TreeView view, Func<IEnumerable<TreeNode>> nodeSource)
     {
         view.Nodes.Clear();
         view.BeginUpdate();

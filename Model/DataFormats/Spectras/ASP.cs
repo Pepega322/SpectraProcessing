@@ -21,10 +21,13 @@ public class ASP : Spectra
         Name = name;
         _pointCount = int.Parse(contents[0]);
         StartWavenumber = double.Parse(contents[1], CultureInfo.InvariantCulture) / (2 * Math.PI);
+        //StartWavenumber = double.Parse(contents[1], CultureInfo.InvariantCulture);
         EndWavenumber = double.Parse(contents[2], CultureInfo.InvariantCulture) / (2 * Math.PI);
+        //EndWavenumber = double.Parse(contents[2], CultureInfo.InvariantCulture) ;
         _fourLine = int.Parse(contents[3], CultureInfo.InvariantCulture);
         _fiveLine = int.Parse(contents[4], CultureInfo.InvariantCulture);
         Delta = double.Parse(contents[5], CultureInfo.InvariantCulture) / (2 * Math.PI);
+        //Delta = double.Parse(contents[5], CultureInfo.InvariantCulture) ;
         var (xS, yS) = ReadPoints(contents);
         _xS = xS;
         _yS = yS;

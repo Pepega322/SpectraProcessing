@@ -40,32 +40,32 @@ public class WinFormsController
 
     #region PlotMethodsMethods
 
-    public void PlotContext()
+    public async Task PlotContextAsync()
     {
         PrivateClearPlot();
-        AddContestToPlot();
+        await AddContestToPlotAsync();
     }
 
-    public void AddContestToPlot()
+    public async Task AddContestToPlotAsync()
     {
         foreach (var data in ContextSet.Data)
             _dataToBePloted.Add(data);
-        ChangePlot();
+        await UpdatePlotAsync();
     }
 
-    public void PlotData()
+    public async Task PlotDataAsync()
     {
         PrivateClearPlot();
         _dataToBePloted.Add(ContextData);
-        ChangePlot();
+        await UpdatePlotAsync();
     }
 
-    public void AddDataToPlotDoubleClick(TreeNodeMouseClickEventArgs args)
+    public async Task AddDataToPlotAsync(object dataItem)
     {
-        if (args.Node.Tag is Data data)
+        if (dataItem is Data data)
         {
             _dataToBePloted.Add(data);
-            ChangePlot();
+            await UpdatePlotAsync();
         }
     }
 
@@ -75,35 +75,35 @@ public class WinFormsController
         OnPlotChanged?.Invoke();
     }
 
+    public void ChangePlotVisibility(object plotItem, bool isVisible)
+    {
+        if (plotItem is Data data)
+            _plotContainer.ChangeVisibility(data, isVisible);
+    }
+
+    public void SelectPlot(object plotItem)
+    {
+        if (plotItem is Data data)
+            _plotContainer.SelectPlot(data);
+    }
+
     private void PrivateClearPlot()
     {
         _dataToBePloted.Clear();
         _plotContainer.ClearPlot();
     }
 
-    private  void ChangePlot()
+    private async Task UpdatePlotAsync()
     {
-        _plotContainer.UpdatePlot(_dataToBePloted);
+        await _plotContainer.PlotData(_dataToBePloted);
         OnPlotChanged?.Invoke();
     }
-
-    public void ChangePlotVisibility(TreeViewEventArgs args)
-    {
-        if (args.Node?.Tag is Data data)
-            _plotContainer.ChangeVisibility(data, args.Node.Checked);
-    }
-
-    //public void HighlightPlot(TreeNodeMouseClickEventArgs args)
-    //{
-    //    if (args.Node.Tag is Data data)
-    //        _plotContainer.HighlightPlot(data);
-    //}
 
     #endregion
 
     #region DataReadMethods
 
-    public async void RootReadAllAsync()
+    public async Task RootReadAllAsync()
     {
         var setKey = $"{_currentRoot.Name} (all)";
         var rootSet = await Task.Run(() => new DirDataSet(setKey, _source, _currentRoot.FullName, true));
@@ -111,7 +111,7 @@ public class WinFormsController
         OnDataChanged?.Invoke();
     }
 
-    public async void RootReadThisAsync()
+    public async Task RootReadThisAsync()
     {
         var setKey = $"{_currentRoot.Name} (only this)";
         var rootSet = await Task.Run(() => new DirDataSet(setKey, _source, _currentRoot.FullName, false));
@@ -136,9 +136,9 @@ public class WinFormsController
             ChangeRoot(_currentRoot.Parent);
     }
 
-    public void RootDoubleClick(TreeNodeMouseClickEventArgs args)
+    public void RootDoubleClick(object rootItem)
     {
-        if (args.Node.Tag is FileInfo file)
+        if (rootItem is FileInfo file)
         {
             var data = _source.ReadData(file.FullName);
             _storage.AddDataToDefaultSet(data);
@@ -146,7 +146,7 @@ public class WinFormsController
             return;
         }
 
-        if (args.Node.Tag is DirectoryInfo newRoot)
+        if (rootItem is DirectoryInfo newRoot)
             ChangeRoot(newRoot);
     }
 
@@ -158,33 +158,9 @@ public class WinFormsController
 
     #endregion
 
-    #region GetTreeMethods
-
-    public IEnumerable<TreeNode> GetRootTree()
-    {
-        foreach (var dir in _currentRoot.GetDirectories())
-            yield return new TreeNode { Text = dir.Name, Tag = dir, ImageIndex = 0 };
-        foreach (var file in _currentRoot.GetFiles())
-            yield return new TreeNode { Text = file.Name, Tag = file, ImageIndex = 1, };
-    }
-
-    public IEnumerable<TreeNode> GetDataTree()
-    {
-        foreach (var pair in _storage)
-        {
-            var node = new TreeNode { Text = pair.Key, Tag = pair.Value };
-            ConnectDataSubnodes(node);
-            yield return node;
-        }
-    }
-
-    public IEnumerable<TreeNode> GetPlotTree() => _plotContainer.GetPlotNodes();
-
-    #endregion
-
     #region ConvertingMethods
 
-    public async void SaveAllSetAsESPAsync()
+    public async Task SaveAllSetAsESPAsync()
     {
         var path = SelectPathInExplorer();
         if (path is null) return;
@@ -192,7 +168,7 @@ public class WinFormsController
         await Task.Run(() => SaveAllSpectrasAs(ContextSet, output, ".esp"));
     }
 
-    public async void SaveThisSetAsESPAsync()
+    public async Task SaveThisSetAsESPAsync()
     {
         var path = SelectPathInExplorer();
         if (path is null) return;
@@ -200,7 +176,7 @@ public class WinFormsController
         await Task.Run(() => SaveThisSpectrasAs(ContextSet, output, ".esp"));
     }
 
-    public async void SaveAsESPAsync()
+    public async Task SaveAsESP()
     {
         if (ContextData is not Spectra spectra) return;
         var path = SelectPathInExplorer();
@@ -211,26 +187,24 @@ public class WinFormsController
     private void SaveAllSpectrasAs(DataSetNode root, DirectoryInfo outputRoot, string extension)
     {
         var track = LinkNodesAndOutputFolder(root, outputRoot);
-        foreach (var node in track.Keys)
-            Task.Run(() => SaveThisSpectrasAs(node, track[node], extension));
+        Parallel.ForEach(track.Keys, node => SaveThisSpectrasAs(node, track[node], extension));
     }
 
     private void SaveThisSpectrasAs(DataSetNode node, DirectoryInfo output, string extension)
     {
-        var spectras = node.Data.Where(data => data is Spectra);
+        var spectras = node.Data.Where(data => data is Spectra).Select(data => (Spectra)data);
         if (!output.Exists) output.Create();
-        if (!spectras.Any()) return;
-        foreach (var spectra in spectras)
-            Task.Run(() => SaveSpectraAs((Spectra)spectra, output, extension));
+        if (spectras.Any())
+            Parallel.ForEach(spectras, spectra => SaveSpectraAs(spectra, output, extension));
     }
 
     private void SaveSpectraAs(Spectra spectra, DirectoryInfo output, string extension)
     {
         var fullName = Path.Combine(output.FullName, $"{spectra.Name}{extension}");
-        Task.Run(() => _source.WriteData(spectra, fullName));
+        _source.WriteData(spectra, fullName);
     }
 
-    private static Dictionary<DataSetNode, DirectoryInfo> LinkNodesAndOutputFolder(DataSetNode rootNode, DirectoryInfo outputRoot)
+    private Dictionary<DataSetNode, DirectoryInfo> LinkNodesAndOutputFolder(DataSetNode rootNode, DirectoryInfo outputRoot)
     {
         var track = new Dictionary<DataSetNode, DirectoryInfo> { [rootNode] = outputRoot };
         var queue = new Queue<DataSetNode>();
@@ -289,6 +263,26 @@ public class WinFormsController
             return result == DialogResult.OK ? dialog.SelectedPath : null;
         }
     }
+
+    public IEnumerable<TreeNode> GetRootTree()
+    {
+        foreach (var dir in _currentRoot.GetDirectories())
+            yield return new TreeNode { Text = dir.Name, Tag = dir, ImageIndex = 0 };
+        foreach (var file in _currentRoot.GetFiles())
+            yield return new TreeNode { Text = file.Name, Tag = file, ImageIndex = 1, };
+    }
+
+    public IEnumerable<TreeNode> GetDataTree()
+    {
+        foreach (var pair in _storage)
+        {
+            var node = new TreeNode { Text = pair.Key, Tag = pair.Value };
+            ConnectDataSubnodes(node);
+            yield return node;
+        }
+    }
+
+    public IEnumerable<TreeNode> GetPlotTree() => _plotContainer.GetPlotNodes();
 
     private void ConnectDataSubnodes(TreeNode treeNode)
     {
