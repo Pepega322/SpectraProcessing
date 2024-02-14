@@ -1,7 +1,6 @@
-﻿using Model.DataFormats.Base;
-using Model.DataFormats.Interfaces;
+﻿using Model.DataFormats;
 
-namespace Model.DataSources.Base;
+namespace Model.DataSources;
 public abstract class DataSource
 {
     public abstract Data ReadData(string path);

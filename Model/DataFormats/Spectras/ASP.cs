@@ -1,84 +1,70 @@
 ﻿using System.Globalization;
-using Model.DataFormats.Base;
-using Model.DataFormats.Spectras.Base;
 
-namespace Model.DataFormats.SpectraFormats;
-public class ASP : Spectra
-{
-    private static Dictionary<int, IReadOnlyList<double>> s_xSPlots = [];
-
+namespace Model.DataFormats;
+public class ASP : Spectra {
     public const int FirstPointIndex = 7;
 
-    private readonly int _pointCount;
-    public readonly double StartWavenumber;
-    public readonly double EndWavenumber;
-    private readonly int _fourLine;
-    private readonly int _fiveLine;
-    public readonly double Delta;
+    private static Dictionary<int, IReadOnlyList<float>> xSPlots = [];
 
-    internal ASP(string name, string[] contents)
-    {
+    public readonly int pointCount;
+    public readonly float StartWavenumber;
+    public readonly float EndWavenumber;
+    public readonly int FourLine;
+    public readonly int FiveLine;
+    public readonly float Delta;
+
+    internal ASP(string name, string[] contents) {
         Name = name;
-        _pointCount = int.Parse(contents[0]);
-        StartWavenumber = double.Parse(contents[1], CultureInfo.InvariantCulture) / (2 * Math.PI);
-        //StartWavenumber = double.Parse(contents[1], CultureInfo.InvariantCulture);
-        EndWavenumber = double.Parse(contents[2], CultureInfo.InvariantCulture) / (2 * Math.PI);
-        //EndWavenumber = double.Parse(contents[2], CultureInfo.InvariantCulture) ;
-        _fourLine = int.Parse(contents[3], CultureInfo.InvariantCulture);
-        _fiveLine = int.Parse(contents[4], CultureInfo.InvariantCulture);
-        Delta = double.Parse(contents[5], CultureInfo.InvariantCulture) / (2 * Math.PI);
-        //Delta = double.Parse(contents[5], CultureInfo.InvariantCulture) ;
-        var (xS, yS) = ReadPoints(contents);
-        _xS = xS;
-        _yS = yS;
+        pointCount = int.Parse(contents[0]);
+        StartWavenumber = float.Parse(contents[1], CultureInfo.InvariantCulture) / (float)(2 * Math.PI);
+        EndWavenumber = float.Parse(contents[2], CultureInfo.InvariantCulture) / (float)(2 * Math.PI);
+        FourLine = int.Parse(contents[3], CultureInfo.InvariantCulture);
+        FiveLine = int.Parse(contents[4], CultureInfo.InvariantCulture);
+        Delta = float.Parse(contents[5], CultureInfo.InvariantCulture) / (float)(2 * Math.PI);
+        var (x, y) = ReadPoints(contents);
+        xS = x;
+        yS = y;
     }
 
-    private ASP(ASP spectra) : base(spectra)
-    {
+    private ASP(ASP spectra) : base(spectra) {
         Name = spectra.Name + "(Copy)";
-        _pointCount = spectra._pointCount;
+        pointCount = spectra.pointCount;
         StartWavenumber = spectra.StartWavenumber;
         EndWavenumber = spectra.EndWavenumber;
-        _fourLine = spectra._fourLine;
-        _fiveLine = spectra._fiveLine;
+        FourLine = spectra.FourLine;
+        FiveLine = spectra.FiveLine;
         Delta = spectra.Delta;
     }
 
-    protected override (IReadOnlyList<double> xS, double[] yS) ReadPoints(params string[] contents)
-    {
-        var hash = HashCode.Combine(_pointCount, StartWavenumber, Delta);
-        lock (s_xSPlots)
-        {
-            if (!s_xSPlots.ContainsKey(hash))
-            {
-                var newXS = new double[_pointCount];
+    protected override (IReadOnlyList<float> xS, float[] yS) ReadPoints(params string[] contents) {
+        var hash = HashCode.Combine(pointCount, StartWavenumber, Delta);
+        lock (xSPlots) {
+            if (!xSPlots.ContainsKey(hash)) {
+                var newXS = new float[pointCount];
                 var wavenumber = StartWavenumber;
-                for (int i = 0; i < _pointCount; i++)
-                {
+                for (int i = 0; i < pointCount; i++) {
                     newXS[i] = wavenumber;
                     wavenumber += Delta;
                 }
-                s_xSPlots.Add(hash, newXS.AsReadOnly());
+                xSPlots.Add(hash, newXS.AsReadOnly());
             }
         }
 
-        var xS = s_xSPlots[hash];
+        var xS = xSPlots[hash];
         var yS = contents
             .Skip(FirstPointIndex)
             .Take(xS.Count)
-            .Select(p => double.Parse(p, CultureInfo.InvariantCulture))
+            .Select(p => float.Parse(p, CultureInfo.InvariantCulture))
             .ToArray();
-
         return (xS, yS);
     }
 
-    public override IEnumerable<string> ToOriginalContents()
-    {
-        yield return _pointCount.ToString();
+    public override IEnumerable<string> ToOriginalContents() {
+        yield return pointCount.ToString();
         yield return StartWavenumber.ToString();
         yield return EndWavenumber.ToString();
-        yield return _fourLine.ToString();
-        yield return _fiveLine.ToString();
+        yield return FourLine.ToString();
+        yield return FiveLine.ToString();
         yield return Delta.ToString();
         yield return "\n";
         foreach (var point in ToContents())

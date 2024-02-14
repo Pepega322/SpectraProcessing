@@ -1,4 +1,4 @@
-﻿namespace Model;
+﻿namespace View;
 
 partial class MainForm
 {
@@ -26,10 +26,9 @@ partial class MainForm
     ///  Required method for Designer support - do not modify
     ///  the contents of this method with the code editor.
     /// </summary>
-    private void InitializeComponent()
-    {
+    private void InitializeComponent() {
         components = new System.ComponentModel.Container();
-        System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+        var resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
         tableLayoutPanelMain = new TableLayoutPanel();
         mainMenuStrip = new MenuStrip();
         buttonRootSelect = new ToolStripMenuItem();
@@ -50,7 +49,7 @@ partial class MainForm
         plotNavigation = new MenuStrip();
         tableLayoutPanelRightUp = new TableLayoutPanel();
         mouseCoordinatesBox = new TextBox();
-        plotView = new ScottPlot.FormsPlot();
+        plotView = new ScottPlot.WinForms.FormsPlot();
         tableLayoutPanel1 = new TableLayoutPanel();
         menuStrip1 = new MenuStrip();
         buttonPlotDataClear = new ToolStripMenuItem();
@@ -310,12 +309,12 @@ partial class MainForm
         // 
         // plotView
         // 
+        plotView.DisplayScale = 2F;
         plotView.Dock = DockStyle.Fill;
-        plotView.Location = new Point(7, 46);
-        plotView.Margin = new Padding(7, 6, 7, 6);
+        plotView.Location = new Point(3, 43);
         plotView.Name = "plotView";
-        plotView.Size = new Size(1018, 825);
-        plotView.TabIndex = 4;
+        plotView.Size = new Size(1026, 831);
+        plotView.TabIndex = 9;
         // 
         // tableLayoutPanel1
         // 
@@ -476,7 +475,6 @@ partial class MainForm
     private TableLayoutPanel tableLayoutPanelLeftDown;
     private MenuStrip dataNavigation;
     private TableLayoutPanel tableLayoutPanelMiddleMiddle;
-    private ScottPlot.FormsPlot plotView;
     private TableLayoutPanel tableLayoutPanelRightUp;
     private TextBox mouseCoordinatesBox;
     private MenuStrip plotNavigation;
@@ -499,4 +497,5 @@ partial class MainForm
     private MenuStrip menuStrip1;
     private TreeView treeViewPlot;
     private ToolStripMenuItem buttonPlotDataClear;
+    private ScottPlot.WinForms.FormsPlot plotView;
 }

@@ -1,8 +1,8 @@
-﻿using Model.DataFormats.Base;
-using Model.Controllers.Windows;
-using Model.DataStorages.Base;
+﻿using Model.DataFormats;
+using Model.DataStorages;
+using View.Controllers;
 
-namespace Model;
+namespace View;
 
 public partial class MainForm : Form
 {
@@ -33,12 +33,12 @@ public partial class MainForm : Form
 
         buttonContextNodeAddToPlot.Click += async (sender, args) => await _controller.AddContestToPlotAsync();
 
-        buttonContextDataSave.Click += async (sender, args) => await _controller.SaveAsESP();
+        buttonContextDataSave.Click += async (sender, args) => await _controller.SaveAsESPAsync();
         buttonContextDataDelete.Click += (sender, args) => _controller.DeleteData();
         buttonContextDataPlot.Click += async (sender, args) => await _controller.PlotDataAsync();
         treeViewData.NodeMouseDoubleClick += async (sender, args) => await _controller.AddDataToPlotAsync(args.Node.Tag);
 
-        plotView.MouseMove += (sender, args) => DrawMouseCoordinates();
+        //plotView.MouseMove += (sender, args) => DrawMouseCoordinates();
         buttonPlotDataClear.Click += (sender, args) => _controller.ClearPlot();
 
         treeViewPlot.AfterCheck += (sender, args) =>
@@ -49,11 +49,11 @@ public partial class MainForm : Form
         treeViewPlot.NodeMouseDoubleClick += (sender, args) => _controller.SelectPlot(args.Node.Tag);
     }
 
-    private void DrawMouseCoordinates()
-    {
-        var (x, y) = plotView.GetMouseCoordinates();
-        mouseCoordinatesBox.Text = $"X: {Math.Round(x, 1)}\tY: {Math.Round(y, 1)}";
-    }
+    //private void DrawMouseCoordinates()
+    //{
+    //    var (x, y) = plotView.Plot.Coo();
+    //    mouseCoordinatesBox.Text = $"X: {Math.Round(x, 1)}\tY: {Math.Round(y, 1)}";
+    //}
 
     private void DrawContextMenu(TreeNodeMouseClickEventArgs args)
     {

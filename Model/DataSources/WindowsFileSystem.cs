@@ -1,13 +1,8 @@
-﻿using Model.DataFormats.Base;
-using Model.DataFormats.Interfaces;
-using Model.DataSources.Base;
+﻿using Model.DataFormats;
 
-namespace Model.DataSources.Windows;
-
-public class WindowsFileSystem : DataSource
-{
-    public override Data ReadData(string fullName)
-    {
+namespace Model.DataSources;
+public class WindowsFileSystem : DataSource {
+    public override Data ReadData(string fullName) {
         var file = new FileInfo(fullName);
         if (!file.Exists)
             throw new FileNotFoundException(fullName);
@@ -21,8 +16,7 @@ public class WindowsFileSystem : DataSource
         return data;
     }
 
-    public override void WriteData(IWriteable data, string fullName)
-    {
+    public override void WriteData(IWriteable data, string fullName) {
         var file = File.Create(fullName);
         file.Close();
         File.AppendAllLines(fullName, data.ToContents());
