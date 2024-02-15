@@ -40,9 +40,9 @@ public abstract class DataSetNode : IComparable {
         return result;
     }
 
-    protected abstract void InitializeData(DataSource source, string pathForSource);
+    protected abstract void InitializeData(DataReader reader, string pathForReader);
 
-    protected abstract void InitializeNodes(DataSource source, string pathForSource);
+    protected abstract void InitializeNodes(DataReader reader, string pathForReader);
 
     public int CompareTo(object? obj) {
         if (obj == null) return 1;

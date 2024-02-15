@@ -1,27 +1,30 @@
 ﻿using System.Collections;
 using Model.DataFormats;
-using Model.DataSources;
 
 namespace Model.DataStorages;
 public abstract class DataStorage : IEnumerable<KeyValuePair<string, DataSetNode>> {
     public const string DefaultDataSetKey = "Default";
 
-    protected DataSource source { get; set; } = null!;
     protected Dictionary<string, DataSetNode> storage { get; private set; } = null!;
 
     public string Name { get; protected set; } = null!;
     public DataSetNode DefaultDataSet => storage[DefaultDataSetKey];
 
-    public DataStorage(DataSource source, string name) {
+    public DataStorage(string name) {
         Name = name;
-        this.source = source;
         storage = [];
         AddDefaultSet();
     }
 
     protected abstract void AddDefaultSet();
 
-    public void AddDataSet(string setKey, DataSetNode set) => storage.Add(setKey, set);
+    public bool AddDataSet(string setKey, DataSetNode set) {
+        if (!storage.ContainsKey(setKey)) {
+            storage.Add(setKey, set);
+            return true;
+        }
+        return false;
+    }
 
     public bool AddToDefaultSet(Data data) {
         if (data is not Undefined or Сorrupted)

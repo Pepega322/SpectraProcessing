@@ -2,6 +2,11 @@
 
 namespace Model.DataSources;
 public class WindowsFileSystem : DataSource {
+    public WindowsFileSystem() : base(new WindowsReader(), new WindowsWriter()) {
+    }
+}
+
+public class WindowsReader : DataReader {
     public override Data ReadData(string fullName) {
         var file = new FileInfo(fullName);
         if (!file.Exists)
@@ -15,7 +20,9 @@ public class WindowsFileSystem : DataSource {
 
         return data;
     }
+}
 
+public class WindowsWriter : DataWriter {
     public override void WriteData(IWriteable data, string fullName) {
         var file = File.Create(fullName);
         file.Close();

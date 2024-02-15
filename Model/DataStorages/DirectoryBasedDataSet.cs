@@ -6,23 +6,23 @@ public class DirDataSet : DataSetNode {
     public DirDataSet(string name)
         : base(name) { }
 
-    public DirDataSet(string name, DataSource source, string path, bool addSubdirs = false, DataSetNode? parent = null)
+    public DirDataSet(string name, DataReader reader, string path, bool addSubdirs = false, DataSetNode? parent = null)
         : base(name, parent) {
-        Parallel.ForEach(Directory.GetFiles(path), (f) => InitializeData(source, f));
+        Parallel.ForEach(Directory.GetFiles(path), (f) => InitializeData(reader, f));
         if (addSubdirs)
-            Parallel.ForEach(Directory.GetDirectories(path), (d) => InitializeNodes(source, d));
+            Parallel.ForEach(Directory.GetDirectories(path), (d) => InitializeNodes(reader, d));
     }
 
-    protected override void InitializeData(DataSource source, string pathForSource) {
-        var data = source.ReadData(pathForSource);
+    protected override void InitializeData(DataReader reader, string pathForReader) {
+        var data = reader.ReadData(pathForReader);
         if (data is Spectra) Add(data);
     }
 
-    protected override void InitializeNodes(DataSource source, string pathForSource) {
-        var name = Path.GetFileName(pathForSource);
+    protected override void InitializeNodes(DataReader reader, string pathForReader) {
+        var name = Path.GetFileName(pathForReader);
         if (name is null)
-            throw new DirectoryNotFoundException(pathForSource);
-        var node = new DirDataSet(name, source, pathForSource, true, this);
+            throw new DirectoryNotFoundException(pathForReader);
+        var node = new DirDataSet(name, reader, pathForReader, true, this);
         if (node.DataCount != 0)
             lock (nodes) nodes.Add(node);
     }
