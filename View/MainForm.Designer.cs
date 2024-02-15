@@ -31,20 +31,22 @@ partial class MainForm
         var resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
         tableLayoutPanelMain = new TableLayoutPanel();
         mainMenuStrip = new MenuStrip();
-        buttonRootSelect = new ToolStripMenuItem();
+        rootButtonSelect = new ToolStripMenuItem();
         rootRead = new ToolStripMenuItem();
-        buttonRootReadThis = new ToolStripMenuItem();
-        buttonRootReadAll = new ToolStripMenuItem();
+        rootButtonRead = new ToolStripMenuItem();
+        rootButtonReadWithSubdirs = new ToolStripMenuItem();
         tableLayoutPanelMiddle = new TableLayoutPanel();
         tableLayoutPanelLeft = new TableLayoutPanel();
         tableLayoutPanelLeftUp = new TableLayoutPanel();
         rootNavigation = new MenuStrip();
-        buttonRootBack = new ToolStripMenuItem();
-        treeViewRoot = new TreeView();
+        rootButtonStepBack = new ToolStripMenuItem();
+        rootButtonRefresh = new ToolStripMenuItem();
+        rootTree = new TreeView();
         imageListForRootFolder = new ImageList(components);
         tableLayoutPanelLeftDown = new TableLayoutPanel();
-        treeViewData = new TreeView();
+        dataTree = new TreeView();
         dataNavigation = new MenuStrip();
+        dataButtonClear = new ToolStripMenuItem();
         tableLayoutPanelMiddleMiddle = new TableLayoutPanel();
         plotNavigation = new MenuStrip();
         tableLayoutPanelRightUp = new TableLayoutPanel();
@@ -52,20 +54,20 @@ partial class MainForm
         plotView = new ScottPlot.WinForms.FormsPlot();
         tableLayoutPanel1 = new TableLayoutPanel();
         menuStrip1 = new MenuStrip();
-        buttonPlotDataClear = new ToolStripMenuItem();
-        treeViewPlot = new TreeView();
-        dataSetContextMenu = new ContextMenuStrip(components);
+        plotButtonClear = new ToolStripMenuItem();
+        plotTree = new TreeView();
+        dataSetMenu = new ContextMenuStrip(components);
         dataNodeContextSave = new ToolStripMenuItem();
-        buttonContextNodeSaveThis = new ToolStripMenuItem();
-        buttonContextNodeSaveAll = new ToolStripMenuItem();
-        buttonContextNodePlot = new ToolStripMenuItem();
-        buttonContextNodeAddToPlot = new ToolStripMenuItem();
-        buttonContextNodeDelete = new ToolStripMenuItem();
+        dataButtonContextSetSaveAs = new ToolStripMenuItem();
+        dataButtonContextSetAndSubsetsSaveAs = new ToolStripMenuItem();
+        dataButtonContextSetPlot = new ToolStripMenuItem();
+        dataButtonContextSetAddToPlot = new ToolStripMenuItem();
+        dataButtonContextSetDelete = new ToolStripMenuItem();
         buttonContextNodeSubstractBaseline = new ToolStripMenuItem();
-        dataContextMenu = new ContextMenuStrip(components);
-        buttonContextDataSave = new ToolStripMenuItem();
-        buttonContextDataPlot = new ToolStripMenuItem();
-        buttonContextDataDelete = new ToolStripMenuItem();
+        dataMenu = new ContextMenuStrip(components);
+        dataButtonContextDataSave = new ToolStripMenuItem();
+        dataButtonContextDataPlot = new ToolStripMenuItem();
+        dataButtonContextDataDelete = new ToolStripMenuItem();
         buttonContextDataSubstractBaseline = new ToolStripMenuItem();
         tableLayoutPanelMain.SuspendLayout();
         mainMenuStrip.SuspendLayout();
@@ -74,12 +76,13 @@ partial class MainForm
         tableLayoutPanelLeftUp.SuspendLayout();
         rootNavigation.SuspendLayout();
         tableLayoutPanelLeftDown.SuspendLayout();
+        dataNavigation.SuspendLayout();
         tableLayoutPanelMiddleMiddle.SuspendLayout();
         tableLayoutPanelRightUp.SuspendLayout();
         tableLayoutPanel1.SuspendLayout();
         menuStrip1.SuspendLayout();
-        dataSetContextMenu.SuspendLayout();
-        dataContextMenu.SuspendLayout();
+        dataSetMenu.SuspendLayout();
+        dataMenu.SuspendLayout();
         SuspendLayout();
         // 
         // tableLayoutPanelMain
@@ -103,41 +106,41 @@ partial class MainForm
         // 
         mainMenuStrip.Dock = DockStyle.Fill;
         mainMenuStrip.ImageScalingSize = new Size(32, 32);
-        mainMenuStrip.Items.AddRange(new ToolStripItem[] { buttonRootSelect, rootRead });
+        mainMenuStrip.Items.AddRange(new ToolStripItem[] { rootButtonSelect, rootRead });
         mainMenuStrip.Location = new Point(0, 0);
         mainMenuStrip.Name = "mainMenuStrip";
         mainMenuStrip.Size = new Size(1894, 40);
         mainMenuStrip.TabIndex = 1;
         mainMenuStrip.Text = "menuStrip1";
         // 
-        // buttonRootSelect
+        // rootButtonSelect
         // 
-        buttonRootSelect.Name = "buttonRootSelect";
-        buttonRootSelect.ShortcutKeys = Keys.Control | Keys.Tab;
-        buttonRootSelect.Size = new Size(168, 36);
-        buttonRootSelect.Text = "Select folder";
+        rootButtonSelect.Name = "rootButtonSelect";
+        rootButtonSelect.ShortcutKeys = Keys.Control | Keys.Tab;
+        rootButtonSelect.Size = new Size(168, 36);
+        rootButtonSelect.Text = "Select folder";
         // 
         // rootRead
         // 
-        rootRead.DropDownItems.AddRange(new ToolStripItem[] { buttonRootReadThis, buttonRootReadAll });
+        rootRead.DropDownItems.AddRange(new ToolStripItem[] { rootButtonRead, rootButtonReadWithSubdirs });
         rootRead.Name = "rootRead";
         rootRead.Size = new Size(86, 36);
         rootRead.Text = "Read";
         // 
-        // buttonRootReadThis
+        // rootButtonRead
         // 
-        buttonRootReadThis.Name = "buttonRootReadThis";
-        buttonRootReadThis.ShortcutKeys = Keys.Control | Keys.R;
-        buttonRootReadThis.Size = new Size(571, 44);
-        buttonRootReadThis.Text = "Only this folder";
-        buttonRootReadThis.TextImageRelation = TextImageRelation.TextAboveImage;
+        rootButtonRead.Name = "rootButtonRead";
+        rootButtonRead.ShortcutKeys = Keys.Control | Keys.R;
+        rootButtonRead.Size = new Size(571, 44);
+        rootButtonRead.Text = "Only this folder";
+        rootButtonRead.TextImageRelation = TextImageRelation.TextAboveImage;
         // 
-        // buttonRootReadAll
+        // rootButtonReadWithSubdirs
         // 
-        buttonRootReadAll.Name = "buttonRootReadAll";
-        buttonRootReadAll.ShortcutKeys = Keys.Control | Keys.Shift | Keys.R;
-        buttonRootReadAll.Size = new Size(571, 44);
-        buttonRootReadAll.Text = "This folder and subfolders";
+        rootButtonReadWithSubdirs.Name = "rootButtonReadWithSubdirs";
+        rootButtonReadWithSubdirs.ShortcutKeys = Keys.Control | Keys.Shift | Keys.R;
+        rootButtonReadWithSubdirs.Size = new Size(571, 44);
+        rootButtonReadWithSubdirs.Text = "This folder and subfolders";
         // 
         // tableLayoutPanelMiddle
         // 
@@ -179,7 +182,7 @@ partial class MainForm
         tableLayoutPanelLeftUp.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
         tableLayoutPanelLeftUp.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
         tableLayoutPanelLeftUp.Controls.Add(rootNavigation, 0, 0);
-        tableLayoutPanelLeftUp.Controls.Add(treeViewRoot, 0, 1);
+        tableLayoutPanelLeftUp.Controls.Add(rootTree, 0, 1);
         tableLayoutPanelLeftUp.Dock = DockStyle.Fill;
         tableLayoutPanelLeftUp.Location = new Point(3, 3);
         tableLayoutPanelLeftUp.Name = "tableLayoutPanelLeftUp";
@@ -193,30 +196,36 @@ partial class MainForm
         // 
         rootNavigation.Dock = DockStyle.Fill;
         rootNavigation.ImageScalingSize = new Size(32, 32);
-        rootNavigation.Items.AddRange(new ToolStripItem[] { buttonRootBack });
+        rootNavigation.Items.AddRange(new ToolStripItem[] { rootButtonStepBack, rootButtonRefresh });
         rootNavigation.Location = new Point(0, 0);
         rootNavigation.Name = "rootNavigation";
         rootNavigation.Size = new Size(338, 40);
         rootNavigation.TabIndex = 0;
         rootNavigation.Text = "menuStrip1";
         // 
-        // buttonRootBack
+        // rootButtonStepBack
         // 
-        buttonRootBack.Name = "buttonRootBack";
-        buttonRootBack.Size = new Size(83, 36);
-        buttonRootBack.Text = "Back";
+        rootButtonStepBack.Name = "rootButtonStepBack";
+        rootButtonStepBack.Size = new Size(83, 36);
+        rootButtonStepBack.Text = "Back";
         // 
-        // treeViewRoot
+        // rootButtonRefresh
         // 
-        treeViewRoot.Dock = DockStyle.Fill;
-        treeViewRoot.ImageIndex = 1;
-        treeViewRoot.ImageList = imageListForRootFolder;
-        treeViewRoot.ImeMode = ImeMode.NoControl;
-        treeViewRoot.Location = new Point(3, 43);
-        treeViewRoot.Name = "treeViewRoot";
-        treeViewRoot.SelectedImageIndex = 2;
-        treeViewRoot.Size = new Size(332, 406);
-        treeViewRoot.TabIndex = 1;
+        rootButtonRefresh.Name = "rootButtonRefresh";
+        rootButtonRefresh.Size = new Size(113, 36);
+        rootButtonRefresh.Text = "Refresh";
+        // 
+        // rootTree
+        // 
+        rootTree.Dock = DockStyle.Fill;
+        rootTree.ImageIndex = 1;
+        rootTree.ImageList = imageListForRootFolder;
+        rootTree.ImeMode = ImeMode.NoControl;
+        rootTree.Location = new Point(3, 43);
+        rootTree.Name = "rootTree";
+        rootTree.SelectedImageIndex = 2;
+        rootTree.Size = new Size(332, 406);
+        rootTree.TabIndex = 1;
         // 
         // imageListForRootFolder
         // 
@@ -231,7 +240,7 @@ partial class MainForm
         // 
         tableLayoutPanelLeftDown.ColumnCount = 1;
         tableLayoutPanelLeftDown.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-        tableLayoutPanelLeftDown.Controls.Add(treeViewData, 0, 1);
+        tableLayoutPanelLeftDown.Controls.Add(dataTree, 0, 1);
         tableLayoutPanelLeftDown.Controls.Add(dataNavigation, 0, 0);
         tableLayoutPanelLeftDown.Dock = DockStyle.Fill;
         tableLayoutPanelLeftDown.Location = new Point(3, 461);
@@ -242,22 +251,29 @@ partial class MainForm
         tableLayoutPanelLeftDown.Size = new Size(338, 453);
         tableLayoutPanelLeftDown.TabIndex = 2;
         // 
-        // treeViewData
+        // dataTree
         // 
-        treeViewData.Dock = DockStyle.Fill;
-        treeViewData.Location = new Point(3, 43);
-        treeViewData.Name = "treeViewData";
-        treeViewData.Size = new Size(332, 407);
-        treeViewData.TabIndex = 5;
+        dataTree.Dock = DockStyle.Fill;
+        dataTree.Location = new Point(3, 43);
+        dataTree.Name = "dataTree";
+        dataTree.Size = new Size(332, 407);
+        dataTree.TabIndex = 5;
         // 
         // dataNavigation
         // 
         dataNavigation.ImageScalingSize = new Size(32, 32);
+        dataNavigation.Items.AddRange(new ToolStripItem[] { dataButtonClear });
         dataNavigation.Location = new Point(0, 0);
         dataNavigation.Name = "dataNavigation";
-        dataNavigation.Size = new Size(338, 24);
+        dataNavigation.Size = new Size(338, 40);
         dataNavigation.TabIndex = 6;
         dataNavigation.Text = "menuStrip1";
+        // 
+        // dataButtonClear
+        // 
+        dataButtonClear.Name = "dataButtonClear";
+        dataButtonClear.Size = new Size(88, 36);
+        dataButtonClear.Text = "Clear";
         // 
         // tableLayoutPanelMiddleMiddle
         // 
@@ -323,7 +339,7 @@ partial class MainForm
         tableLayoutPanel1.ColumnCount = 1;
         tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
         tableLayoutPanel1.Controls.Add(menuStrip1, 0, 0);
-        tableLayoutPanel1.Controls.Add(treeViewPlot, 0, 1);
+        tableLayoutPanel1.Controls.Add(plotTree, 0, 1);
         tableLayoutPanel1.Dock = DockStyle.Fill;
         tableLayoutPanel1.Location = new Point(1391, 3);
         tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -336,71 +352,71 @@ partial class MainForm
         // menuStrip1
         // 
         menuStrip1.ImageScalingSize = new Size(32, 32);
-        menuStrip1.Items.AddRange(new ToolStripItem[] { buttonPlotDataClear });
+        menuStrip1.Items.AddRange(new ToolStripItem[] { plotButtonClear });
         menuStrip1.Location = new Point(0, 0);
         menuStrip1.Name = "menuStrip1";
         menuStrip1.Size = new Size(494, 40);
         menuStrip1.TabIndex = 0;
         menuStrip1.Text = "menuStrip1";
         // 
-        // buttonPlotDataClear
+        // plotButtonClear
         // 
-        buttonPlotDataClear.Name = "buttonPlotDataClear";
-        buttonPlotDataClear.Size = new Size(88, 36);
-        buttonPlotDataClear.Text = "Clear";
+        plotButtonClear.Name = "plotButtonClear";
+        plotButtonClear.Size = new Size(88, 36);
+        plotButtonClear.Text = "Clear";
         // 
-        // treeViewPlot
+        // plotTree
         // 
-        treeViewPlot.CheckBoxes = true;
-        treeViewPlot.Dock = DockStyle.Fill;
-        treeViewPlot.Location = new Point(3, 43);
-        treeViewPlot.Name = "treeViewPlot";
-        treeViewPlot.Size = new Size(488, 871);
-        treeViewPlot.TabIndex = 1;
+        plotTree.CheckBoxes = true;
+        plotTree.Dock = DockStyle.Fill;
+        plotTree.Location = new Point(3, 43);
+        plotTree.Name = "plotTree";
+        plotTree.Size = new Size(488, 871);
+        plotTree.TabIndex = 1;
         // 
         // dataSetContextMenu
         // 
-        dataSetContextMenu.ImageScalingSize = new Size(32, 32);
-        dataSetContextMenu.Items.AddRange(new ToolStripItem[] { dataNodeContextSave, buttonContextNodePlot, buttonContextNodeAddToPlot, buttonContextNodeDelete, buttonContextNodeSubstractBaseline });
-        dataSetContextMenu.Name = "dataNodeContext1";
-        dataSetContextMenu.Size = new Size(386, 194);
+        dataSetMenu.ImageScalingSize = new Size(32, 32);
+        dataSetMenu.Items.AddRange(new ToolStripItem[] { dataNodeContextSave, dataButtonContextSetPlot, dataButtonContextSetAddToPlot, dataButtonContextSetDelete, buttonContextNodeSubstractBaseline });
+        dataSetMenu.Name = "dataNodeContext1";
+        dataSetMenu.Size = new Size(386, 194);
         // 
         // dataNodeContextSave
         // 
-        dataNodeContextSave.DropDownItems.AddRange(new ToolStripItem[] { buttonContextNodeSaveThis, buttonContextNodeSaveAll });
+        dataNodeContextSave.DropDownItems.AddRange(new ToolStripItem[] { dataButtonContextSetSaveAs, dataButtonContextSetAndSubsetsSaveAs });
         dataNodeContextSave.Name = "dataNodeContextSave";
         dataNodeContextSave.Size = new Size(385, 38);
         dataNodeContextSave.Text = "Save series as .esp";
         // 
-        // buttonContextNodeSaveThis
+        // dataButtonContextSetSaveAs
         // 
-        buttonContextNodeSaveThis.Name = "buttonContextNodeSaveThis";
-        buttonContextNodeSaveThis.Size = new Size(409, 44);
-        buttonContextNodeSaveThis.Text = "Only this series";
+        dataButtonContextSetSaveAs.Name = "dataButtonContextSetSaveAs";
+        dataButtonContextSetSaveAs.Size = new Size(409, 44);
+        dataButtonContextSetSaveAs.Text = "Only this series";
         // 
-        // buttonContextNodeSaveAll
+        // dataButtonContextSetAndSubsetsSaveAs
         // 
-        buttonContextNodeSaveAll.Name = "buttonContextNodeSaveAll";
-        buttonContextNodeSaveAll.Size = new Size(409, 44);
-        buttonContextNodeSaveAll.Text = "This series and subseries";
+        dataButtonContextSetAndSubsetsSaveAs.Name = "dataButtonContextSetAndSubsetsSaveAs";
+        dataButtonContextSetAndSubsetsSaveAs.Size = new Size(409, 44);
+        dataButtonContextSetAndSubsetsSaveAs.Text = "This series and subseries";
         // 
-        // buttonContextNodePlot
+        // dataButtonContextSetPlot
         // 
-        buttonContextNodePlot.Name = "buttonContextNodePlot";
-        buttonContextNodePlot.Size = new Size(385, 38);
-        buttonContextNodePlot.Text = "Plot series";
+        dataButtonContextSetPlot.Name = "dataButtonContextSetPlot";
+        dataButtonContextSetPlot.Size = new Size(385, 38);
+        dataButtonContextSetPlot.Text = "Plot series";
         // 
-        // buttonContextNodeAddToPlot
+        // dataButtonContextNodeAddToPlot
         // 
-        buttonContextNodeAddToPlot.Name = "buttonContextNodeAddToPlot";
-        buttonContextNodeAddToPlot.Size = new Size(385, 38);
-        buttonContextNodeAddToPlot.Text = "Add series to plot";
+        dataButtonContextSetAddToPlot.Name = "dataButtonContextNodeAddToPlot";
+        dataButtonContextSetAddToPlot.Size = new Size(385, 38);
+        dataButtonContextSetAddToPlot.Text = "Add series to plot";
         // 
-        // buttonContextNodeDelete
+        // dataButtonContextSetDelete
         // 
-        buttonContextNodeDelete.Name = "buttonContextNodeDelete";
-        buttonContextNodeDelete.Size = new Size(385, 38);
-        buttonContextNodeDelete.Text = "Delete series";
+        dataButtonContextSetDelete.Name = "dataButtonContextSetDelete";
+        dataButtonContextSetDelete.Size = new Size(385, 38);
+        dataButtonContextSetDelete.Text = "Delete series";
         // 
         // buttonContextNodeSubstractBaseline
         // 
@@ -410,28 +426,28 @@ partial class MainForm
         // 
         // dataContextMenu
         // 
-        dataContextMenu.ImageScalingSize = new Size(32, 32);
-        dataContextMenu.Items.AddRange(new ToolStripItem[] { buttonContextDataSave, buttonContextDataPlot, buttonContextDataDelete, buttonContextDataSubstractBaseline });
-        dataContextMenu.Name = "contextMenuStrip2";
-        dataContextMenu.Size = new Size(282, 156);
+        dataMenu.ImageScalingSize = new Size(32, 32);
+        dataMenu.Items.AddRange(new ToolStripItem[] { dataButtonContextDataSave, dataButtonContextDataPlot, dataButtonContextDataDelete, buttonContextDataSubstractBaseline });
+        dataMenu.Name = "contextMenuStrip2";
+        dataMenu.Size = new Size(282, 156);
         // 
-        // buttonContextDataSave
+        // dataButtonContextDataSave
         // 
-        buttonContextDataSave.Name = "buttonContextDataSave";
-        buttonContextDataSave.Size = new Size(281, 38);
-        buttonContextDataSave.Text = "Save as .esp";
+        dataButtonContextDataSave.Name = "dataButtonContextDataSave";
+        dataButtonContextDataSave.Size = new Size(281, 38);
+        dataButtonContextDataSave.Text = "Save as .esp";
         // 
-        // buttonContextDataPlot
+        // dataButtonContextDataPlot
         // 
-        buttonContextDataPlot.Name = "buttonContextDataPlot";
-        buttonContextDataPlot.Size = new Size(281, 38);
-        buttonContextDataPlot.Text = "Plot";
+        dataButtonContextDataPlot.Name = "dataButtonContextDataPlot";
+        dataButtonContextDataPlot.Size = new Size(281, 38);
+        dataButtonContextDataPlot.Text = "Plot";
         // 
-        // buttonContextDataDelete
+        // dataButtonContextDataDelete
         // 
-        buttonContextDataDelete.Name = "buttonContextDataDelete";
-        buttonContextDataDelete.Size = new Size(281, 38);
-        buttonContextDataDelete.Text = "Delete";
+        dataButtonContextDataDelete.Name = "dataButtonContextDataDelete";
+        dataButtonContextDataDelete.Size = new Size(281, 38);
+        dataButtonContextDataDelete.Text = "Delete";
         // 
         // buttonContextDataSubstractBaseline
         // 
@@ -461,6 +477,8 @@ partial class MainForm
         rootNavigation.PerformLayout();
         tableLayoutPanelLeftDown.ResumeLayout(false);
         tableLayoutPanelLeftDown.PerformLayout();
+        dataNavigation.ResumeLayout(false);
+        dataNavigation.PerformLayout();
         tableLayoutPanelMiddleMiddle.ResumeLayout(false);
         tableLayoutPanelMiddleMiddle.PerformLayout();
         tableLayoutPanelRightUp.ResumeLayout(false);
@@ -469,8 +487,8 @@ partial class MainForm
         tableLayoutPanel1.PerformLayout();
         menuStrip1.ResumeLayout(false);
         menuStrip1.PerformLayout();
-        dataSetContextMenu.ResumeLayout(false);
-        dataContextMenu.ResumeLayout(false);
+        dataSetMenu.ResumeLayout(false);
+        dataMenu.ResumeLayout(false);
         ResumeLayout(false);
     }
 
@@ -483,9 +501,9 @@ partial class MainForm
     private TableLayoutPanel tableLayoutPanelLeft;
     private TableLayoutPanel tableLayoutPanelLeftUp;
     private MenuStrip rootNavigation;
-    private TreeView treeViewRoot;
-    private ToolStripMenuItem buttonRootSelect;
-    private TreeView treeViewData;
+    private TreeView rootTree;
+    private ToolStripMenuItem rootButtonSelect;
+    private TreeView dataTree;
     private TableLayoutPanel tableLayoutPanelLeftDown;
     private MenuStrip dataNavigation;
     private TableLayoutPanel tableLayoutPanelMiddleMiddle;
@@ -493,25 +511,27 @@ partial class MainForm
     private TextBox mouseCoordinatesBox;
     private MenuStrip plotNavigation;
     private ToolStripMenuItem rootRead;
-    private ToolStripMenuItem buttonRootReadThis;
-    private ToolStripMenuItem buttonRootReadAll;
-    private ToolStripMenuItem buttonRootBack;
-    private ContextMenuStrip dataSetContextMenu;
-    private ContextMenuStrip dataContextMenu;
+    private ToolStripMenuItem rootButtonRead;
+    private ToolStripMenuItem rootButtonReadWithSubdirs;
+    private ToolStripMenuItem rootButtonStepBack;
+    private ContextMenuStrip dataSetMenu;
+    private ContextMenuStrip dataMenu;
     private ToolStripMenuItem dataNodeContextSave;
-    private ToolStripMenuItem buttonContextNodeSaveThis;
-    private ToolStripMenuItem buttonContextNodeSaveAll;
-    private ToolStripMenuItem buttonContextNodePlot;
-    private ToolStripMenuItem buttonContextNodeAddToPlot;
-    private ToolStripMenuItem buttonContextNodeDelete;
-    private ToolStripMenuItem buttonContextDataSave;
-    private ToolStripMenuItem buttonContextDataPlot;
-    private ToolStripMenuItem buttonContextDataDelete;
+    private ToolStripMenuItem dataButtonContextSetSaveAs;
+    private ToolStripMenuItem dataButtonContextSetAndSubsetsSaveAs;
+    private ToolStripMenuItem dataButtonContextSetPlot;
+    private ToolStripMenuItem dataButtonContextSetAddToPlot;
+    private ToolStripMenuItem dataButtonContextSetDelete;
+    private ToolStripMenuItem dataButtonContextDataSave;
+    private ToolStripMenuItem dataButtonContextDataPlot;
+    private ToolStripMenuItem dataButtonContextDataDelete;
     private TableLayoutPanel tableLayoutPanel1;
     private MenuStrip menuStrip1;
-    private TreeView treeViewPlot;
-    private ToolStripMenuItem buttonPlotDataClear;
+    private TreeView plotTree;
+    private ToolStripMenuItem plotButtonClear;
     private ScottPlot.WinForms.FormsPlot plotView;
     private ToolStripMenuItem buttonContextNodeSubstractBaseline;
     private ToolStripMenuItem buttonContextDataSubstractBaseline;
+    private ToolStripMenuItem dataButtonClear;
+    private ToolStripMenuItem rootButtonRefresh;
 }

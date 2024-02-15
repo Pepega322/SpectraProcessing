@@ -4,7 +4,7 @@ public abstract class Data : IComparable {
 
     public string Name { get; protected set; } = null!;
 
-    public static Data ContentsToData(DataFormat format, string contentsSourceId, string dataName, string[] contents) {
+    public static Data Convert(DataFormat format, string contentsSourceId, string dataName, string[] contents) {
         Data data;
         try {
             data = format switch {

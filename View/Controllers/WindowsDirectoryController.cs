@@ -10,8 +10,8 @@ public class WindowsDirectoryController : RootController {
         current = new DirectoryInfo(path);
     }
 
-    public override async Task<DataSetNode> ReadRoot(bool readSubdirs = false)
-        => await Task.Run(() => new DirDataSet(current.Name, reader, current.FullName, readSubdirs));
+    public override async Task<TreeSet> ReadRoot(bool readSubdirs = false)
+        => await Task.Run(() => new DirectoryDataSet(current.Name, reader, current.FullName, readSubdirs));
 
     public override async Task<Data> ReadData(string fullName)
         => await Task.Run(() => reader.ReadData(fullName));

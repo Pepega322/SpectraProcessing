@@ -10,42 +10,45 @@ public partial class MainForm : Form {
     public MainForm() {
         InitializeComponent();
         controller = new(plotView);
-        controller.OnRootChanged += async () => await BuildTreeViewAsync(treeViewRoot, controller.GetRootTree);
-        controller.OnDataChanged += async () => await BuildTreeViewAsync(treeViewData, controller.GetDataTree);
-        controller.OnPlotChanged += async () => await BuildTreeViewAsync(treeViewPlot, controller.GetPlotTree);
+        controller.OnRootChanged += async () => await BuildTreeAsync(rootTree, controller.RootGetTree);
+        controller.OnDataChanged += async () => await BuildTreeAsync(dataTree, controller.DataGetTree);
+        controller.OnPlotChanged += async () => await BuildTreeAsync(plotTree, controller.PlotGetTree);
 
-        _ = BuildTreeViewAsync(treeViewRoot, controller.GetRootTree);
-        _ = BuildTreeViewAsync(treeViewData, controller.GetDataTree);
+        _ = BuildTreeAsync(rootTree, controller.RootGetTree);
+        _ = BuildTreeAsync(dataTree, controller.DataGetTree);
 
-        buttonRootSelect.Click += (sender, args) => controller.RootSelect();
-        buttonRootReadAll.Click += async (sender, args) => await controller.RootReadAllAsync();
-        buttonRootReadThis.Click += async (sender, args) => await controller.RootReadThisAsync();
-        buttonRootBack.Click += (sender, args) => controller.RootStepBack();
-        treeViewRoot.NodeMouseDoubleClick += (sender, args) => controller.RootDoubleClick(args.Node.Tag);
+        rootButtonSelect.Click += (sender, args) => controller.RootSelect();
+        rootButtonReadWithSubdirs.Click += async (sender, args) => await controller.RootReadWithSubdirsAsync();
+        rootButtonRead.Click += async (sender, args) => await controller.RootReadAsync();
+        rootButtonStepBack.Click += (sender, args) => controller.RootStepBack();
+        rootButtonRefresh.Click += (sender, args) => controller.RootRefresh();
+        rootTree.NodeMouseDoubleClick += (sender, args) => controller.RootDoubleClick(args.Node.Tag);
 
-        treeViewData.NodeMouseClick += (sender, args) => DrawContextMenu(args);
-        buttonContextNodeSaveThis.Click += async (sender, args) => await controller.SaveSetAsESPAsync();
-        buttonContextNodeSaveAll.Click += async (sender, args) => await controller.SaveSetAndSubsetsAsESPAsync();
-        buttonContextNodeDelete.Click += (sender, args) => controller.DeleteSet();
-        buttonContextNodePlot.Click += async (sender, args) => await controller.PlotContextAsync();
-        //buttonContextNodeSubstractBaseline += 
+        dataTree.NodeMouseClick += (sender, args) => DataDrawContextMenu(args);
+        dataButtonClear.Click += (sender, args) => controller.DataClear();
 
-        buttonContextNodeAddToPlot.Click += async (sender, args) => await controller.AddContestToPlotAsync();
+        dataButtonContextSetSaveAs.Click += async (sender, args) => await controller.ContextSetSaveAsESPAsync();
+        dataButtonContextSetAndSubsetsSaveAs.Click += async (sender, args) => await controller.ContextSetAndSubsetsSaveAsESPAsync();
+        dataButtonContextSetDelete.Click += (sender, args) => controller.ContextSetDelete();
+        dataButtonContextSetPlot.Click += async (sender, args) => await controller.ContextSetPlotAsync();
+        dataButtonContextSetAddToPlot.Click += async (sender, args) => await controller.ContextSetAddToPlotAsync();
+        //dataButtonContextSetSubstractBaseline += 
 
-        buttonContextDataSave.Click += async (sender, args) => await controller.SaveDataAsESPAsync();
-        buttonContextDataDelete.Click += (sender, args) => controller.DeleteData();
-        buttonContextDataPlot.Click += async (sender, args) => await controller.PlotDataAsync();
-        treeViewData.NodeMouseDoubleClick += async (sender, args) => await controller.AddDataToPlotAsync(args.Node.Tag);
-        //buttonContextDataSubstractBaseline += 
+
+        dataButtonContextDataSave.Click += async (sender, args) => await controller.ContextDataSaveAsESPAsync();
+        dataButtonContextDataDelete.Click += (sender, args) => controller.ContextDataDelete();
+        dataButtonContextDataPlot.Click += async (sender, args) => await controller.ContextDataPlotAsync();
+        dataTree.NodeMouseDoubleClick += async (sender, args) => await controller.ContextDataAddToPlotAsync(args.Node.Tag);
+        //dataButtonContextDataSubstractBaseline += 
 
         //plotView.MouseMove += (sender, args) => DrawMouseCoordinates();
-        buttonPlotDataClear.Click += (sender, args) => controller.ClearPlot();
+        plotButtonClear.Click += (sender, args) => controller.PlotClear();
 
-        treeViewPlot.AfterCheck += (sender, args) => {
+        plotTree.AfterCheck += (sender, args) => {
             if (args.Node is not null)
-                controller.ChangePlotVisibility(args.Node.Tag, args.Node.Checked);
+                controller.PlotChangeVisibility(args.Node.Tag, args.Node.Checked);
         };
-        treeViewPlot.NodeMouseDoubleClick += (sender, args) => controller.SelectPlot(args.Node.Tag);
+        plotTree.NodeMouseDoubleClick += (sender, args) => controller.PlotSelect(args.Node.Tag);
     }
 
     //private void DrawMouseCoordinates()
@@ -54,28 +57,28 @@ public partial class MainForm : Form {
     //    mouseCoordinatesBox.Text = $"X: {Math.Round(x, 1)}\tY: {Math.Round(y, 1)}";
     //}
 
-    private void DrawContextMenu(TreeNodeMouseClickEventArgs args) {
-        if (args.Button is MouseButtons.Right) {
-            if (args.Node.Tag is DataSetNode set) {
-                args.Node.ContextMenuStrip = dataSetContextMenu;
-                controller.ChangeContextSet(set);
-            }
+    private void DataDrawContextMenu(TreeNodeMouseClickEventArgs args) {
+        if (args.Button is not MouseButtons.Right) return;
+        if (args.Node.Tag is TreeSet set) {
+            controller.ContextSetChange(set);
+            args.Node.ContextMenuStrip = dataSetMenu;
+            return;
+        }
 
-            if (args.Node.Tag is Data data) {
-                args.Node.ContextMenuStrip = dataContextMenu;
-                controller.ChangeContextData(data);
-                if (args.Node.Parent.Tag is not DataSetNode parentNode)
-                    throw new Exception("DrawContextMenu Method works wrong");
-                controller.ChangeContextSet(parentNode);
-            }
+        if (args.Node.Tag is Data data) {
+            controller.ContextDataChange(data);
+            if (args.Node.Parent.Tag is not TreeSet parentNode)
+                throw new Exception("DataDrawContextMenu Method works wrong");
+            controller.ContextSetChange(parentNode);
+            args.Node.ContextMenuStrip = dataMenu;
         }
     }
 
-    private async Task BuildTreeViewAsync(TreeView view, Func<IEnumerable<TreeNode>> nodeSource) {
-        view.Nodes.Clear();
-        view.BeginUpdate();
+    private async Task BuildTreeAsync(TreeView tree, Func<IEnumerable<TreeNode>> nodeSource) {
+        tree.Nodes.Clear();
+        tree.BeginUpdate();
         var nodes = await Task.Run(() => nodeSource().ToArray());
-        view.Nodes.AddRange(nodes);
-        view.EndUpdate();
+        tree.Nodes.AddRange(nodes);
+        tree.EndUpdate();
     }
 }

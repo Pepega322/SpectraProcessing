@@ -1,12 +1,11 @@
 ﻿using Model.DataFormats;
 using Model.DataSources;
 using Model.DataStorages;
-using System.Xml.Linq;
 
 namespace View.Controllers;
 public class WindowsDataController : DataController {
     public WindowsDataController(DataWriter writer)
-        : base(writer, new DirectoryBasedStorage()) { }
+        : base(writer, new DirectoryStorage()) { }
    
     public override async Task WriteSetAsAsync(string path, string extension, bool writeSubsets)
         => await Task.Run(() => WriteSetAs(ContextSet, path, extension, writeSubsets));
@@ -14,8 +13,8 @@ public class WindowsDataController : DataController {
     public override async Task WriteDataAsAsync(string path, string extension)
         => await Task.Run(() => WriteDataAs(ContextData, path, extension));
 
-    private void WriteSetAs(DataSetNode set, string path, string extension, bool writeSubsets, 
-        Dictionary<DataSetNode, string>? track = null) {
+    private void WriteSetAs(TreeSet set, string path, string extension, bool writeSubsets, 
+        Dictionary<TreeSet, string>? track = null) {
         switch (writeSubsets) {
             case false:
                 var data = set.Data.Where(data => data is IWriteable);
@@ -40,10 +39,10 @@ public class WindowsDataController : DataController {
     }
 
     private void ConnectDataSubnodes(TreeNode treeNode) {
-        if (treeNode.Tag is not DataSetNode dataNode)
+        if (treeNode.Tag is not TreeSet dataNode)
             throw new Exception(nameof(ConnectDataSubnodes));
 
-        foreach (var child in dataNode.Nodes) {
+        foreach (var child in dataNode.Subsets) {
             var subnode = new TreeNode {
                 Text = child.Name,
                 Tag = child,
@@ -61,13 +60,13 @@ public class WindowsDataController : DataController {
         }
     }
 
-    private Dictionary<DataSetNode, string> LinkNodesAndOutputFolder(DataSetNode set, string path) {
-        var track = new Dictionary<DataSetNode, string> { [set] = path };
-        var queue = new Queue<DataSetNode>();
+    private Dictionary<TreeSet, string> LinkNodesAndOutputFolder(TreeSet set, string path) {
+        var track = new Dictionary<TreeSet, string> { [set] = path };
+        var queue = new Queue<TreeSet>();
         queue.Enqueue(set);
         while (queue.Count != 0) {
             var nodeInReference = queue.Dequeue();
-            foreach (var nextNodeInReference in nodeInReference.Nodes) {
+            foreach (var nextNodeInReference in nodeInReference.Subsets) {
                 var pathInDestination = Path.Combine(track[nodeInReference], nextNodeInReference.Name);
                 track[nextNodeInReference] = pathInDestination;
                 queue.Enqueue(nextNodeInReference);

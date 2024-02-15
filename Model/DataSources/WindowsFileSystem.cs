@@ -16,7 +16,7 @@ public class WindowsReader : DataReader {
             return Data.Undefined;
 
         var contents = File.ReadAllLines(file.FullName);
-        var data = Data.ContentsToData(format, fullName, file.Name, contents);
+        var data = Data.Convert(format, fullName, file.Name, contents);
 
         return data;
     }

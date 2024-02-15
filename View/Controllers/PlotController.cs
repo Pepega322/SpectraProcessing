@@ -1,24 +1,21 @@
 ﻿using Model.DataFormats;
 using Model.DataStorages;
-using ScottPlot;
 
 namespace View.Controllers;
 public abstract class PlotController {
-    protected Dictionary<IReadOnlyList<float>, float[]> xSPlots;
-    protected SortedDictionary<Data, IPlottable> plots;
+    protected PlotStorage storage;
 
-    protected PlotController() {
-        xSPlots = new Dictionary<IReadOnlyList<float>, float[]>();
-        plots = new SortedDictionary<Data, IPlottable>();
+    protected PlotController(PlotStorage storage) {
+        this.storage = storage;
     }
 
-    public abstract Task PlotSet(DataSetNode set);
+    public abstract Task PlotSet(PlotSet set);
 
     public abstract Task PlotData(Data data);
 
-    public abstract Task RemoveSet(DataSetNode set);
+    public abstract Task RemoveSet(PlotSet set);
 
-    public abstract Task RemoveData(DataSetNode set);
+    public abstract Task RemoveData(Data set);
 
     public abstract Task Clear();
 

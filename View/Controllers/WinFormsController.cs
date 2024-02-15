@@ -29,41 +29,41 @@ public class WinFormsController {
 
     #region PlotMethods
 
-    public async Task PlotContextAsync() {
+    public async Task ContextSetPlotAsync() {
         PrivateClearPlot();
-        await AddContestToPlotAsync();
+        await ContextSetAddToPlotAsync();
     }
 
-    public async Task AddContestToPlotAsync() {
+    public async Task ContextSetAddToPlotAsync() {
         foreach (var data in dataController.ContextSet.Data)
             dataToBePloted.Add(data);
         await UpdatePlotAsync();
     }
 
-    public async Task PlotDataAsync() {
+    public async Task ContextDataPlotAsync() {
         PrivateClearPlot();
         dataToBePloted.Add(dataController.ContextData);
         await UpdatePlotAsync();
     }
 
-    public async Task AddDataToPlotAsync(object dataItem) {
+    public async Task ContextDataAddToPlotAsync(object dataItem) {
         if (dataItem is Data data) {
             dataToBePloted.Add(data);
             await UpdatePlotAsync();
         }
     }
 
-    public void ClearPlot() {
+    public void PlotClear() {
         PrivateClearPlot();
         OnPlotChanged?.Invoke();
     }
 
-    public void ChangePlotVisibility(object plotItem, bool isVisible) {
+    public void PlotChangeVisibility(object plotItem, bool isVisible) {
         if (plotItem is Data data)
             plotController.ChangeVisibility(data, isVisible);
     }
 
-    public void SelectPlot(object plotItem) {
+    public void PlotSelect(object plotItem) {
         if (plotItem is Data data)
             plotController.SelectPlot(data);
     }
@@ -78,19 +78,19 @@ public class WinFormsController {
         OnPlotChanged?.Invoke();
     }
 
-    public IEnumerable<TreeNode> GetPlotTree() => plotController.GetPlotNodes();
+    public IEnumerable<TreeNode> PlotGetTree() => plotController.GetPlotNodes();
 
     #endregion
 
     #region DirectoryControllerMethods
 
-    public async Task RootReadAllAsync() {
+    public async Task RootReadWithSubdirsAsync() {
         var set = await dirController.ReadRoot(true);
         if (dataController.AddSet(set.Name, set))
             OnDataChanged?.Invoke();
     }
 
-    public async Task RootReadThisAsync() {
+    public async Task RootReadAsync() {
         var set = await dirController.ReadRoot();
         if (dataController.AddSet(set.Name, set))
             OnDataChanged?.Invoke();
@@ -107,6 +107,10 @@ public class WinFormsController {
             OnRootChanged?.Invoke();
     }
 
+    public void RootRefresh() {
+        OnRootChanged?.Invoke();
+    }
+
     public async void RootDoubleClick(object rootItem) {
         if (rootItem is FileInfo file) {
             var data = await dirController.ReadData(file.FullName);
@@ -119,47 +123,52 @@ public class WinFormsController {
                 OnRootChanged?.Invoke();
         }
     }
-    public IEnumerable<TreeNode> GetRootTree() => dirController.GetTree();
+    public IEnumerable<TreeNode> RootGetTree() => dirController.GetTree();
 
     #endregion
 
     #region DataControllerMethods
 
-    public async Task SaveSetAndSubsetsAsESPAsync() {
+    public async Task ContextSetAndSubsetsSaveAsESPAsync() {
         var path = dirController.SelectPathInDialog();
         if (path is null) return;
         var outputPath = Path.Combine(path, $"{dataController.ContextSet.Name} (converted all)");
         await dataController.WriteSetAsAsync(outputPath, ".esp", true);
     }
 
-    public async Task SaveSetAsESPAsync() {
+    public async Task ContextSetSaveAsESPAsync() {
         var path = dirController.SelectPathInDialog();
         if (path is null) return;
         var outputPath = Path.Combine(path, $"{dataController.ContextSet.Name} (converted only this)");
         await dataController.WriteSetAsAsync(outputPath, ".esp", false);
     }
 
-    public async Task SaveDataAsESPAsync() {
+    public async Task ContextDataSaveAsESPAsync() {
         var path = dirController.SelectPathInDialog();
         if (path is null) return;
         await dataController.WriteDataAsAsync(path, ".esp");
     }
 
-    public void DeleteSet() {
+    public void ContextSetDelete() {
         if (dataController.DeleteSet())
             OnDataChanged?.Invoke();
     }
 
-    public void DeleteData() {
+    public void ContextDataDelete() {
         if (dataController.DeleteData())
             OnDataChanged?.Invoke();
     }
 
-    public bool ChangeContextSet(DataSetNode set) => dataController.ChangeContextSet(set);
+    public void DataClear() {
+        dataController.Clear();
+        OnDataChanged?.Invoke();
+    }
 
-    public bool ChangeContextData(Data data) => dataController.ChangeContextData(data);
+    public bool ContextSetChange(TreeSet set) => dataController.ChangeContextSet(set);
 
-    public IEnumerable<TreeNode> GetDataTree() => dataController.GetTree();
+    public bool ContextDataChange(Data data) => dataController.ChangeContextData(data);
+
+    public IEnumerable<TreeNode> DataGetTree() => dataController.GetTree();
 
     #endregion
 }
