@@ -59,7 +59,7 @@ public partial class MainForm : Form {
 
     private void DataDrawContextMenu(TreeNodeMouseClickEventArgs args) {
         if (args.Button is not MouseButtons.Right) return;
-        if (args.Node.Tag is TreeSet set) {
+        if (args.Node.Tag is TreeDataSetNode set) {
             controller.ContextSetChange(set);
             args.Node.ContextMenuStrip = dataSetMenu;
             return;
@@ -67,7 +67,7 @@ public partial class MainForm : Form {
 
         if (args.Node.Tag is Data data) {
             controller.ContextDataChange(data);
-            if (args.Node.Parent.Tag is not TreeSet parentNode)
+            if (args.Node.Parent.Tag is not TreeDataSetNode parentNode)
                 throw new Exception("DataDrawContextMenu Method works wrong");
             controller.ContextSetChange(parentNode);
             args.Node.ContextMenuStrip = dataMenu;

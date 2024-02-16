@@ -10,7 +10,7 @@ public abstract class RootController {
         this.reader = reader;
     }
 
-    public abstract Task<TreeSet> ReadRoot(bool readAll = false);
+    public abstract Task<TreeDataSetNode> ReadRoot(bool readAll = false);
 
     public abstract Task<Data> ReadData(string fullName);
 

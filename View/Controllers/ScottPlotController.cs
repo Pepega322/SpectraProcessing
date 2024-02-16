@@ -9,7 +9,7 @@ namespace View.Controllers;
 public class ScottPlotController {
     private readonly FormsPlot form;
     private readonly Dictionary<IReadOnlyList<float>, float[]> xSPlots;
-    private readonly SortedDictionary<Data, IPlottable> plots;
+    private readonly Dictionary<Data, IPlottable> plots;
 
     private PlotColor colorOnSelect;
     private IPlottable? plotOnSelect = null!;

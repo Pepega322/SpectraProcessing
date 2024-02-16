@@ -13,8 +13,8 @@ public class ASP : Spectra {
     public readonly int FiveLine;
     public readonly float Delta;
 
-    internal ASP(string name, string[] contents) {
-        Name = name;
+    internal ASP(string name, string[] contents)
+        : base(name) {
         pointCount = int.Parse(contents[0]);
         StartWavenumber = float.Parse(contents[1], CultureInfo.InvariantCulture) / (float)(2 * Math.PI);
         EndWavenumber = float.Parse(contents[2], CultureInfo.InvariantCulture) / (float)(2 * Math.PI);
@@ -26,8 +26,8 @@ public class ASP : Spectra {
         yS = y;
     }
 
-    private ASP(ASP spectra) : base(spectra) {
-        Name = spectra.Name + "(Copy)";
+    private ASP(ASP spectra) 
+        : base(spectra) {
         pointCount = spectra.pointCount;
         StartWavenumber = spectra.StartWavenumber;
         EndWavenumber = spectra.EndWavenumber;

@@ -1,16 +1,33 @@
 ﻿namespace Model.DataFormats;
 public abstract class Spectra : Data, IWriteable, ICopyable {
-    public int PointCount => xS.Count;
     protected IReadOnlyList<float> xS = null!;
     protected float[] yS = null!;
+    public int PointCount => xS.Count;
 
-    protected Spectra() {
-    }
+    protected Spectra(string name)
+        : base(name) { }
 
-    protected Spectra(Spectra reference) {
-        Name = $"{reference.Name} (copy)";
+    protected Spectra(Spectra reference)
+        : this($"{reference.Name} (copy)") {
         xS = reference.xS;
         yS = reference.yS.ToArray();
+    }
+
+    public static bool TryParse(SpectraFormat format, string name, string[] contents, out Spectra spectra, out string message) {
+        spectra = null;
+        message = null;
+        try {
+            spectra = format switch {
+                SpectraFormat.ASP => new ASP(name, contents),
+                SpectraFormat.ESP => new ESP(name, contents),
+                _ => throw new NotSupportedException()
+            };
+        }
+        catch (Exception ex) {
+            message = ex.Message;
+            return false;
+        }
+        return true;
     }
 
     public abstract Data CreateCopy();
@@ -31,7 +48,7 @@ public abstract class Spectra : Data, IWriteable, ICopyable {
         if (result == null) throw new Exception("Cant substract baseline");
         var (a, b) = GetMNK();
         for (var i = 0; i < PointCount; i++)
-            yS[i] -= a * xS[i] + b;
+            result.yS[i] -= a * result.xS[i] + b;
         return result;
     }
 

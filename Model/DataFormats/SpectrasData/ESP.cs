@@ -9,8 +9,8 @@ public class ESP : Spectra {
     private readonly string expCfg;
     private readonly string procCfg;
 
-    public ESP(string name, string[] contents) {
-        Name = name;
+    internal ESP(string name, string[] contents)
+        : base(name) {
         expCfg = contents[0];
         procCfg = contents[1];
         var (x, y) = ReadPoints(contents);
@@ -18,8 +18,8 @@ public class ESP : Spectra {
         yS = y;
     }
 
-    private ESP(ESP reference) : base(reference) {
-        Name = reference.Name + "(Copy)";
+    private ESP(ESP reference)
+        : base(reference) {
         expCfg = reference.expCfg;
         procCfg = reference.procCfg;
     }

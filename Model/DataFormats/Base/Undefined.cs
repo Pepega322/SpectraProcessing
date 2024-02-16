@@ -1,6 +1,5 @@
 ﻿namespace Model.DataFormats;
 public class Undefined : Data {
-    internal Undefined(string name) {
-        Name = name;
-    }
+    public Undefined(string name)
+        : base(name) { }
 }

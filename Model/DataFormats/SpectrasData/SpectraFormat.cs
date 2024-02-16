@@ -1,5 +1,5 @@
 ﻿namespace Model.DataFormats;
-public enum DataFormat {
+public enum SpectraFormat {
     ASP,
     ESP
 }

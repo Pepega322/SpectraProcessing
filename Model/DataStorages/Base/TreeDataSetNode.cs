@@ -2,27 +2,26 @@
 using Model.DataSources;
 
 namespace Model.DataStorages;
-public abstract class TreeSet : Set {
-    protected readonly SortedSet<TreeSet> subsets = null!;
-    public TreeSet? Parent { get; }
+public abstract class TreeDataSetNode : DataSet {
+    protected readonly HashSet<TreeDataSetNode> subsets = null!;
+    public TreeDataSetNode? Parent { get; }
     public int DataCount { get; protected set; }
-    public IEnumerable<TreeSet> Subsets => subsets;
+    public IEnumerable<TreeDataSetNode> Subsets => subsets;
 
-    public TreeSet(string name, TreeSet? parent = null)
+    public TreeDataSetNode(string name, TreeDataSetNode? parent = null)
         : base(name) {
         Parent = parent;
         subsets = [];
     }
 
-    public override bool Add(Data data) {
-        if (data is not Spectra) return false;
+    protected override bool AddToSet(Data data) {
         bool result;
         lock (set) result = set.Add(data);
         if (result) IncreaseCount();
         return result;
     }
 
-    public override bool Remove(Data data) {
+    protected override bool RemoveFromSet(Data data) {
         bool result;
         lock (set) result = set.Remove(data);
         if (result) Parent?.DecreaseCount();
@@ -36,7 +35,7 @@ public abstract class TreeSet : Set {
         return result;
     }
 
-    protected abstract void AddData(DataReader reader, string path);
+    protected abstract void ReadData(DataReader reader, string path);
 
     protected abstract void AddSubnodes(DataReader reader, string path);
 

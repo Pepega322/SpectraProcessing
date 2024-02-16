@@ -11,7 +11,7 @@ public class WinFormsController {
     private ScottPlotController plotController;
 
     public IPlottable? ContextPlot { get; set; }
-    private SortedSet<Data> dataToBePloted;
+    private HashSet<Data> dataToBePloted;
 
     public event Action? OnDataChanged;
     public event Action? OnPlotChanged;
@@ -164,7 +164,7 @@ public class WinFormsController {
         OnDataChanged?.Invoke();
     }
 
-    public bool ContextSetChange(TreeSet set) => dataController.ChangeContextSet(set);
+    public bool ContextSetChange(TreeDataSetNode set) => dataController.ChangeContextSet(set);
 
     public bool ContextDataChange(Data data) => dataController.ChangeContextData(data);
 

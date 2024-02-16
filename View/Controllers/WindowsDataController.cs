@@ -5,7 +5,7 @@ using Model.DataStorages;
 namespace View.Controllers;
 public class WindowsDataController : DataController {
     public WindowsDataController(DataWriter writer)
-        : base(writer, new DirectoryStorage()) { }
+        : base(writer, new DirectoryTreeStorage()) { }
    
     public override async Task WriteSetAsAsync(string path, string extension, bool writeSubsets)
         => await Task.Run(() => WriteSetAs(ContextSet, path, extension, writeSubsets));
@@ -13,8 +13,8 @@ public class WindowsDataController : DataController {
     public override async Task WriteDataAsAsync(string path, string extension)
         => await Task.Run(() => WriteDataAs(ContextData, path, extension));
 
-    private void WriteSetAs(TreeSet set, string path, string extension, bool writeSubsets, 
-        Dictionary<TreeSet, string>? track = null) {
+    private void WriteSetAs(TreeDataSetNode set, string path, string extension, bool writeSubsets, 
+        Dictionary<TreeDataSetNode, string>? track = null) {
         switch (writeSubsets) {
             case false:
                 var data = set.Data.Where(data => data is IWriteable);
@@ -39,7 +39,7 @@ public class WindowsDataController : DataController {
     }
 
     private void ConnectDataSubnodes(TreeNode treeNode) {
-        if (treeNode.Tag is not TreeSet dataNode)
+        if (treeNode.Tag is not TreeDataSetNode dataNode)
             throw new Exception(nameof(ConnectDataSubnodes));
 
         foreach (var child in dataNode.Subsets) {
@@ -60,9 +60,9 @@ public class WindowsDataController : DataController {
         }
     }
 
-    private Dictionary<TreeSet, string> LinkNodesAndOutputFolder(TreeSet set, string path) {
-        var track = new Dictionary<TreeSet, string> { [set] = path };
-        var queue = new Queue<TreeSet>();
+    private Dictionary<TreeDataSetNode, string> LinkNodesAndOutputFolder(TreeDataSetNode set, string path) {
+        var track = new Dictionary<TreeDataSetNode, string> { [set] = path };
+        var queue = new Queue<TreeDataSetNode>();
         queue.Enqueue(set);
         while (queue.Count != 0) {
             var nodeInReference = queue.Dequeue();
