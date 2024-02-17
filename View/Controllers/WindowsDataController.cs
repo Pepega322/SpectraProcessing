@@ -1,23 +1,24 @@
 ﻿using Model.DataFormats;
 using Model.DataSources;
 using Model.DataStorages;
+using Model.Controllers;
 
 namespace View.Controllers;
-public class WindowsDataController : DataController {
+public class WindowsDataController : DataController, ITree {
     public WindowsDataController(DataWriter writer)
-        : base(writer, new DirectoryTreeStorage()) { }
-   
-    public override async Task WriteSetAsAsync(string path, string extension, bool writeSubsets)
-        => await Task.Run(() => WriteSetAs(ContextSet, path, extension, writeSubsets));
+        : base(writer, new DirectoryDataTreeStorage()) { }
 
-    public override async Task WriteDataAsAsync(string path, string extension)
-        => await Task.Run(() => WriteDataAs(ContextData, path, extension));
+    public override async Task WriteSetAsAsync(DataSet set, string path, string extension, bool writeSubsets)
+        => await Task.Run(() => WriteSetAs((DirectoryDataSetNode)set, path, extension, writeSubsets));
 
-    private void WriteSetAs(TreeDataSetNode set, string path, string extension, bool writeSubsets, 
-        Dictionary<TreeDataSetNode, string>? track = null) {
+    public override async Task WriteDataAsAsync(Data data, string path, string extension)
+        => await Task.Run(() => WriteDataAs(data, path, extension));
+
+    private void WriteSetAs(DirectoryDataSetNode set, string path, string extension, bool writeSubsets,
+        Dictionary<DirectoryDataSetNode, string>? track = null) {
         switch (writeSubsets) {
             case false:
-                var data = set.Data.Where(data => data is IWriteable);
+                var data = set.Where(data => data is IWriteable);
                 if (!Directory.Exists(path)) Directory.CreateDirectory(path);
                 if (data.Any())
                     Parallel.ForEach(data, d => WriteDataAs(d, path, extension));
@@ -32,17 +33,17 @@ public class WindowsDataController : DataController {
     }
 
     private void WriteDataAs(Data data, string path, string extension) {
-        if (data is IWriteable) {
+        if (data is IWriteable writeable) {
             var fullName = Path.Combine(path, $"{data.Name}{extension}");
-            writer.WriteData((IWriteable)ContextData, fullName);
+            writer.WriteData(writeable, fullName);
         }
     }
 
     private void ConnectDataSubnodes(TreeNode treeNode) {
-        if (treeNode.Tag is not TreeDataSetNode dataNode)
+        if (treeNode.Tag is not DirectoryDataSetNode dataNode)
             throw new Exception(nameof(ConnectDataSubnodes));
 
-        foreach (var child in dataNode.Subsets) {
+        foreach (var child in dataNode.Subsets.OrderByDescending(child => child.Name)) {
             var subnode = new TreeNode {
                 Text = child.Name,
                 Tag = child,
@@ -51,7 +52,7 @@ public class WindowsDataController : DataController {
             treeNode.Nodes.Add(subnode);
         }
 
-        foreach (var data in dataNode.Data) {
+        foreach (var data in dataNode.OrderByDescending(data => data.Name)) {
             var subnode = new TreeNode() {
                 Text = data.Name,
                 Tag = data,
@@ -60,14 +61,15 @@ public class WindowsDataController : DataController {
         }
     }
 
-    private Dictionary<TreeDataSetNode, string> LinkNodesAndOutputFolder(TreeDataSetNode set, string path) {
-        var track = new Dictionary<TreeDataSetNode, string> { [set] = path };
-        var queue = new Queue<TreeDataSetNode>();
+    private Dictionary<DirectoryDataSetNode, string> LinkNodesAndOutputFolder(DirectoryDataSetNode set, string path) {
+        var track = new Dictionary<DirectoryDataSetNode, string> { [set] = path };
+        var queue = new Queue<DirectoryDataSetNode>();
         queue.Enqueue(set);
         while (queue.Count != 0) {
             var nodeInReference = queue.Dequeue();
-            foreach (var nextNodeInReference in nodeInReference.Subsets) {
-                var pathInDestination = Path.Combine(track[nodeInReference], nextNodeInReference.Name);
+            foreach (var subset in nodeInReference.Subsets) {
+                var nextNodeInReference = (DirectoryDataSetNode)subset;
+                var pathInDestination = Path.Combine(track[nodeInReference], subset.Name);
                 track[nextNodeInReference] = pathInDestination;
                 queue.Enqueue(nextNodeInReference);
             }
@@ -75,7 +77,7 @@ public class WindowsDataController : DataController {
         return track;
     }
 
-    public override IEnumerable<TreeNode> GetTree() {
+    public IEnumerable<TreeNode> GetTree() {
         foreach (var pair in storage) {
             var node = new TreeNode { Text = pair.Key, Tag = pair.Value };
             ConnectDataSubnodes(node);

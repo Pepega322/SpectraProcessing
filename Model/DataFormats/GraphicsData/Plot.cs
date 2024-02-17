@@ -6,4 +6,6 @@ public abstract class Plot : Data {
         : base(spectra.Name) {
         Spectra = spectra;
     }
+
+    public override int GetHashCode() => Spectra.GetHashCode();
 }

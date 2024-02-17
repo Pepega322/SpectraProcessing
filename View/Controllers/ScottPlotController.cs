@@ -1,128 +1,126 @@
 ﻿using Model.DataFormats;
-using ScottPlot;
-using ScottPlot.WinForms;
+using Model.DataStorages;
+using Model.Controllers;
 using ScottPlot.Palettes;
-using ScottPlot.Plottables;
-using PlotColor = ScottPlot.Color;
+using ScottPlot.WinForms;
 
 namespace View.Controllers;
-public class ScottPlotController {
-    private readonly FormsPlot form;
-    private readonly Dictionary<IReadOnlyList<float>, float[]> xSPlots;
-    private readonly Dictionary<Data, IPlottable> plots;
+internal class ScottPlotController : PlotController, ITree {
+    private FormsPlot form;
+    private PlotSet? HighlightedSet;
+    private Plot? HighlightedPlot;
 
-    private PlotColor colorOnSelect;
-    private IPlottable? plotOnSelect = null!;
-
-    public ScottPlotController(FormsPlot f) {
-        form = f;
+    public ScottPlotController(FormsPlot form) : base(new SctPlotStorage()) {
+        this.form = form;
         form.Plot.Add.Palette = new Category20();
         form.Plot.XLabel("Raman shift, cm-1");
         form.Plot.YLabel("Intensity");
-        xSPlots = [];
-        plots = [];
     }
 
-    public void Clear() {
-        plots.Clear();
-        form.Plot.Clear();
-        form.Refresh();
+    public override async Task AddDataPlotAsync(Data data)
+        => await Task.Run(() => PlotDataTo(data, storage.DefaultSet));
+
+    public override async Task AddDataSetPlotAsync(DataSet set, bool toDefault) {
+        var destination = toDefault ? storage.DefaultSet : new SctPlotSet(set.Name);
+        await Task.Run(() => Parallel.ForEach(set, d => PlotDataTo(d, destination)));
+        if (!toDefault)
+            storage.Add(set.Name, destination);
     }
 
-    public async Task PlotSet(ISet<Data> dataToBePlotted) {
-        await Task.Run(() => UpdatePlot(dataToBePlotted));
-        form.Refresh();
-        form.Plot.Axes.AutoScale();
-    }
-
-    public void ChangeVisibility(Data data, bool isVisible) {
-        if (plots.ContainsKey(data)) {
-            plots[data].IsVisible = isVisible;
-            form.Refresh();
-        }
-    }
-
-    public async void SelectPlot(Data data) {
-        await Task.Run(() => HighlighPlot(data));
-        form.Refresh();
-    }
-
-    private void HighlighPlot(Data data) {
-        if (!plots.ContainsKey(data) || plots[data] == plotOnSelect) return;
-        if (plotOnSelect is not null)
-            ChangeColor(plotOnSelect, colorOnSelect, out PlotColor t);
-        plotOnSelect = plots[data];
-        ChangeColor(plotOnSelect, Colors.Black, out PlotColor original);
-        colorOnSelect = original;
-        form.Plot.Remove(plotOnSelect);
-        form.Plot.PlottableList.Add(plotOnSelect);
-    }
-
-    private void ChangeColor(IPlottable plot, PlotColor color, out PlotColor original) {
-        if (plot is Signal signal) {
-            original = signal.Color;
-            signal.Color = color;
-        }
-        else if (plot is SignalXY xySignal) {
-            original = xySignal.Color;
-            xySignal.Color = color;
-        }
+    private void PlotDataTo(Data data, DataSet destination) {
+        if (data is not Spectra spectra) return;
+        Plot plot;
+        if (spectra is ASP) plot = SctPlot.GetPlot(SctPlotFromats.Signal, spectra, form);
+        else if (spectra is ESP) plot = SctPlot.GetPlot(SctPlotFromats.SignalXY, spectra, form);
         else throw new NotImplementedException();
+        destination.Add(plot);
     }
 
-    private void UpdatePlot(ISet<Data> dataToBePlotted) {
-        var toAdd = dataToBePlotted
-            .Where(d => !plots.ContainsKey(d))
-            .ToArray();
-        var toRemove = plots.Keys
-            .Where(d => !dataToBePlotted.Contains(d))
-            .ToArray();
-        Parallel.ForEach(toAdd, Add);
-        Parallel.ForEach(toRemove, Remove);
+    public override async Task RemovePlotAsync(Plot plot, PlotSet owner)
+        => await Task.Run(() => RemovePlotFrom(plot, owner));
+
+    public override async Task RemovePlotSetAsync(PlotSet set) {
+        storage.Remove(set.Name);
+        await Task.Run(() => Parallel.ForEach((IEnumerable<Plot>)set, p => RemovePlotFrom(p, set)));
     }
 
-    private void Add(Data data) {
-        if (plots.ContainsKey(data)) return;
-        if (data is Spectra spectra)
-            PlotSpectra(spectra);
+    private void RemovePlotFrom(Plot plot, PlotSet owner) {
+        if (plot is not SctPlot plt) return;
+        lock (form.Plot) form.Plot.Remove(plt.Plot);
+        owner.Remove(plot);
     }
 
-    private void PlotSpectra(Spectra spectra) {
-        var (xS, yS) = spectra.GetPoints();
-        lock (xSPlots) {
-            if (!xSPlots.ContainsKey(xS))
-                xSPlots.Add(xS, xS.ToArray());
+    public override async Task ChangePlotVisibilityAsync(Plot plot, bool isVisible)
+        => await Task.Run(() => ChangeVisibility(plot, isVisible));
+
+    public override async Task ChangePlotSetVisibilityAsync(PlotSet set, bool isVisible)
+        => await Task.Run(() => Parallel.ForEach((IEnumerable<Plot>)set, plot => ChangeVisibility(plot, isVisible)));
+
+
+    private void ChangeVisibility(Data data, bool isVisible) {
+        if (data is not SctPlot plot) return;
+        plot.ChangeVisibility(isVisible);
+    }
+
+    public override async Task ChangePlotHighlightionAsync(Plot plot) {
+        if (HighlightedPlot != null)
+            await Task.Run(() => ChangeVisibility(HighlightedPlot, false));
+
+        if (HighlightedPlot != plot) {
+            HighlightedPlot = plot;
+            await Task.Run(() => ChangeVisibility(HighlightedPlot, true));
         }
-
-        IPlottable plot;
-        lock (form.Plot) {
-            if (spectra is ASP asp)
-                plot = form.Plot.Add.Signal(yS, asp.Delta);
-            else if (spectra is ESP)
-                plot = form.Plot.Add.SignalXY(xSPlots[xS], yS);
-            else
-                throw new NotImplementedException();
-        }
-
-        lock (plots)
-            plots.Add(spectra, plot);
+        else HighlightedPlot = null;
     }
 
-    private void Remove(Data data) {
-        lock (plots) {
-            if (plots.ContainsKey(data)) {
-                lock (form) form.Plot.Remove(plots[data]);
-                plots.Remove(data);
-            }
+    public override async Task ChangePlotSetHighlightionAsync(PlotSet set) {
+        if (HighlightedSet != null)
+            await Task.Run(() => Parallel.ForEach((IEnumerable<Plot>)HighlightedSet, plot => ChangeHighlightion(plot, false)));
+
+        if (HighlightedSet != set) {
+            HighlightedSet = set;
+            await Task.Run(() => Parallel.ForEach((IEnumerable<Plot>)HighlightedSet, plot => ChangeHighlightion(plot, true)));
         }
+        else HighlightedSet = null;
     }
 
-    public IEnumerable<TreeNode> GetPlotNodes() {
-        foreach (var pair in plots)
-            yield return new TreeNode {
-                Text = pair.Key.Name,
-                Tag = pair.Key,
-                Checked = pair.Value.IsVisible,
+
+    private void ChangeHighlightion(Plot data, bool isHighlighted) {
+        if (data is not SctPlot plot) return;
+        plot.ChangeHighlightion(isHighlighted);
+    }
+
+    public override void Refresh() {
+        form.Refresh();
+        form.Plot.Axes.AutoScaleX();
+        form.Plot.Axes.AutoScaleY();
+    }
+
+    public override void Clear() {
+        storage.Clear();
+        HighlightedPlot = null;
+        HighlightedSet = null;
+        form.Plot.Clear();
+    }
+
+    public IEnumerable<TreeNode> GetTree() {
+        foreach (var pair in storage) {
+            var setNode = new TreeNode {
+                Text = pair.Key,
+                Tag = (PlotSet)pair.Value
             };
+            var plots = pair.Value.Select(s => (SctPlot)s);
+            setNode.Checked = plots.All(p => p.IsVisible);
+            foreach (var plot in plots.OrderByDescending(x => x.Name)) {
+                var node = new TreeNode {
+                    Text = plot.Name,
+                    Tag = plot,
+                    Checked = plot.IsVisible
+                };
+                setNode.Nodes.Add(node);
+            }
+            if (setNode.Nodes.Count > 0)
+                yield return setNode;
+        }
     }
 }

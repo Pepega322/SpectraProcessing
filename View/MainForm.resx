@@ -118,26 +118,20 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <metadata name="mainMenuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>1628, 17</value>
-  </metadata>
-  <metadata name="mainMenuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>1628, 17</value>
+    <value>345, 70</value>
   </metadata>
   <metadata name="rootNavigation.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>589, 17</value>
-  </metadata>
-  <metadata name="rootNavigation.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>589, 17</value>
+    <value>423, 17</value>
   </metadata>
   <metadata name="imageListForRootFolder.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>1300, 17</value>
+    <value>17, 70</value>
   </metadata>
   <data name="imageListForRootFolder.ImageStream" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAEZTeXN0ZW0uV2luZG93cy5Gb3JtcywgQ3VsdHVyZT1uZXV0cmFs
         LCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5BQEAAAAmU3lzdGVtLldpbmRvd3MuRm9ybXMu
         SW1hZ2VMaXN0U3RyZWFtZXIBAAAABERhdGEHAgIAAAAJAwAAAA8DAAAA1AQAAAJNU0Z0AUkBTAIBAQMB
-        AAEQAQoBEAEKARABAAEQAQAD/wEAASEBAAj/AUIBTQE2BwABNgMAASgDAAFAAwABEAMAAQEBAAEgBgAB
+        AAEIAQsBCAELARABAAEQAQAD/wEAASEBAAj/AUIBTQE2BwABNgMAASgDAAFAAwABEAMAAQEBAAEgBgAB
         EFoAA0gBhANZAe8DWQHvA1kB7wNZAe8DWQHvA1kB7wNZAe8DWQHvA1kB7wNZAe8DSAGECABA/0QAA0EB
         +QNaAb8DWgG/A1oBvwNaAb8DWgG/A1oBvwNaAb8DWgG/A1oBvwNaAb8DWgG/A1oBvwNaAb8DUwGpBAAD
         DAEQA2EB5gMGAQggAAMGAQgDYQHmAwwBEAQAQP9EAANdAd83AAH/BAADEgEYA14B1ygAA14B1wMSARgE
@@ -161,27 +155,27 @@
 </value>
   </data>
   <metadata name="dataNavigation.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>826, 17</value>
-  </metadata>
-  <metadata name="dataNavigation.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>826, 17</value>
+    <value>660, 17</value>
   </metadata>
   <metadata name="plotNavigation.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>1065, 17</value>
-  </metadata>
-  <metadata name="plotNavigation.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>1065, 17</value>
+    <value>899, 17</value>
   </metadata>
   <metadata name="menuStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>1869, 17</value>
+    <value>1010, 37</value>
   </metadata>
-  <metadata name="menuStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>1869, 17</value>
-  </metadata>
-  <metadata name="dataSetContextMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+  <metadata name="dataSetMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <metadata name="dataContextMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>320, 17</value>
+  <metadata name="dataMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>237, 17</value>
+  </metadata>
+  <metadata name="plotSetMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>586, 70</value>
+  </metadata>
+  <metadata name="plotMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>802, 70</value>
+  </metadata>
+  <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>206</value>
   </metadata>
 </root>

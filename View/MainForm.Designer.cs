@@ -58,17 +58,21 @@ partial class MainForm
         plotTree = new TreeView();
         dataSetMenu = new ContextMenuStrip(components);
         dataNodeContextSave = new ToolStripMenuItem();
-        dataButtonContextSetSaveAs = new ToolStripMenuItem();
-        dataButtonContextSetAndSubsetsSaveAs = new ToolStripMenuItem();
-        dataButtonContextSetPlot = new ToolStripMenuItem();
-        dataButtonContextSetAddToPlot = new ToolStripMenuItem();
-        dataButtonContextSetDelete = new ToolStripMenuItem();
-        buttonContextNodeSubstractBaseline = new ToolStripMenuItem();
+        dataButtonContextDataSetSaveAs = new ToolStripMenuItem();
+        dataButtonContextDataSetAndSubsetsSaveAs = new ToolStripMenuItem();
+        dataButtonContextDataSetPlot = new ToolStripMenuItem();
+        dataButtonContextDataSetAddToPlot = new ToolStripMenuItem();
+        dataButtonContextDataSetDelete = new ToolStripMenuItem();
+        dataButtonContextDataSetSubstractBaseline = new ToolStripMenuItem();
         dataMenu = new ContextMenuStrip(components);
         dataButtonContextDataSave = new ToolStripMenuItem();
         dataButtonContextDataPlot = new ToolStripMenuItem();
         dataButtonContextDataDelete = new ToolStripMenuItem();
-        buttonContextDataSubstractBaseline = new ToolStripMenuItem();
+        dataButtonContextDataSubstractBaseline = new ToolStripMenuItem();
+        plotSetMenu = new ContextMenuStrip(components);
+        plotButtonContextPlotSetDelete = new ToolStripMenuItem();
+        plotMenu = new ContextMenuStrip(components);
+        plotButtonContextPlotDelete = new ToolStripMenuItem();
         tableLayoutPanelMain.SuspendLayout();
         mainMenuStrip.SuspendLayout();
         tableLayoutPanelMiddle.SuspendLayout();
@@ -83,6 +87,8 @@ partial class MainForm
         menuStrip1.SuspendLayout();
         dataSetMenu.SuspendLayout();
         dataMenu.SuspendLayout();
+        plotSetMenu.SuspendLayout();
+        plotMenu.SuspendLayout();
         SuspendLayout();
         // 
         // tableLayoutPanelMain
@@ -374,60 +380,60 @@ partial class MainForm
         plotTree.Size = new Size(488, 871);
         plotTree.TabIndex = 1;
         // 
-        // dataSetContextMenu
+        // dataSetMenu
         // 
         dataSetMenu.ImageScalingSize = new Size(32, 32);
-        dataSetMenu.Items.AddRange(new ToolStripItem[] { dataNodeContextSave, dataButtonContextSetPlot, dataButtonContextSetAddToPlot, dataButtonContextSetDelete, buttonContextNodeSubstractBaseline });
+        dataSetMenu.Items.AddRange(new ToolStripItem[] { dataNodeContextSave, dataButtonContextDataSetPlot, dataButtonContextDataSetAddToPlot, dataButtonContextDataSetDelete, dataButtonContextDataSetSubstractBaseline });
         dataSetMenu.Name = "dataNodeContext1";
         dataSetMenu.Size = new Size(386, 194);
         // 
         // dataNodeContextSave
         // 
-        dataNodeContextSave.DropDownItems.AddRange(new ToolStripItem[] { dataButtonContextSetSaveAs, dataButtonContextSetAndSubsetsSaveAs });
+        dataNodeContextSave.DropDownItems.AddRange(new ToolStripItem[] { dataButtonContextDataSetSaveAs, dataButtonContextDataSetAndSubsetsSaveAs });
         dataNodeContextSave.Name = "dataNodeContextSave";
         dataNodeContextSave.Size = new Size(385, 38);
         dataNodeContextSave.Text = "Save series as .esp";
         // 
-        // dataButtonContextSetSaveAs
+        // dataButtonContextDataSetSaveAs
         // 
-        dataButtonContextSetSaveAs.Name = "dataButtonContextSetSaveAs";
-        dataButtonContextSetSaveAs.Size = new Size(409, 44);
-        dataButtonContextSetSaveAs.Text = "Only this series";
+        dataButtonContextDataSetSaveAs.Name = "dataButtonContextDataSetSaveAs";
+        dataButtonContextDataSetSaveAs.Size = new Size(409, 44);
+        dataButtonContextDataSetSaveAs.Text = "Only this series";
         // 
-        // dataButtonContextSetAndSubsetsSaveAs
+        // dataButtonContextDataSetAndSubsetsSaveAs
         // 
-        dataButtonContextSetAndSubsetsSaveAs.Name = "dataButtonContextSetAndSubsetsSaveAs";
-        dataButtonContextSetAndSubsetsSaveAs.Size = new Size(409, 44);
-        dataButtonContextSetAndSubsetsSaveAs.Text = "This series and subseries";
+        dataButtonContextDataSetAndSubsetsSaveAs.Name = "dataButtonContextDataSetAndSubsetsSaveAs";
+        dataButtonContextDataSetAndSubsetsSaveAs.Size = new Size(409, 44);
+        dataButtonContextDataSetAndSubsetsSaveAs.Text = "This series and subseries";
         // 
-        // dataButtonContextSetPlot
+        // dataButtonContextDataSetPlot
         // 
-        dataButtonContextSetPlot.Name = "dataButtonContextSetPlot";
-        dataButtonContextSetPlot.Size = new Size(385, 38);
-        dataButtonContextSetPlot.Text = "Plot series";
+        dataButtonContextDataSetPlot.Name = "dataButtonContextDataSetPlot";
+        dataButtonContextDataSetPlot.Size = new Size(385, 38);
+        dataButtonContextDataSetPlot.Text = "Plot series";
         // 
-        // dataButtonContextNodeAddToPlot
+        // dataButtonContextDataSetAddToPlot
         // 
-        dataButtonContextSetAddToPlot.Name = "dataButtonContextNodeAddToPlot";
-        dataButtonContextSetAddToPlot.Size = new Size(385, 38);
-        dataButtonContextSetAddToPlot.Text = "Add series to plot";
+        dataButtonContextDataSetAddToPlot.Name = "dataButtonContextDataSetAddToPlot";
+        dataButtonContextDataSetAddToPlot.Size = new Size(385, 38);
+        dataButtonContextDataSetAddToPlot.Text = "Add series to plot";
         // 
-        // dataButtonContextSetDelete
+        // dataButtonContextDataSetDelete
         // 
-        dataButtonContextSetDelete.Name = "dataButtonContextSetDelete";
-        dataButtonContextSetDelete.Size = new Size(385, 38);
-        dataButtonContextSetDelete.Text = "Delete series";
+        dataButtonContextDataSetDelete.Name = "dataButtonContextDataSetDelete";
+        dataButtonContextDataSetDelete.Size = new Size(385, 38);
+        dataButtonContextDataSetDelete.Text = "Delete series";
         // 
-        // buttonContextNodeSubstractBaseline
+        // dataButtonContextDataSetSubstractBaseline
         // 
-        buttonContextNodeSubstractBaseline.Name = "buttonContextNodeSubstractBaseline";
-        buttonContextNodeSubstractBaseline.Size = new Size(385, 38);
-        buttonContextNodeSubstractBaseline.Text = "Substract baseline for series";
+        dataButtonContextDataSetSubstractBaseline.Name = "dataButtonContextDataSetSubstractBaseline";
+        dataButtonContextDataSetSubstractBaseline.Size = new Size(385, 38);
+        dataButtonContextDataSetSubstractBaseline.Text = "Substract baseline for series";
         // 
-        // dataContextMenu
+        // dataMenu
         // 
         dataMenu.ImageScalingSize = new Size(32, 32);
-        dataMenu.Items.AddRange(new ToolStripItem[] { dataButtonContextDataSave, dataButtonContextDataPlot, dataButtonContextDataDelete, buttonContextDataSubstractBaseline });
+        dataMenu.Items.AddRange(new ToolStripItem[] { dataButtonContextDataSave, dataButtonContextDataPlot, dataButtonContextDataDelete, dataButtonContextDataSubstractBaseline });
         dataMenu.Name = "contextMenuStrip2";
         dataMenu.Size = new Size(282, 156);
         // 
@@ -449,11 +455,37 @@ partial class MainForm
         dataButtonContextDataDelete.Size = new Size(281, 38);
         dataButtonContextDataDelete.Text = "Delete";
         // 
-        // buttonContextDataSubstractBaseline
+        // dataButtonContextDataSubstractBaseline
         // 
-        buttonContextDataSubstractBaseline.Name = "buttonContextDataSubstractBaseline";
-        buttonContextDataSubstractBaseline.Size = new Size(281, 38);
-        buttonContextDataSubstractBaseline.Text = "Substract baseline";
+        dataButtonContextDataSubstractBaseline.Name = "dataButtonContextDataSubstractBaseline";
+        dataButtonContextDataSubstractBaseline.Size = new Size(281, 38);
+        dataButtonContextDataSubstractBaseline.Text = "Substract baseline";
+        // 
+        // plotSetMenu
+        // 
+        plotSetMenu.ImageScalingSize = new Size(32, 32);
+        plotSetMenu.Items.AddRange(new ToolStripItem[] { plotButtonContextPlotSetDelete });
+        plotSetMenu.Name = "plotSetMenu";
+        plotSetMenu.Size = new Size(226, 42);
+        // 
+        // plotButtonContextPlotSetDelete
+        // 
+        plotButtonContextPlotSetDelete.Name = "plotButtonContextPlotSetDelete";
+        plotButtonContextPlotSetDelete.Size = new Size(225, 38);
+        plotButtonContextPlotSetDelete.Text = "Delete series";
+        // 
+        // plotMenu
+        // 
+        plotMenu.ImageScalingSize = new Size(32, 32);
+        plotMenu.Items.AddRange(new ToolStripItem[] { plotButtonContextPlotDelete });
+        plotMenu.Name = "plotMenu";
+        plotMenu.Size = new Size(159, 42);
+        // 
+        // plotButtonContextPlotDelete
+        // 
+        plotButtonContextPlotDelete.Name = "plotButtonContextPlotDelete";
+        plotButtonContextPlotDelete.Size = new Size(158, 38);
+        plotButtonContextPlotDelete.Text = "Delete";
         // 
         // MainForm
         // 
@@ -489,6 +521,8 @@ partial class MainForm
         menuStrip1.PerformLayout();
         dataSetMenu.ResumeLayout(false);
         dataMenu.ResumeLayout(false);
+        plotSetMenu.ResumeLayout(false);
+        plotMenu.ResumeLayout(false);
         ResumeLayout(false);
     }
 
@@ -517,11 +551,11 @@ partial class MainForm
     private ContextMenuStrip dataSetMenu;
     private ContextMenuStrip dataMenu;
     private ToolStripMenuItem dataNodeContextSave;
-    private ToolStripMenuItem dataButtonContextSetSaveAs;
-    private ToolStripMenuItem dataButtonContextSetAndSubsetsSaveAs;
-    private ToolStripMenuItem dataButtonContextSetPlot;
-    private ToolStripMenuItem dataButtonContextSetAddToPlot;
-    private ToolStripMenuItem dataButtonContextSetDelete;
+    private ToolStripMenuItem dataButtonContextDataSetSaveAs;
+    private ToolStripMenuItem dataButtonContextDataSetAndSubsetsSaveAs;
+    private ToolStripMenuItem dataButtonContextDataSetPlot;
+    private ToolStripMenuItem dataButtonContextDataSetAddToPlot;
+    private ToolStripMenuItem dataButtonContextDataSetDelete;
     private ToolStripMenuItem dataButtonContextDataSave;
     private ToolStripMenuItem dataButtonContextDataPlot;
     private ToolStripMenuItem dataButtonContextDataDelete;
@@ -530,8 +564,12 @@ partial class MainForm
     private TreeView plotTree;
     private ToolStripMenuItem plotButtonClear;
     private ScottPlot.WinForms.FormsPlot plotView;
-    private ToolStripMenuItem buttonContextNodeSubstractBaseline;
-    private ToolStripMenuItem buttonContextDataSubstractBaseline;
+    private ToolStripMenuItem dataButtonContextDataSetSubstractBaseline;
+    private ToolStripMenuItem dataButtonContextDataSubstractBaseline;
     private ToolStripMenuItem dataButtonClear;
     private ToolStripMenuItem rootButtonRefresh;
+    private ContextMenuStrip plotSetMenu;
+    private ContextMenuStrip plotMenu;
+    private ToolStripMenuItem plotButtonContextPlotDelete;
+    private ToolStripMenuItem plotButtonContextPlotSetDelete;
 }

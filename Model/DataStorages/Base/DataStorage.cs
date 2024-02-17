@@ -19,14 +19,15 @@ public abstract class DataStorage : IEnumerable<KeyValuePair<string, DataSet>> {
     public bool ContainsSet(string setKey) => storage.ContainsKey(setKey);
 
     protected virtual bool AddSet(string setKey, DataSet set) {
-        if (set is TreeDataSetNode) return false;
+        if (set is TreeDataSetNode or PlotSet)
+            throw new ArgumentException(nameof(set) + "isn't data set");
         storage.Add(setKey, set);
         return true;
     }
 
     public abstract bool Add(string setKey, DataSet set);
 
-    public bool Remove(string setKey) => storage.Remove(setKey);
+    public bool Remove(string setKey) => setKey != DefaultSetKey ? storage.Remove(setKey) : false;
 
     public void Clear() {
         storage.Clear();

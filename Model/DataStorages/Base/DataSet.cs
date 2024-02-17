@@ -1,11 +1,10 @@
 ﻿using Model.DataFormats;
+using System.Collections;
 
 namespace Model.DataStorages;
-public abstract class DataSet {
+public abstract class DataSet : IEnumerable<Data> {
     protected HashSet<Data> set;
-
     public string Name { get; protected set; } = null!;
-    public IEnumerable<Data> Data => set;
 
     public DataSet(string name) {
         Name = name;
@@ -27,4 +26,11 @@ public abstract class DataSet {
     public abstract bool Add(Data data);
 
     public abstract bool Remove(Data data);
+
+    public IEnumerator<Data> GetEnumerator() {
+        foreach (var data in set)
+            yield return data;
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

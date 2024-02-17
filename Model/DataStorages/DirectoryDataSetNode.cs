@@ -2,11 +2,11 @@
 using Model.DataSources;
 
 namespace Model.DataStorages;
-public class DirectorySetNode : TreeDataSetNode {
-    public DirectorySetNode(string name)
+public class DirectoryDataSetNode : TreeDataSetNode {
+    public DirectoryDataSetNode(string name)
         : base(name) { }
 
-    public DirectorySetNode(string name, DataReader reader, string path, bool addSubdirs = false, TreeDataSetNode? parent = null)
+    public DirectoryDataSetNode(string name, DataReader reader, string path, bool addSubdirs = false, TreeDataSetNode? parent = null)
         : base(name, parent) {
         Parallel.ForEach(Directory.GetFiles(path), (f) => ReadData(reader, f));
         if (addSubdirs)
@@ -20,7 +20,7 @@ public class DirectorySetNode : TreeDataSetNode {
         var name = Path.GetFileName(pathForReader);
         if (name is null)
             throw new DirectoryNotFoundException(pathForReader);
-        var node = new DirectorySetNode(name, reader, pathForReader, true, this);
+        var node = new DirectoryDataSetNode(name, reader, pathForReader, true, this);
         if (node.DataCount != 0)
             lock (subsets) subsets.Add(node);
     }
