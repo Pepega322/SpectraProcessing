@@ -24,7 +24,7 @@ public class SctPlot : Plot {
         this.form = form;
     }
 
-    public static SctPlot GetPlot(SctPlotFromats format, Spectra spectra, FormsPlot form) {
+    public static SctPlot PlotSpectra(SctPlotFromats format, Spectra spectra, FormsPlot form) {
         var (xS, yS) = spectra.GetPoints();
         lock (xSPlots) {
             if (!xSPlots.ContainsKey(xS))
@@ -51,21 +51,29 @@ public class SctPlot : Plot {
         return new SctPlot(format, spectra, form, plot, color);
     }
 
+    public static SctPlotFromats GetPlotFormat(Spectra spectra) {
+        if (spectra is ASP) return SctPlotFromats.Signal;
+        if (spectra is ESP) return SctPlotFromats.SignalXY;
+        throw new NotImplementedException();
+    }
+
     public void ChangeHighlightion(bool isHighlight) {
-        form.Plot.Remove(Plot);
-        switch (Format) {
-            case SctPlotFromats.Signal:
-                var signal = (Signal)Plot;
-                signal.Color = isHighlight ? HighlightionColor : Color;
-                form.Plot.Add.Plottable(signal);
-                break;
-            case SctPlotFromats.SignalXY:
-                var signalXY = (SignalXY)Plot;
-                signalXY.Color = isHighlight ? HighlightionColor : Color;
-                form.Plot.Add.Plottable(signalXY);
-                break;
-            default:
-                throw new NotImplementedException();
+        lock (form.Plot) {
+            form.Plot.Remove(Plot);
+            switch (Format) {
+                case SctPlotFromats.Signal:
+                    var signal = (Signal)Plot;
+                    signal.Color = isHighlight ? HighlightionColor : Color;
+                    form.Plot.Add.Plottable(signal);
+                    break;
+                case SctPlotFromats.SignalXY:
+                    var signalXY = (SignalXY)Plot;
+                    signalXY.Color = isHighlight ? HighlightionColor : Color;
+                    form.Plot.Add.Plottable(signalXY);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
         }
     }
 

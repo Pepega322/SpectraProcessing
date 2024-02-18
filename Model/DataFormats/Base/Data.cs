@@ -7,4 +7,12 @@ public abstract class Data {
     protected Data(string name) {
         Name = name;
     }
+
+    public override bool Equals(object? obj) {
+        var data = obj as Data;
+        if (data == null) return false;
+        return Name.Equals(data.Name);
+    }
+
+    public override int GetHashCode() => Name.GetHashCode();
 }

@@ -28,11 +28,9 @@ internal class ScottPlotController : PlotController, ITree {
     }
 
     private void PlotDataTo(Data data, DataSet destination) {
-        if (data is not Spectra spectra) return;
-        Plot plot;
-        if (spectra is ASP) plot = SctPlot.GetPlot(SctPlotFromats.Signal, spectra, form);
-        else if (spectra is ESP) plot = SctPlot.GetPlot(SctPlotFromats.SignalXY, spectra, form);
-        else throw new NotImplementedException();
+        if (data is not Spectra spectra || destination.Contains(spectra)) return;
+        var format = SctPlot.GetPlotFormat(spectra);
+        var plot = SctPlot.PlotSpectra(format, spectra, form);
         destination.Add(plot);
     }
 
@@ -64,11 +62,11 @@ internal class ScottPlotController : PlotController, ITree {
 
     public override async Task ChangePlotHighlightionAsync(Plot plot) {
         if (HighlightedPlot != null)
-            await Task.Run(() => ChangeVisibility(HighlightedPlot, false));
+            await Task.Run(() => ChangeHighlightion(HighlightedPlot, false));
 
         if (HighlightedPlot != plot) {
             HighlightedPlot = plot;
-            await Task.Run(() => ChangeVisibility(HighlightedPlot, true));
+            await Task.Run(() => ChangeHighlightion(HighlightedPlot, true));
         }
         else HighlightedPlot = null;
     }
@@ -85,9 +83,9 @@ internal class ScottPlotController : PlotController, ITree {
     }
 
 
-    private void ChangeHighlightion(Plot data, bool isHighlighted) {
-        if (data is not SctPlot plot) return;
-        plot.ChangeHighlightion(isHighlighted);
+    private void ChangeHighlightion(Plot plot, bool isHighlighted) {
+        if (plot is not SctPlot sct) return;
+        sct.ChangeHighlightion(isHighlighted);
     }
 
     public override void Refresh() {

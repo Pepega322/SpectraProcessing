@@ -1,7 +1,6 @@
 ﻿namespace View;
 
-partial class MainForm
-{
+partial class MainForm {
     /// <summary>
     ///  Required designer variable.
     /// </summary>
@@ -11,10 +10,8 @@ partial class MainForm
     ///  Clean up any resources being used.
     /// </summary>
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing && (components != null))
-        {
+    protected override void Dispose(bool disposing) {
+        if (disposing && (components != null)) {
             components.Dispose();
         }
         base.Dispose(disposing);
@@ -70,6 +67,7 @@ partial class MainForm
         dataButtonContextDataDelete = new ToolStripMenuItem();
         dataButtonContextDataSubstractBaseline = new ToolStripMenuItem();
         plotSetMenu = new ContextMenuStrip(components);
+        plotButtonContextPlotSetHighlight = new ToolStripMenuItem();
         plotButtonContextPlotSetDelete = new ToolStripMenuItem();
         plotMenu = new ContextMenuStrip(components);
         plotButtonContextPlotDelete = new ToolStripMenuItem();
@@ -464,14 +462,20 @@ partial class MainForm
         // plotSetMenu
         // 
         plotSetMenu.ImageScalingSize = new Size(32, 32);
-        plotSetMenu.Items.AddRange(new ToolStripItem[] { plotButtonContextPlotSetDelete });
+        plotSetMenu.Items.AddRange(new ToolStripItem[] { plotButtonContextPlotSetHighlight, plotButtonContextPlotSetDelete });
         plotSetMenu.Name = "plotSetMenu";
-        plotSetMenu.Size = new Size(226, 42);
+        plotSetMenu.Size = new Size(270, 80);
+        // 
+        // plotButtonContextPlotSetHighlight
+        // 
+        plotButtonContextPlotSetHighlight.Name = "plotButtonContextPlotSetHighlight";
+        plotButtonContextPlotSetHighlight.Size = new Size(269, 38);
+        plotButtonContextPlotSetHighlight.Text = "Highlight On\\Off";
         // 
         // plotButtonContextPlotSetDelete
         // 
         plotButtonContextPlotSetDelete.Name = "plotButtonContextPlotSetDelete";
-        plotButtonContextPlotSetDelete.Size = new Size(225, 38);
+        plotButtonContextPlotSetDelete.Size = new Size(269, 38);
         plotButtonContextPlotSetDelete.Text = "Delete series";
         // 
         // plotMenu
@@ -572,4 +576,5 @@ partial class MainForm
     private ContextMenuStrip plotMenu;
     private ToolStripMenuItem plotButtonContextPlotDelete;
     private ToolStripMenuItem plotButtonContextPlotSetDelete;
+    private ToolStripMenuItem plotButtonContextPlotSetHighlight;
 }

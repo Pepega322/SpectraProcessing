@@ -1,5 +1,6 @@
 ﻿using Model.DataFormats;
 using Model.DataStorages;
+using System.Collections;
 
 namespace View;
 
@@ -12,24 +13,20 @@ public partial class MainForm : Form {
         controller.OnRootChanged += async () => await BuildTreeAsync(rootTree, controller.RootGetTree);
         controller.OnDataChanged += async () => await BuildTreeAsync(dataTree, controller.DataGetTree);
         controller.OnPlotChanged += async () => await BuildTreeAsync(plotTree, controller.PlotGetTree);
-
         _ = BuildTreeAsync(rootTree, controller.RootGetTree);
         _ = BuildTreeAsync(dataTree, controller.DataGetTree);
 
-
-
-        rootTree.NodeMouseClick += TreeNodeSelect;
+        rootTree.NodeMouseClick += TreeNodeClickSelect;
+        rootTree.NodeMouseDoubleClick += (sender, e) => controller.RootDoubleClick(sender, e);
         rootButtonSelect.Click += (sender, e) => controller.RootSelect(sender, e);
         rootButtonStepBack.Click += (sender, e) => controller.RootStepBack(sender, e);
         rootButtonRefresh.Click += (sender, e) => controller.RootRefresh(sender, e);
         rootButtonRead.Click += async (sender, e) => await controller.RootReadAsync(sender, e);
         rootButtonReadWithSubdirs.Click += async (sender, e) => await controller.RootReadWithSubdirsAsync(sender, e);
-        rootTree.NodeMouseDoubleClick += (sender, e) => controller.RootDoubleClick(sender, e);
 
-        dataTree.NodeMouseClick += TreeNodeSelect;
+        dataTree.NodeMouseClick += TreeNodeClickSelect;
         dataTree.NodeMouseClick += DataDrawContextMenu;
         dataTree.NodeMouseClick += DataSetDrawContextMenu;
-        dataTree.NodeMouseDoubleClick += async (sender, e) => await controller.PlotAddDataSetToDefault(sender, e);
         dataTree.NodeMouseDoubleClick += async (sender, e) => await controller.PlotAddDataToDefault(sender, e);
 
         dataButtonClear.Click += (sender, e) => controller.DataClear();
@@ -44,24 +41,25 @@ public partial class MainForm : Form {
         dataButtonContextDataPlot.Click += async (sender, e) => await controller.ContextDataPlot(sender, e);
         //dataButtonContextDataSubstractBaseline += 
 
-        //plotView.MouseMove += (sender, e) => DrawMouseCoordinates();
-        plotTree.NodeMouseClick += TreeNodeSelect;
+        //plotTree.MouseDown += TreeNodeClickSelectt;
+        //plotTree.MouseDoubleClick += TreeNodeClickSelectt;
+        plotTree.NodeMouseClick += TreeNodeClickSelect;
         plotTree.NodeMouseClick += PlotDrawContextMenu;
         plotTree.NodeMouseClick += PlotSetDrawContextMenu;
+        plotTree.NodeMouseDoubleClick += TreeNodeClickSelect;
         plotTree.NodeMouseDoubleClick += async (sender, e) => await controller.PlotChangePlotHighlightion(sender, e);
-        plotTree.NodeMouseDoubleClick += async (sender, e) => await controller.PlotChangePlotSetHighlightion(sender, e);
         plotButtonClear.Click += (sender, e) => controller.PlotClear();
+        plotButtonContextPlotSetHighlight.Click += async (sender, e) => await controller.ContextPlotSetHighlight(sender, e);
         plotButtonContextPlotSetDelete.Click += async (sender, e) => await controller.ContextPlotSetDelete(sender, e);
         plotButtonContextPlotDelete.Click += async (sender, e) => await controller.ContextPlotDelete(sender, e);
         plotTree.AfterCheck += async (sender, e) => await controller.ChangePlotSetVisibility(sender, e);
         plotTree.AfterCheck += async (sender, e) => await controller.ChangePlotVisibility(sender, e);
-
     }
 
-    private void TreeNodeSelect(object? sender, TreeNodeMouseClickEventArgs e) {
+    private void TreeNodeClickSelect(object? sender, TreeNodeMouseClickEventArgs e) {
         var treeView = sender as TreeView;
         if (treeView != null) treeView.SelectedNode = e.Node;
-        else throw new Exception(nameof(TreeNodeSelect));
+        else throw new Exception(nameof(TreeNodeClickSelect));
     }
 
     private void PlotSetDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e) {

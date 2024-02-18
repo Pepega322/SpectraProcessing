@@ -23,37 +23,35 @@ public class MainController {
         plotController = new ScottPlotController(plot);
     }
 
-    #region PlotMethods
+    #region PlotControllerMethods
 
     public async Task PlotAddDataToDefault(object? sender, TreeNodeMouseClickEventArgs e) {
-        if (e.Button is MouseButtons.Left && GetClickData(sender, out Data data)) {
+        if (e.Button is not MouseButtons.Left) return;
+        if (GetClickData(sender, out Data data)) {
             await plotController.AddDataPlotAsync(data);
             plotController.Refresh();
             OnPlotChanged?.Invoke();
         }
     }
 
-    public async Task PlotAddDataSetToDefault(object? sender, TreeNodeMouseClickEventArgs e) {
-        if (e.Button is MouseButtons.Left && GetClickSet(sender, out DataSet set)) {
-            await plotController.AddDataSetPlotAsync(set, true);
+    public async Task ContextDataPlot(object? sender, EventArgs e) {
+        if (GetContextData(sender, out Data data)) {
+            plotController.Clear();
+            await plotController.AddDataPlotAsync(data);
             plotController.Refresh();
             OnPlotChanged?.Invoke();
-        }
-    }
 
-    public async Task ContextDataPlot(object? sender, EventArgs e) {
-        plotController.Clear();
-        GetContextData(sender, out Data data);
-        await plotController.AddDataPlotAsync(data);
-        plotController.Refresh();
-        OnPlotChanged?.Invoke();
+        }
+        else throw new Exception();
     }
 
     public async Task ContextDataSetAddToPlot(object? sender, EventArgs e) {
-        GetContextSet(sender, out DataSet set);
-        await plotController.AddDataSetPlotAsync(set, false);
-        plotController.Refresh();
-        OnPlotChanged?.Invoke();
+        if (GetContextSet(sender, out DataSet set)) {
+            await plotController.AddDataSetPlotAsync(set, false);
+            plotController.Refresh();
+            OnPlotChanged?.Invoke();
+        }
+        else throw new Exception();
     }
 
     public async Task ContextDataSetPlot(object? sender, EventArgs e) {
@@ -62,18 +60,21 @@ public class MainController {
     }
 
     public async Task ContextPlotDelete(object? sender, EventArgs e) {
-        GetContextData(sender, out Data plot);
-        GetContextParentSet(sender, out DataSet set);
-        await plotController.RemovePlotAsync((Plot)plot, (PlotSet)set);
-        plotController.Refresh();
-        OnPlotChanged?.Invoke();
+        if (GetContextData(sender, out Data plot) && GetContextParentSet(sender, out DataSet set)) {
+            await plotController.RemovePlotAsync((Plot)plot, (PlotSet)set);
+            plotController.Refresh();
+            OnPlotChanged?.Invoke();
+        }
+        else throw new Exception();
     }
 
     public async Task ContextPlotSetDelete(object? sender, EventArgs e) {
-        GetContextSet(sender, out DataSet set);
-        await plotController.RemovePlotSetAsync((PlotSet)set);
-        plotController.Refresh();
-        OnPlotChanged?.Invoke();
+        if (GetContextSet(sender, out DataSet set)) {
+            await plotController.RemovePlotSetAsync((PlotSet)set);
+            plotController.Refresh();
+            OnPlotChanged?.Invoke();
+        }
+        else throw new Exception();
     }
 
     public async Task ChangePlotVisibility(object? sender, TreeViewEventArgs e) {
@@ -92,18 +93,21 @@ public class MainController {
     }
 
     public async Task PlotChangePlotHighlightion(object? sender, TreeNodeMouseClickEventArgs e) {
-        if (e.Node.Tag is Plot plot && e.Node.Checked) {
+        var node = GetClickTreeNode(sender);
+        if (node.Tag is Plot plot && node.Checked) {
             await plotController.ChangePlotHighlightionAsync(plot);
             plotController.Refresh();
         }
     }
 
-    public async Task PlotChangePlotSetHighlightion(object? sender, TreeNodeMouseClickEventArgs e) {
-        if (e.Node?.Tag is PlotSet set && e.Node.Checked) {
-            await plotController.ChangePlotSetHighlightionAsync(set);
+    public async Task ContextPlotSetHighlight(object? sender, EventArgs e) {
+        if (GetContextSet(sender, out DataSet set)) {
+            await plotController.ChangePlotSetHighlightionAsync((PlotSet)set);
             plotController.Refresh();
         }
+        else throw new Exception();
     }
+
 
     public void PlotClear() {
         plotController.Clear();
@@ -112,9 +116,9 @@ public class MainController {
 
     }
 
-    public void PlotRefresh() {
+    //public void PlotRefresh() {
 
-    }
+    //}
 
     public IEnumerable<TreeNode> PlotGetTree() => plotController.GetTree();
 
@@ -213,6 +217,8 @@ public class MainController {
 
     #endregion
 
+    #region SupportWinformMethods
+
     private TreeNode GetContextTreeNode(object? sender) {
         var menuItem = sender as ToolStripMenuItem;
         var contextMenuStrip = menuItem.Owner as ContextMenuStrip;
@@ -220,15 +226,22 @@ public class MainController {
         return treeView.SelectedNode;
     }
 
-    private bool GetClickData(object? sender, out Data data) {
+    public TreeNode GetClickTreeNode(object? sender) {
         var treeView = sender as TreeView;
-        data = treeView.SelectedNode.Tag as Data;
+        if (treeView.SelectedNode != null)
+            return treeView.SelectedNode;
+        else throw new Exception();
+    }
+
+    private bool GetClickData(object? sender, out Data data) {
+        var node = GetClickTreeNode(sender);
+        data = node.Tag as Data;
         return data != null;
     }
 
     private bool GetClickSet(object? sender, out DataSet set) {
-        var treeView = sender as TreeView;
-        set = treeView.SelectedNode.Tag as DataSet;
+        var node = GetClickTreeNode(sender);
+        set = node.Tag as DataSet;
         return set != null;
     }
 
@@ -249,4 +262,6 @@ public class MainController {
         set = node.Parent.Tag as DataSet;
         return set != null;
     }
+
+    #endregion
 }

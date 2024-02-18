@@ -23,6 +23,13 @@ public abstract class DataSet : IEnumerable<Data> {
         return result;
     }
 
+    public bool Contains(Data data) {
+        bool result;
+        //lock (set) 
+            result = set.Contains(data);
+        return result;
+    }
+
     public abstract bool Add(Data data);
 
     public abstract bool Remove(Data data);
