@@ -8,7 +8,7 @@ public abstract class Spectra : Data, IWriteable, ICopyable {
         : base(name) { }
 
     protected Spectra(Spectra reference)
-        : this($"{reference.Name} (copy)") {
+        : this(reference.Name) {
         xS = reference.xS;
         yS = reference.yS.ToArray();
     }
@@ -44,15 +44,15 @@ public abstract class Spectra : Data, IWriteable, ICopyable {
     public virtual (IReadOnlyList<float> xS, float[] yS) GetPoints() => (xS, yS.ToArray());
 
     public Spectra SubstractBaseLine() {
-        var result = CreateCopy() as Spectra;
-        if (result == null) throw new Exception("Cant substract baseline");
+        var copy = (Spectra)CreateCopy();
+        copy.Name = $"{copy.Name} -b";
         var (a, b) = GetMNK();
         for (var i = 0; i < PointCount; i++)
-            result.yS[i] -= a * result.xS[i] + b;
-        return result;
+            copy.yS[i] -= a * copy.xS[i] + b;
+        return copy;
     }
 
-    //MNK - метод наименьших квадратов y = ax+b
+    //MNK - метод наименьших квадратов y = ax+b - линия тренда
     private (float a, float b) GetMNK() {
         var xSum = xS.Sum();
         var x2Sum = xS.Sum(e => e * e);
@@ -60,6 +60,7 @@ public abstract class Spectra : Data, IWriteable, ICopyable {
         var xySum = 0f;
         for (var i = 0; i < PointCount; i++)
             xySum += xS[i] * yS[i];
+
         var z = PointCount * x2Sum - xSum * xSum;
         var a = (PointCount * xySum - xSum * ySum) / z;
         var b = (ySum * x2Sum - xSum * xySum) / z;

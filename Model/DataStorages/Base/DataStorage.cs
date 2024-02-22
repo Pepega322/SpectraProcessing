@@ -7,6 +7,8 @@ public abstract class DataStorage : IEnumerable<KeyValuePair<string, DataSet>> {
     protected Dictionary<string, DataSet> storage;
     public DataSet DefaultSet => storage[DefaultSetKey];
 
+    public DataSet this[string setKey] => storage[setKey];
+
     public DataStorage() {
         storage = new Dictionary<string, DataSet>();
         AddDefaultSet();
