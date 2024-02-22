@@ -28,16 +28,22 @@ public abstract class TreeDataSetNode : DataSet {
         return result;
     }
 
+    public bool ContainsSubset(string subsetName)
+        => subsets.Where(s => s.Name == subsetName).Any();
+
+    public bool AddSubset(TreeDataSetNode subset) {
+        bool result;
+        lock (subsets) result = subsets.Add(subset);
+        if (result) IncreaseCount(subset.DataCount);
+        return result;
+    }
+
     public bool DisconnectFromParent() {
         if (Parent == null) return false;
         var result = Parent.subsets.Remove(this);
         if (result) Parent.DecreaseCount(DataCount);
         return result;
     }
-
-    protected abstract void ReadData(DataReader reader, string path);
-
-    protected abstract void AddSubnodes(DataReader reader, string path);
 
     private void DecreaseCount(int num = 1) {
         lock (this) DataCount -= num;
