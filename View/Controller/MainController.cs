@@ -164,7 +164,7 @@ public class MainController {
     public async Task ContextDataSubstractBaseline(object? sender, EventArgs e) {
         GetContextData(sender, out Data data);
         GetContextParentSet(sender, out DataSet set);
-        await dataController.SubstractBaselineForDataAsync(set, data);
+        await dataController.SubstractBaselineForDataAsync( data);
         OnDataChanged?.Invoke();
     }
 

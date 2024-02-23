@@ -42,47 +42,47 @@ public class WindowsDataController : DataController, ITree {
     public async Task SubstractBaselineForSetAsync(DataSet set, bool includeSubsets)
         => await Task.Run(() => SubstractBaselineForSet(set, includeSubsets));
 
-    public async Task SubstractBaselineForDataAsync(DataSet dataOwner, Data data)
-        => await Task.Run(() => SubstractBaselineForData(dataOwner, data));
+    public async Task SubstractBaselineForDataAsync(Data data)
+        => await Task.Run(() => SubstractBaseline(data, storage.DefaultSet));
 
     private void SubstractBaselineForSet(DataSet set, bool includeSubsets) {
         switch (includeSubsets) {
             case false:
-                Parallel.ForEach(set, d => SubstractBaselineForData(set, d));
+                var destination = new DirectoryDataSetNode($"{set.Name} -b (only)");
+                storage.Add(destination.Name, destination);
+                Parallel.ForEach(set, d => SubstractBaseline(d, destination));
                 break;
             case true:
-                var track = GetTrack((DirectoryDataSetNode)set, "-b");
-                Parallel.ForEach(track, pair => SubstractBaselineForTrack(pair.Key, pair.Value));
+                var root = ((DirectoryDataSetNode)set).CopyBranchStructure($"{set.Name} -b (all)", out Dictionary<TreeDataSetNode, TreeDataSetNode> refToCopy);
+                storage.Add(root.Name, root);
+                foreach (var reference in refToCopy.Keys) {
+                    var copy = refToCopy[reference];
+                    Parallel.ForEach(reference, d => SubstractBaseline(d, copy));
+                }
                 break;
         }
     }
 
-    private void SubstractBaselineForTrack(DataSet source, DataSet destination) {
-        foreach (var data in source) {
-            if (data is not Spectra spectra) throw new Exception();
-            var substraction = spectra.SubstractBaseLine();
-            destination.Add(substraction);
-        }
+    private void SubstractBaseline(Data data, DataSet destination) {
+        if (data is not Spectra spectra) throw new Exception();
+        var substracted = spectra.SubstractBaseLine();
+        lock (destination) destination.Add(substracted);
     }
 
-
-    private void SubstractBaselineForData(DataSet dataOwner, Data data) {
-        //if (data is not Spectra spectra || dataOwner is not TreeDataSetNode owner)
-        //    throw new Exception();
-        //var newSetName = $"{dataOwner.Name} -b";
-        //DataSet subset;
-        //if (owner.Parent == null) {
-        //    if (!storage.ContainsSet(newSetName))
-        //        storage.Add(newSetName, new DirectoryDataSetNode(newSetName));
-        //    subset = storage[newSetName];
-        //}
-        //else {
-        //    owner.Parent.AddSubset($"{dataOwner.Name} -b", out TreeDataSetNode s);
-        //    subset = s;
-        //}
-        //var substracted = spectra.SubstractBaseLine();
-        //subset.Add(substracted);
-        throw new NotImplementedException();
+    private Dictionary<DirectoryDataSetNode, string> LinkNodesAndOutputFolder(DirectoryDataSetNode set, string path) {
+        var track = new Dictionary<DirectoryDataSetNode, string> { [set] = path };
+        var queue = new Queue<DirectoryDataSetNode>();
+        queue.Enqueue(set);
+        while (queue.Count != 0) {
+            var nodeInReference = queue.Dequeue();
+            foreach (var subset in nodeInReference.Subsets) {
+                var nextNodeInReference = (DirectoryDataSetNode)subset;
+                var pathInDestination = Path.Combine(track[nodeInReference], subset.Name);
+                track[nextNodeInReference] = pathInDestination;
+                queue.Enqueue(nextNodeInReference);
+            }
+        }
+        return track;
     }
 
     private void ConnectDataSubnodes(TreeNode treeNode) {
@@ -105,52 +105,6 @@ public class WindowsDataController : DataController, ITree {
             };
             treeNode.Nodes.Add(subnode);
         }
-    }
-
-    private Dictionary<TreeDataSetNode, TreeDataSetNode> GetTrack(TreeDataSetNode root, string addToName) {
-        var track = new Dictionary<TreeDataSetNode, TreeDataSetNode>();
-        TreeDataSetNode newNode;
-        if (root.Parent == null) {
-            newNode = new DirectoryDataSetNode($"{root.Name} {addToName}");
-            storage.Add($"{root.Name} {addToName}", newNode);
-        }
-        else {
-            newNode = new DirectoryDataSetNode($"{root.Name} {addToName}", (DirectoryDataSetNode)root.Parent);
-            root.Parent.AddSubset(newNode);
-        }
-        track.Add(root, newNode);
-
-        var queue = new Queue<TreeDataSetNode>();
-        queue.Enqueue(root);
-        while (queue.Count > 0) {
-            var set = queue.Dequeue();
-            foreach (var subset in set.Subsets.Where(s => s.DataCount > 0)) {
-                var parent = track[set];
-                var newName = $"{subset.Name} {addToName}";
-                var newSet = new DirectoryDataSetNode(newName, (DirectoryDataSetNode)parent);
-                parent.AddSubset(newSet);
-                track.Add(subset, newSet);
-                queue.Enqueue(subset);
-            }
-        }
-
-        return track;
-    }
-
-    private Dictionary<DirectoryDataSetNode, string> LinkNodesAndOutputFolder(DirectoryDataSetNode set, string path) {
-        var track = new Dictionary<DirectoryDataSetNode, string> { [set] = path };
-        var queue = new Queue<DirectoryDataSetNode>();
-        queue.Enqueue(set);
-        while (queue.Count != 0) {
-            var nodeInReference = queue.Dequeue();
-            foreach (var subset in nodeInReference.Subsets) {
-                var nextNodeInReference = (DirectoryDataSetNode)subset;
-                var pathInDestination = Path.Combine(track[nodeInReference], subset.Name);
-                track[nextNodeInReference] = pathInDestination;
-                queue.Enqueue(nextNodeInReference);
-            }
-        }
-        return track;
     }
 
     public IEnumerable<TreeNode> GetTree() {

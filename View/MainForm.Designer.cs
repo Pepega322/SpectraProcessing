@@ -60,7 +60,9 @@ partial class MainForm {
         dataButtonContextDataSetPlot = new ToolStripMenuItem();
         dataButtonContextDataSetAddToPlot = new ToolStripMenuItem();
         dataButtonContextDataSetDelete = new ToolStripMenuItem();
-        dataButtonContextDataSetSubstractBaseline = new ToolStripMenuItem();
+        dataNodeContextSubstractBaseline = new ToolStripMenuItem();
+        dataButtonContextDataSetSubstactBaseline = new ToolStripMenuItem();
+        dataButtonContextDataSetAndSubsetsSubstractBaseline = new ToolStripMenuItem();
         dataMenu = new ContextMenuStrip(components);
         dataButtonContextDataSave = new ToolStripMenuItem();
         dataButtonContextDataPlot = new ToolStripMenuItem();
@@ -381,9 +383,10 @@ partial class MainForm {
         // dataSetMenu
         // 
         dataSetMenu.ImageScalingSize = new Size(32, 32);
-        dataSetMenu.Items.AddRange(new ToolStripItem[] { dataNodeContextSave, dataButtonContextDataSetPlot, dataButtonContextDataSetAddToPlot, dataButtonContextDataSetDelete, dataButtonContextDataSetSubstractBaseline });
+        dataSetMenu.Items.AddRange(new ToolStripItem[] { dataNodeContextSave, dataButtonContextDataSetPlot, dataButtonContextDataSetAddToPlot, dataButtonContextDataSetDelete, dataNodeContextSubstractBaseline });
         dataSetMenu.Name = "dataNodeContext1";
-        dataSetMenu.Size = new Size(386, 194);
+        dataSetMenu.Size = new Size(386, 238);
+        dataSetMenu.Tag = "";
         // 
         // dataNodeContextSave
         // 
@@ -422,11 +425,24 @@ partial class MainForm {
         dataButtonContextDataSetDelete.Size = new Size(385, 38);
         dataButtonContextDataSetDelete.Text = "Delete series";
         // 
-        // dataButtonContextDataSetSubstractBaseline
+        // dataNodeContextSubstractBaseline
         // 
-        dataButtonContextDataSetSubstractBaseline.Name = "dataButtonContextDataSetSubstractBaseline";
-        dataButtonContextDataSetSubstractBaseline.Size = new Size(385, 38);
-        dataButtonContextDataSetSubstractBaseline.Text = "Substract baseline for series";
+        dataNodeContextSubstractBaseline.DropDownItems.AddRange(new ToolStripItem[] { dataButtonContextDataSetSubstactBaseline, dataButtonContextDataSetAndSubsetsSubstractBaseline });
+        dataNodeContextSubstractBaseline.Name = "dataNodeContextSubstractBaseline";
+        dataNodeContextSubstractBaseline.Size = new Size(385, 38);
+        dataNodeContextSubstractBaseline.Text = "Substract baseline for series";
+        // 
+        // dataButtonContextDataSetSubstactBaseline
+        // 
+        dataButtonContextDataSetSubstactBaseline.Name = "dataButtonContextDataSetSubstactBaseline";
+        dataButtonContextDataSetSubstactBaseline.Size = new Size(409, 44);
+        dataButtonContextDataSetSubstactBaseline.Text = "Only this series";
+        // 
+        // dataButtonContextDataSetAndSubsetsSubstractBaseline
+        // 
+        dataButtonContextDataSetAndSubsetsSubstractBaseline.Name = "dataButtonContextDataSetAndSubsetsSubstractBaseline";
+        dataButtonContextDataSetAndSubsetsSubstractBaseline.Size = new Size(409, 44);
+        dataButtonContextDataSetAndSubsetsSubstractBaseline.Text = "This series and subseries";
         // 
         // dataMenu
         // 
@@ -568,7 +584,7 @@ partial class MainForm {
     private TreeView plotTree;
     private ToolStripMenuItem plotButtonClear;
     private ScottPlot.WinForms.FormsPlot plotView;
-    private ToolStripMenuItem dataButtonContextDataSetSubstractBaseline;
+    private ToolStripMenuItem dataNodeContextSubstractBaseline;
     private ToolStripMenuItem dataButtonContextDataSubstractBaseline;
     private ToolStripMenuItem dataButtonClear;
     private ToolStripMenuItem rootButtonRefresh;
@@ -577,4 +593,6 @@ partial class MainForm {
     private ToolStripMenuItem plotButtonContextPlotDelete;
     private ToolStripMenuItem plotButtonContextPlotSetDelete;
     private ToolStripMenuItem plotButtonContextPlotSetHighlight;
+    private ToolStripMenuItem dataButtonContextDataSetSubstactBaseline;
+    private ToolStripMenuItem dataButtonContextDataSetAndSubsetsSubstractBaseline;
 }

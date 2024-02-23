@@ -1,6 +1,5 @@
 ﻿using Model.DataFormats;
 using Model.DataStorages;
-using System.Collections;
 
 namespace View;
 
@@ -13,6 +12,7 @@ public partial class MainForm : Form {
         controller.OnRootChanged += async () => await BuildTreeAsync(rootTree, controller.RootGetTree);
         controller.OnDataChanged += async () => await BuildTreeAsync(dataTree, controller.DataGetTree);
         controller.OnPlotChanged += async () => await BuildTreeAsync(plotTree, controller.PlotGetTree);
+
         _ = BuildTreeAsync(rootTree, controller.RootGetTree);
         _ = BuildTreeAsync(dataTree, controller.DataGetTree);
 
@@ -24,6 +24,8 @@ public partial class MainForm : Form {
         rootButtonRead.Click += async (sender, e) => await controller.RootReadAsync(sender, e);
         rootButtonReadWithSubdirs.Click += async (sender, e) => await controller.RootReadWithSubdirsAsync(sender, e);
 
+        dataSetMenu.Tag = dataTree;
+        dataMenu.Tag = dataTree;
         dataTree.NodeMouseClick += TreeNodeClickSelect;
         dataTree.NodeMouseClick += DataDrawContextMenu;
         dataTree.NodeMouseClick += DataSetDrawContextMenu;
@@ -35,14 +37,18 @@ public partial class MainForm : Form {
         dataButtonContextDataSetDelete.Click += (sender, e) => controller.ContextDataSetDelete(sender, e);
         dataButtonContextDataSetPlot.Click += async (sender, e) => await controller.ContextDataSetPlot(sender, e);
         dataButtonContextDataSetAddToPlot.Click += async (sender, e) => await controller.ContextDataSetAddToPlot(sender, e);
-        //dataButtonContextDataSetSubstractBaseline += 
+        dataButtonContextDataSetSubstactBaseline.Click += async (sender, e) => await controller.ContextDataSetSubstractBaseline(sender, e);
+        dataButtonContextDataSetAndSubsetsSubstractBaseline.Click += async (sender, e) => await controller.ContextDataSetAndSubsetsSubstractBaseline(sender, e);
+
         dataButtonContextDataSave.Click += async (sender, e) => await controller.ContextDataSaveAsESPAsync(sender, e);
         dataButtonContextDataDelete.Click += (sender, e) => controller.ContextDataDelete(sender, e);
         dataButtonContextDataPlot.Click += async (sender, e) => await controller.ContextDataPlot(sender, e);
-        //dataButtonContextDataSubstractBaseline += 
+        dataButtonContextDataSubstractBaseline.Click += async (sender, e) => await controller.ContextDataSubstractBaseline(sender, e);
 
         //plotTree.MouseDown += TreeNodeClickSelectt;
         //plotTree.MouseDoubleClick += TreeNodeClickSelectt;
+        plotSetMenu.Tag = plotTree;
+        plotMenu.Tag = plotTree;
         plotTree.NodeMouseClick += TreeNodeClickSelect;
         plotTree.NodeMouseClick += PlotDrawContextMenu;
         plotTree.NodeMouseClick += PlotSetDrawContextMenu;

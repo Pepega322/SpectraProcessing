@@ -6,7 +6,11 @@ internal class SctPlotStorage : PlotStorage, IEnumerable<KeyValuePair<string, Sc
     public override bool Add(string setKey, DataSet set) {
         if (set is not SctPlotSet)
             throw new ArgumentException(nameof(set) + "isn't SctPlot set");
-        return AddSet(setKey, set);
+        string key;
+        if (storage.ContainsKey(setKey))
+            key = GetNewSetKey(setKey);
+        else key = setKey;
+        return AddSet(key, set);
     }
 
     public override bool AddToDefaultSet(Data data) {
