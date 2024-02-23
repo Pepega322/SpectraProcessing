@@ -39,6 +39,52 @@ public class WindowsDataController : DataController, ITree {
         }
     }
 
+    public async Task SubstractBaselineForSetAsync(DataSet set, bool includeSubsets)
+        => await Task.Run(() => SubstractBaselineForSet(set, includeSubsets));
+
+    public async Task SubstractBaselineForDataAsync(DataSet dataOwner, Data data)
+        => await Task.Run(() => SubstractBaselineForData(dataOwner, data));
+
+    private void SubstractBaselineForSet(DataSet set, bool includeSubsets) {
+        switch (includeSubsets) {
+            case false:
+                Parallel.ForEach(set, d => SubstractBaselineForData(set, d));
+                break;
+            case true:
+                var track = GetTrack((DirectoryDataSetNode)set, "-b");
+                Parallel.ForEach(track, pair => SubstractBaselineForTrack(pair.Key, pair.Value));
+                break;
+        }
+    }
+
+    private void SubstractBaselineForTrack(DataSet source, DataSet destination) {
+        foreach (var data in source) {
+            if (data is not Spectra spectra) throw new Exception();
+            var substraction = spectra.SubstractBaseLine();
+            destination.Add(substraction);
+        }
+    }
+
+
+    private void SubstractBaselineForData(DataSet dataOwner, Data data) {
+        //if (data is not Spectra spectra || dataOwner is not TreeDataSetNode owner)
+        //    throw new Exception();
+        //var newSetName = $"{dataOwner.Name} -b";
+        //DataSet subset;
+        //if (owner.Parent == null) {
+        //    if (!storage.ContainsSet(newSetName))
+        //        storage.Add(newSetName, new DirectoryDataSetNode(newSetName));
+        //    subset = storage[newSetName];
+        //}
+        //else {
+        //    owner.Parent.AddSubset($"{dataOwner.Name} -b", out TreeDataSetNode s);
+        //    subset = s;
+        //}
+        //var substracted = spectra.SubstractBaseLine();
+        //subset.Add(substracted);
+        throw new NotImplementedException();
+    }
+
     private void ConnectDataSubnodes(TreeNode treeNode) {
         if (treeNode.Tag is not DirectoryDataSetNode dataNode)
             throw new Exception(nameof(ConnectDataSubnodes));
@@ -59,6 +105,36 @@ public class WindowsDataController : DataController, ITree {
             };
             treeNode.Nodes.Add(subnode);
         }
+    }
+
+    private Dictionary<TreeDataSetNode, TreeDataSetNode> GetTrack(TreeDataSetNode root, string addToName) {
+        var track = new Dictionary<TreeDataSetNode, TreeDataSetNode>();
+        TreeDataSetNode newNode;
+        if (root.Parent == null) {
+            newNode = new DirectoryDataSetNode($"{root.Name} {addToName}");
+            storage.Add($"{root.Name} {addToName}", newNode);
+        }
+        else {
+            newNode = new DirectoryDataSetNode($"{root.Name} {addToName}", (DirectoryDataSetNode)root.Parent);
+            root.Parent.AddSubset(newNode);
+        }
+        track.Add(root, newNode);
+
+        var queue = new Queue<TreeDataSetNode>();
+        queue.Enqueue(root);
+        while (queue.Count > 0) {
+            var set = queue.Dequeue();
+            foreach (var subset in set.Subsets.Where(s => s.DataCount > 0)) {
+                var parent = track[set];
+                var newName = $"{subset.Name} {addToName}";
+                var newSet = new DirectoryDataSetNode(newName, (DirectoryDataSetNode)parent);
+                parent.AddSubset(newSet);
+                track.Add(subset, newSet);
+                queue.Enqueue(subset);
+            }
+        }
+
+        return track;
     }
 
     private Dictionary<DirectoryDataSetNode, string> LinkNodesAndOutputFolder(DirectoryDataSetNode set, string path) {

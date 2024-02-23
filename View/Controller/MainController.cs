@@ -149,6 +149,25 @@ public class MainController {
         await dataController.WriteDataAsAsync(data, path, ".esp");
     }
 
+    public async Task ContextDataSetAndSubsetsSubstractBaseline(object? sender, EventArgs e) {
+        GetContextSet(sender, out DataSet set);
+        await dataController.SubstractBaselineForSetAsync(set, true);
+        OnDataChanged?.Invoke();
+    }
+
+    public async Task ContextDataSetSubstractBaseline(object? sender, EventArgs e) {
+        GetContextSet(sender, out DataSet set);
+        await dataController.SubstractBaselineForSetAsync(set, false);
+        OnDataChanged?.Invoke();
+    }
+
+    public async Task ContextDataSubstractBaseline(object? sender, EventArgs e) {
+        GetContextData(sender, out Data data);
+        GetContextParentSet(sender, out DataSet set);
+        await dataController.SubstractBaselineForDataAsync(set, data);
+        OnDataChanged?.Invoke();
+    }
+
     public void ContextDataSetDelete(object? sender, EventArgs e) {
         GetContextSet(sender, out DataSet set);
         if (dataController.DeleteSet(set))
@@ -220,9 +239,14 @@ public class MainController {
     #region SupportWinformMethods
 
     private TreeNode GetContextTreeNode(object? sender) {
-        var menuItem = sender as ToolStripMenuItem;
-        var contextMenuStrip = menuItem.Owner as ContextMenuStrip;
-        var treeView = contextMenuStrip.SourceControl as TreeView;
+        var item = sender as ToolStripDropDownItem;
+        var contextMenu = item.Owner as ContextMenuStrip;
+        while (contextMenu == null) {
+            var t = item.Owner as ToolStripDropDownMenu;
+            contextMenu = t.OwnerItem.Owner as ContextMenuStrip;
+            item = t.OwnerItem as ToolStripDropDownItem;
+        }
+        var treeView = contextMenu.Tag as TreeView;
         return treeView.SelectedNode;
     }
 
@@ -262,6 +286,8 @@ public class MainController {
         set = node.Parent.Tag as DataSet;
         return set != null;
     }
+
+
 
     #endregion
 }
