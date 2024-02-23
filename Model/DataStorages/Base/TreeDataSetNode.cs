@@ -1,5 +1,4 @@
 ﻿using Model.DataFormats;
-using Model.DataSources;
 
 namespace Model.DataStorages;
 public abstract class TreeDataSetNode : DataSet {
@@ -37,6 +36,10 @@ public abstract class TreeDataSetNode : DataSet {
         if (result) IncreaseCount(subset.DataCount);
         return result;
     }
+
+    public abstract bool AddSubset(string name);
+
+    public abstract TreeDataSetNode CopyBranchStructure(string rootName, out Dictionary<TreeDataSetNode, TreeDataSetNode> referenceToCopy);
 
     public bool DisconnectFromParent() {
         if (Parent == null) return false;

@@ -6,8 +6,8 @@ public class DirectoryDataSetNode : TreeDataSetNode {
     public DirectoryDataSetNode(string name, DirectoryDataSetNode? parent = null)
         : base(name, parent) { }
 
-    public static DirectoryDataSetNode ReadDirectory(string setName, DataReader reader, string pathToRoot, bool addSubdirs = false, DirectoryDataSetNode? parent = null) {
-        var rootSet = new DirectoryDataSetNode(setName, parent);
+    public static DirectoryDataSetNode ReadDirectory(string setName, DataReader reader, string pathToRoot, bool addSubdirs = false) {
+        var rootSet = new DirectoryDataSetNode(setName, null);
         var rootDir = new DirectoryInfo(pathToRoot);
         if (!rootDir.Exists)
             throw new DirectoryNotFoundException(pathToRoot);
@@ -44,9 +44,25 @@ public class DirectoryDataSetNode : TreeDataSetNode {
         return RemoveFromSet(data);
     }
 
-    public bool AddSubset(string subsetName, out TreeDataSetNode subset) {
-        var set = subsets.Where(s => s.Name == subsetName).FirstOrDefault();
-        subset = (set != null) ? set : new DirectoryDataSetNode(subsetName, this);
-        return true;
+    public override TreeDataSetNode CopyBranchStructure(string rootName, out Dictionary<TreeDataSetNode, TreeDataSetNode> refToCopy) {
+        var result = new DirectoryDataSetNode(rootName);
+        refToCopy = new Dictionary<TreeDataSetNode, TreeDataSetNode>();
+        refToCopy.Add(this, result);
+        var queue = new Queue<TreeDataSetNode>();
+        queue.Enqueue(this);
+
+        while (queue.Count > 0) {
+            var reference = queue.Dequeue();
+            var copy = (DirectoryDataSetNode)refToCopy[reference];
+            foreach (DirectoryDataSetNode subsetInRef in reference.Subsets) {
+                var subsetInCopy = new DirectoryDataSetNode(subsetInRef.Name, copy);
+                copy.AddSubset(subsetInCopy);
+                refToCopy.Add(subsetInRef, subsetInCopy);
+                queue.Enqueue(subsetInRef);
+            }
+        }
+        return result;
     }
+
+    public override bool AddSubset(string name) => AddSubset(new DirectoryDataSetNode(name, this));
 }
