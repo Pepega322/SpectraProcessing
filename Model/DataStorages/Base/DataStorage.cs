@@ -16,6 +16,16 @@ public abstract class DataStorage : IEnumerable<KeyValuePair<string, DataSet>> {
 
     protected abstract void AddDefaultSet();
 
+    protected string GetNewSetKey(string setKey) {
+        var i = 1;
+        while (true) {
+            var newSetKey = $"{setKey} ({i})";
+            if (!storage.ContainsKey(newSetKey))
+                return newSetKey;
+            i++;
+        }
+    }
+
     public abstract bool AddToDefaultSet(Data data);
 
     public bool ContainsSet(string setKey) => storage.ContainsKey(setKey);

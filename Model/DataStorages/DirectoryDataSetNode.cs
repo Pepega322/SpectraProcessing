@@ -63,6 +63,4 @@ public class DirectoryDataSetNode : TreeDataSetNode {
         }
         return result;
     }
-
-    public override bool AddSubset(string name) => AddSubset(new DirectoryDataSetNode(name, this));
 }

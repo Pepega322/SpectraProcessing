@@ -37,8 +37,6 @@ public abstract class TreeDataSetNode : DataSet {
         return result;
     }
 
-    public abstract bool AddSubset(string name);
-
     public abstract TreeDataSetNode CopyBranchStructure(string rootName, out Dictionary<TreeDataSetNode, TreeDataSetNode> referenceToCopy);
 
     public bool DisconnectFromParent() {

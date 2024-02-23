@@ -3,8 +3,11 @@
 namespace Model.DataStorages;
 public class DirectoryDataTreeStorage : TreeDataStorage, IEnumerable<KeyValuePair<string, DirectoryDataSetNode>> {
     public override bool Add(string setKey, DataSet set) {
-        if (storage.ContainsKey(setKey)) return false;
-        return AddSet(setKey, set);
+        string key;
+        if (storage.ContainsKey(setKey)) 
+            key = GetNewSetKey(setKey);
+        else key = setKey;
+        return AddSet(key, set);
     }
 
     public override bool AddToDefaultSet(Data data) {
@@ -15,6 +18,8 @@ public class DirectoryDataTreeStorage : TreeDataStorage, IEnumerable<KeyValuePai
     protected override void AddDefaultSet() {
         AddSet(DefaultSetKey, new DirectoryDataSetNode(DefaultSetKey));
     }
+
+    
 
     IEnumerator<KeyValuePair<string, DirectoryDataSetNode>> IEnumerable<KeyValuePair<string, DirectoryDataSetNode>>.GetEnumerator() {
         foreach (var pair in storage)
