@@ -1,4 +1,6 @@
-﻿namespace Model.DataFormats;
+﻿using Model.MathHelper;
+
+namespace Model.DataFormats;
 public abstract class Spectra : Data, IWriteable, ICopyable {
     protected IReadOnlyList<float> xS = null!;
     protected float[] yS = null!;
@@ -46,24 +48,26 @@ public abstract class Spectra : Data, IWriteable, ICopyable {
     public Spectra SubstractBaseLine() {
         var copy = (Spectra)CreateCopy();
         copy.Name = $"{copy.Name} -b";
-        var (a, b) = GetMNK();
+        var baseline = MathOperations.GetLinearRegression((IList<float>)xS, yS);
         for (var i = 0; i < PointCount; i++)
-            copy.yS[i] -= a * copy.xS[i] + b;
+            copy.yS[i] -= baseline(copy.xS[i]);
         return copy;
     }
 
-    //MNK - метод наименьших квадратов y = ax+b - линия тренда
-    private (float a, float b) GetMNK() {
-        var xSum = xS.Sum();
-        var x2Sum = xS.Sum(e => e * e);
-        var ySum = yS.Sum();
-        var xySum = 0f;
-        for (var i = 0; i < PointCount; i++)
-            xySum += xS[i] * yS[i];
-
-        var z = PointCount * x2Sum - xSum * xSum;
-        var a = (PointCount * xySum - xSum * ySum) / z;
-        var b = (ySum * x2Sum - xSum * xySum) / z;
-        return (a, b);
+    public virtual Peak CalculatePeak(float xStart, float xEnd) {
+        if (xEnd < xStart) (xStart, xEnd) = (xEnd, xStart);
+        var left = MathOperations.GetClosestIndex((IList<float>)xS, xStart);
+        var right = MathOperations.GetClosestIndex((IList<float>)xS, xEnd);
+        var baseLine = MathOperations.GetLinearRegression([xS[left], xS[right]], [yS[left], yS[right]]);
+        var square = 0f;
+        var maxHeigth = 0f;
+        for (var index = left; index < right; index++) {
+            var heigth = yS[index] - baseLine(xS[index]);
+            if (heigth > maxHeigth) maxHeigth = heigth;
+            var nextHeigth = yS[index + 1] - baseLine(xS[index + 1]);
+            var deltaX = xS[index + 1] - xS[index];
+            square += MathOperations.GetQuadrangleSquare(heigth, nextHeigth, deltaX);
+        }
+        return new Peak(this, xS[left], yS[right], maxHeigth, square);
     }
 }
