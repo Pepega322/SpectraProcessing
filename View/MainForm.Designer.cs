@@ -385,7 +385,7 @@ partial class MainForm {
         dataSetMenu.ImageScalingSize = new Size(32, 32);
         dataSetMenu.Items.AddRange(new ToolStripItem[] { dataNodeContextSave, dataButtonContextDataSetPlot, dataButtonContextDataSetAddToPlot, dataButtonContextDataSetDelete, dataNodeContextSubstractBaseline });
         dataSetMenu.Name = "dataNodeContext1";
-        dataSetMenu.Size = new Size(386, 238);
+        dataSetMenu.Size = new Size(386, 194);
         dataSetMenu.Tag = "";
         // 
         // dataNodeContextSave

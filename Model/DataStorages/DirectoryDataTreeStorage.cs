@@ -19,8 +19,6 @@ public class DirectoryDataTreeStorage : TreeDataStorage, IEnumerable<KeyValuePai
         AddSet(DefaultSetKey, new DirectoryDataSetNode(DefaultSetKey));
     }
 
-    
-
     IEnumerator<KeyValuePair<string, DirectoryDataSetNode>> IEnumerable<KeyValuePair<string, DirectoryDataSetNode>>.GetEnumerator() {
         foreach (var pair in storage)
             yield return new KeyValuePair<string, DirectoryDataSetNode>(pair.Key, (DirectoryDataSetNode)pair.Value);

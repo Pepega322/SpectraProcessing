@@ -18,7 +18,7 @@ public class MainController {
         //var pathToDesktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         //dirController= new WorkingDirectory(pathToDesktop);
         //dirController= new WorkingDirectory("D:\\Study\\Chemfuck\\Lab\\MixturesData");
-        dirController = new WindowsDirectoryController("d:\\Study\\Chemfuck\\Lab\\MixturesData\\single-components\\sugar-our\\");
+        dirController = new WindowsDirectoryController("d:\\Study\\Chemfuck\\Lab\\MixturesData\\TestSpectras\\");
         dataController = new WindowsDataController(new WindowsWriter());
         plotController = new ScottPlotController(plot);
     }

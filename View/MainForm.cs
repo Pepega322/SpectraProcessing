@@ -60,6 +60,14 @@ public partial class MainForm : Form {
         plotButtonContextPlotDelete.Click += async (sender, e) => await controller.ContextPlotDelete(sender, e);
         plotTree.AfterCheck += async (sender, e) => await controller.ChangePlotSetVisibility(sender, e);
         plotTree.AfterCheck += async (sender, e) => await controller.ChangePlotVisibility(sender, e);
+
+        plotView.MouseMove += UpdateMouseCoordinates;
+    }
+
+    private void UpdateMouseCoordinates(object? sender, MouseEventArgs e) {
+        var form = (ScottPlot.WinForms.FormsPlot)sender;
+        var coord = form.Plot.GetCoordinates(new ScottPlot.Pixel(e.X, e.Y));
+        mouseCoordinatesBox.Text = $"X:{Math.Round(coord.X, 2)}\tY:{Math.Round(coord.Y, 2)}";
     }
 
     private void TreeNodeClickSelect(object? sender, TreeNodeMouseClickEventArgs e) {
