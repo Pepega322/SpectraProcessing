@@ -13,20 +13,21 @@ public class MainController {
     public event Action? OnDataChanged;
     public event Action? OnPlotChanged;
     public event Action? OnRootChanged;
-    public event Action? OnMousePlotCoordinatesChanged;
+    public event Action? OnPlotMouseCoordinatesChanged;
 
     public Point<float> PlotCoordinates => plotController.Coordinates;
 
     public MainController(FormsPlot plot) {
-        //var pathToDesktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-        //dirController= new WorkingDirectory(pathToDesktop);
-        //dirController= new WorkingDirectory("D:\\Study\\Chemfuck\\Lab\\MixturesData");
-        dirController = new WindowsDirectoryController("d:\\Study\\Chemfuck\\Lab\\MixturesData\\TestSpectras\\");
+        var pathToDesktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        dirController = new WindowsDirectoryController(pathToDesktop);
+        //dirController= new WindowsDirectoryController("D:\\Study\\Chemfuck\\Lab\\MixturesData");
+        //dirController = new WindowsDirectoryController("d:\\Study\\Chemfuck\\Lab\\MixturesData\\TestSpectras\\");
         dataController = new WindowsDataController(new WindowsWriter());
         plotController = new ScottPlotController(plot);
     }
 
     #region PlotControllerMethods
+
     public async Task ContextDataSetAddToPlot(object? sender, EventArgs e) {
         if (GetContextSet(sender, out DataSet set)) {
             await plotController.AddDataSetPlotAsync(set, false);
@@ -86,13 +87,14 @@ public class MainController {
         else throw new Exception();
     }
 
-    public async Task ContextPlotSetPeakSelect(object? sender, EventArgs e) {
-        //if (GetContextSet(sender, out DataSet set)) {
-        //    PeaksInfo info = await plotController.ProcessPlotSet((PlotSet)set);
-        //    dataController.AddDataToDefaultSet(info);
-        //    OnDataChanged?.Invoke();    
-        //}
-        //else throw new Exception();
+    public async Task ContextPlotSetPeaksProcess(object? sender, EventArgs e) {
+        if (GetContextSet(sender, out DataSet set)) {
+            PeaksInfo info = await plotController.ProcessPlotSet((PlotSet)set);
+            var path = dirController.SelectPathInDialog();
+            if (path == null) return;
+            await dataController.WriteDataAsAsync(info, path, ".txt");
+        }
+        else throw new Exception();
     }
 
     public async Task ChangePlotVisibility(object? sender, TreeViewEventArgs e) {
@@ -119,25 +121,45 @@ public class MainController {
         else throw new Exception();
     }
 
-    public async Task ContextPlotPeakSelect(object? sender, EventArgs e) {
-        //if (GetContextData(sender, out Data data)) {
-        //    PeaksInfo info = await plotController.ProcessPlot((Plot)data);
-        //    dataController.AddDataToDefaultSet(info);
-        //    OnDataChanged?.Invoke();
-        //}
-        //else throw new Exception();
+    public async Task ContextPlotPeaksProcess(object? sender, EventArgs e) {
+        if (GetContextData(sender, out Data data)) {
+            var info = await plotController.ProcessPlot((Plot)data);
+            var path = dirController.SelectPathInDialog();
+            if (path == null) return;
+            await dataController.WriteDataAsAsync(info, path, ".txt");
+        }
+        else throw new Exception();
+    }
+
+    public async Task PlotAddPeak(object? sender, EventArgs e) {
+        bool result = await plotController.AddPeak();
+        if (result) plotController.Refresh();
+    }
+
+    public async Task PlotDeleteLastPeak(object? sender, EventArgs e) {
+        bool result = await plotController.DeleteLastPeak();
+        if (result) plotController.Refresh();
+    }
+
+    public async Task PlotClearPeaks(object? sender, EventArgs e) {
+        bool result = await plotController.ClearPeaks();
+        if (result) plotController.Refresh();
+    }
+
+    public async Task SetPlotCoordinates(object? sender, MouseEventArgs e) {
+        await plotController.SetCoordinates(e.X, e.Y);
+        OnPlotMouseCoordinatesChanged?.Invoke();
     }
 
     public void PlotClear() {
         plotController.Clear();
         plotController.Refresh();
         OnPlotChanged?.Invoke();
-
     }
 
-    public async Task SetPlotCoordinates(object? sender, MouseEventArgs e) {
-        await plotController.SetCoordinates(e.X, e.Y);
-        OnMousePlotCoordinatesChanged?.Invoke();
+    public void PlotResize() {
+        plotController.Resize();
+        plotController.Refresh();
     }
 
     public IEnumerable<TreeNode> PlotGetTree() => plotController.GetTree();

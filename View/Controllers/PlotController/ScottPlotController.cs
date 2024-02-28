@@ -4,7 +4,6 @@ using Model.Controllers;
 using ScottPlot.Palettes;
 using ScottPlot.WinForms;
 using Plot = Model.DataFormats.Plot;
-using ScottPlot;
 
 namespace View.Controllers;
 internal class ScottPlotController : PlotController, ITree {
@@ -12,11 +11,14 @@ internal class ScottPlotController : PlotController, ITree {
     private PlotSet? highlightedSet;
     private Plot? highlightedPlot;
 
+    private List<SctPlotPeakBorder> peakBorders;
+
     public ScottPlotController(FormsPlot form) : base(new SctPlotStorage("Single Plots")) {
         this.form = form;
         form.Plot.Add.Palette = new Category20();
         form.Plot.XLabel("Raman shift, cm-1");
         form.Plot.YLabel("Intensity");
+        peakBorders = new List<SctPlotPeakBorder>();
     }
 
     public override async Task AddDataPlotAsync(Data data)
@@ -65,8 +67,58 @@ internal class ScottPlotController : PlotController, ITree {
         else highlightedSet = null;
     }
 
+    public override async Task SetCoordinates(float xScreen, float yScreen) {
+        await Task.Run(() => {
+            var c = form.Plot.GetCoordinates(xScreen, yScreen);
+            Coordinates = new Point<float>((float)c.X, (float)c.Y);
+        });
+    }
+
+    public async Task<PeaksInfo> ProcessPlotSet(PlotSet set) {
+        var info = new PeaksInfo($"{set.Name} (set peaks)");
+        foreach (var plot in (IEnumerable<Plot>)set)
+            await Task.Run(() => Parallel.ForEach(peakBorders, b => info.Add(plot.Spectra.ProcessPeak(b))));
+        return info;
+    }
+
+    public async Task<PeaksInfo> ProcessPlot(Plot plot) {
+        var info = new PeaksInfo($"{plot.Name} (peaks)");
+        await Task.Run(() => Parallel.ForEach(peakBorders, b => info.Add(plot.Spectra.ProcessPeak(b))));
+        return info;
+    }
+
+    public async Task<bool> AddPeak() {
+        var start = await GetXCoordinateByClick();
+        var end = await GetXCoordinateByClick();
+        var border = await Task.Run(() => new SctPlotPeakBorder(form, start, end));
+        peakBorders.Add(border);
+        return true;
+    }
+
+    public async Task<bool> DeleteLastPeak() {
+        if (peakBorders.Count == 0) return false;
+        await Task.Run(() => {
+            var last = peakBorders[peakBorders.Count - 1];
+            last.RemoveFromPlot();
+            peakBorders.RemoveAt(peakBorders.Count - 1);
+        });
+        return true;
+    }
+
+    public async Task<bool> ClearPeaks() {
+        if (peakBorders.Count == 0) return false;
+        await Task.Run(() => {
+            Parallel.ForEach(peakBorders, b => b.RemoveFromPlot());
+            peakBorders.Clear();
+        });
+        return true;
+    }
+
     public override void Refresh() {
         form.Refresh();
+    }
+
+    public override void Resize() {
         form.Plot.Axes.AutoScaleX();
         form.Plot.Axes.AutoScaleY();
     }
@@ -76,13 +128,10 @@ internal class ScottPlotController : PlotController, ITree {
         highlightedPlot = null;
         highlightedSet = null;
         form.Plot.Clear();
-    }
-
-    public override async Task SetCoordinates(float xScreen, float yScreen) {
-        await Task.Run(() => {
-            var c = form.Plot.GetCoordinates(xScreen, yScreen);
-            Coordinates = new Point<float>((float)c.X, (float)c.Y);
-        });
+        foreach (var border in peakBorders) {
+            form.Plot.Add.Plottable(border.LeftLine);
+            form.Plot.Add.Plottable(border.RigthLine);
+        }
     }
 
     public IEnumerable<TreeNode> GetTree() {
@@ -127,5 +176,18 @@ internal class ScottPlotController : PlotController, ITree {
     private void ChangeVisibility(Data data, bool isVisible) {
         if (data is not SctPlot plot) return;
         plot.ChangeVisibility(isVisible);
+    }
+
+    private async Task<float> GetXCoordinateByClick() {
+        object value = null;
+        MouseEventHandler handler = (sender, e) => value = Coordinates.X;
+        form.MouseDown += handler;
+        await WaitWhile(() => value is null);
+        form.MouseDown -= handler;
+        return (float)value;
+    }
+
+    private async Task WaitWhile(Func<bool> condition) {
+        await Task.Run(() => { while (condition()) { } });
     }
 }

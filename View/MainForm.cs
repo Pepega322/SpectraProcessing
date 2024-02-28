@@ -2,20 +2,18 @@
 using Model.DataStorages;
 
 namespace View;
-
 public partial class MainForm : Form {
     private MainController controller;
-
     public MainForm() {
         InitializeComponent();
         controller = new(plotView);
         controller.OnRootChanged += async () => await BuildTreeAsync(rootTree, controller.RootGetTree);
         controller.OnDataChanged += async () => await BuildTreeAsync(dataTree, controller.DataGetTree);
         controller.OnPlotChanged += async () => await BuildTreeAsync(plotTree, controller.PlotGetTree);
-        controller.OnMousePlotCoordinatesChanged += DrawMouseCoordinates;
+        controller.OnPlotMouseCoordinatesChanged += DrawMouseCoordinates;
 
-        _ = BuildTreeAsync(rootTree, controller.RootGetTree);
-        _ = BuildTreeAsync(dataTree, controller.DataGetTree);
+        //_ = BuildTreeAsync(rootTree, controller.RootGetTree);
+        //_ = BuildTreeAsync(dataTree, controller.DataGetTree);
 
         rootTree.NodeMouseClick += TreeNodeClickSelect;
         rootTree.NodeMouseDoubleClick += (sender, e) => controller.RootDoubleClick(sender, e);
@@ -33,18 +31,18 @@ public partial class MainForm : Form {
         dataTree.NodeMouseDoubleClick += async (sender, e) => await controller.PlotAddDataToDefault(sender, e);
 
         dataButtonClear.Click += (sender, e) => controller.DataClear();
-        dataButtonContextDataSetSaveAs.Click += async (sender, e) => await controller.ContextDataSetSaveAsESPAsync(sender, e);
-        dataButtonContextDataSetAndSubsetsSaveAs.Click += async (sender, e) => await controller.ContextDataSetAndSubsetsSaveAsESPAsync(sender, e);
-        dataButtonContextDataSetDelete.Click += (sender, e) => controller.ContextDataSetDelete(sender, e);
-        dataButtonContextDataSetPlot.Click += async (sender, e) => await controller.ContextDataSetPlot(sender, e);
-        dataButtonContextDataSetAddToPlot.Click += async (sender, e) => await controller.ContextDataSetAddToPlot(sender, e);
-        dataButtonContextDataSetSubstactBaseline.Click += async (sender, e) => await controller.ContextDataSetSubstractBaseline(sender, e);
-        dataButtonContextDataSetAndSubsetsSubstractBaseline.Click += async (sender, e) => await controller.ContextDataSetAndSubsetsSubstractBaseline(sender, e);
+        dataContextDataSetSaveAs.Click += async (sender, e) => await controller.ContextDataSetSaveAsESPAsync(sender, e);
+        dataContextDataSetAndSubsetsSaveAs.Click += async (sender, e) => await controller.ContextDataSetAndSubsetsSaveAsESPAsync(sender, e);
+        dataContextDataSetDelete.Click += (sender, e) => controller.ContextDataSetDelete(sender, e);
+        dataContextDataSetPlot.Click += async (sender, e) => await controller.ContextDataSetPlot(sender, e);
+        dataContextDataSetAddToPlot.Click += async (sender, e) => await controller.ContextDataSetAddToPlot(sender, e);
+        dataContextDataSetSubstactBaseline.Click += async (sender, e) => await controller.ContextDataSetSubstractBaseline(sender, e);
+        dataContextDataSetAndSubsetsSubstractBaseline.Click += async (sender, e) => await controller.ContextDataSetAndSubsetsSubstractBaseline(sender, e);
 
-        dataButtonContextDataSave.Click += async (sender, e) => await controller.ContextDataSaveAsESPAsync(sender, e);
-        dataButtonContextDataDelete.Click += (sender, e) => controller.ContextDataDelete(sender, e);
-        dataButtonContextDataPlot.Click += async (sender, e) => await controller.ContextDataPlot(sender, e);
-        dataButtonContextDataSubstractBaseline.Click += async (sender, e) => await controller.ContextDataSubstractBaseline(sender, e);
+        dataContextDataSave.Click += async (sender, e) => await controller.ContextDataSaveAsESPAsync(sender, e);
+        dataContextDataDelete.Click += (sender, e) => controller.ContextDataDelete(sender, e);
+        dataContextDataPlot.Click += async (sender, e) => await controller.ContextDataPlot(sender, e);
+        dataContextDataSubstractBaseline.Click += async (sender, e) => await controller.ContextDataSubstractBaseline(sender, e);
 
         plotSetMenu.Tag = plotTree;
         plotMenu.Tag = plotTree;
@@ -55,14 +53,19 @@ public partial class MainForm : Form {
         plotTree.NodeMouseDoubleClick += TreeNodeClickSelect;
         plotTree.NodeMouseDoubleClick += async (sender, e) => await controller.PlotChangePlotHighlightion(sender, e);
         plotButtonClear.Click += (sender, e) => controller.PlotClear();
-        plotButtonContextPlotSetHighlight.Click += async (sender, e) => await controller.ContextPlotSetHighlight(sender, e);
-        plotButtonContextPlotSetDelete.Click += async (sender, e) => await controller.ContextPlotSetDelete(sender, e);
-        plotButtonContextPlotSetPeakSelect.Click += async (sender, e) => await controller.ContextPlotSetPeakSelect(sender, e);
-        plotButtonContextPlotDelete.Click += async (sender, e) => await controller.ContextPlotDelete(sender, e);
-        plotButtonContextPlotPeakSelect.Click += async (sender, e) => await controller.ContextPlotPeakSelect(sender, e);
+        plotButtonResize.Click += (sender, e) => controller.PlotResize();
+        plotContextPlotSetHighlight.Click += async (sender, e) => await controller.ContextPlotSetHighlight(sender, e);
+        plotContextPlotSetDelete.Click += async (sender, e) => await controller.ContextPlotSetDelete(sender, e);
+        plotContextPlotDelete.Click += async (sender, e) => await controller.ContextPlotDelete(sender, e);
         plotTree.AfterCheck += async (sender, e) => await controller.ChangePlotSetVisibility(sender, e);
         plotTree.AfterCheck += async (sender, e) => await controller.ChangePlotVisibility(sender, e);
 
+        plotButtonAddPeak.Click += async (sender, e) => await controller.PlotAddPeak(sender, e);
+        plotButtonDeleteLastPeak.Click += async (sender, e) => await controller.PlotDeleteLastPeak(sender, e);
+        plotButtonClearPeaks.Click += async (sender, e) => await controller.PlotClearPeaks(sender, e);
+
+        plotContextPlotSetPeaksProcess.Click += async (sender, e) => await controller.ContextPlotSetPeaksProcess(sender, e);
+        plotContextPlotPeaksProcess.Click += async (sender, e) => await controller.ContextPlotPeaksProcess(sender, e);
     }
 
     private void DrawMouseCoordinates() {

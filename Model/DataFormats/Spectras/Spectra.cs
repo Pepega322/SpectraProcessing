@@ -52,10 +52,9 @@ public abstract class Spectra : Data, IWriteable, ICopyable {
         return copy;
     }
 
-    public virtual PeakInfo ProcessPeak(float xStart, float xEnd) {
-        if (xEnd < xStart) (xStart, xEnd) = (xEnd, xStart);
-        var left = MathOperations.GetClosestIndex((IList<float>)xS, xStart);
-        var right = MathOperations.GetClosestIndex((IList<float>)xS, xEnd);
+    public virtual PeakInfo ProcessPeak(PeakBorder border) {
+        var left = MathOperations.GetClosestIndex((IList<float>)xS, border.Left);
+        var right = MathOperations.GetClosestIndex((IList<float>)xS, border.Rigth);
         var baseLine = MathOperations.GetLinearRegression([xS[left], xS[right]], [yS[left], yS[right]]);
         var square = 0f;
         var maxHeigth = 0f;

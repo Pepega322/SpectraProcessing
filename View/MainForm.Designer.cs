@@ -46,38 +46,39 @@ partial class MainForm {
         dataButtonClear = new ToolStripMenuItem();
         tableLayoutPanelMiddleMiddle = new TableLayoutPanel();
         plotNavigation = new MenuStrip();
-        addPointToolStripMenuItem = new ToolStripMenuItem();
-        removeLastPointToolStripMenuItem = new ToolStripMenuItem();
-        processPeaksToolStripMenuItem = new ToolStripMenuItem();
+        plotButtonAddPeak = new ToolStripMenuItem();
+        plotButtonDeleteLastPeak = new ToolStripMenuItem();
+        plotButtonClearPeaks = new ToolStripMenuItem();
         tableLayoutPanelRightUp = new TableLayoutPanel();
         mouseCoordinatesBox = new TextBox();
         plotView = new ScottPlot.WinForms.FormsPlot();
         tableLayoutPanel1 = new TableLayoutPanel();
         menuStrip1 = new MenuStrip();
         plotButtonClear = new ToolStripMenuItem();
+        plotButtonResize = new ToolStripMenuItem();
         plotTree = new TreeView();
         dataSetMenu = new ContextMenuStrip(components);
         dataNodeContextSave = new ToolStripMenuItem();
-        dataButtonContextDataSetSaveAs = new ToolStripMenuItem();
-        dataButtonContextDataSetAndSubsetsSaveAs = new ToolStripMenuItem();
-        dataButtonContextDataSetPlot = new ToolStripMenuItem();
-        dataButtonContextDataSetAddToPlot = new ToolStripMenuItem();
-        dataButtonContextDataSetDelete = new ToolStripMenuItem();
+        dataContextDataSetSaveAs = new ToolStripMenuItem();
+        dataContextDataSetAndSubsetsSaveAs = new ToolStripMenuItem();
+        dataContextDataSetPlot = new ToolStripMenuItem();
+        dataContextDataSetAddToPlot = new ToolStripMenuItem();
+        dataContextDataSetDelete = new ToolStripMenuItem();
         dataNodeContextSubstractBaseline = new ToolStripMenuItem();
-        dataButtonContextDataSetSubstactBaseline = new ToolStripMenuItem();
-        dataButtonContextDataSetAndSubsetsSubstractBaseline = new ToolStripMenuItem();
+        dataContextDataSetSubstactBaseline = new ToolStripMenuItem();
+        dataContextDataSetAndSubsetsSubstractBaseline = new ToolStripMenuItem();
         dataMenu = new ContextMenuStrip(components);
-        dataButtonContextDataSave = new ToolStripMenuItem();
-        dataButtonContextDataPlot = new ToolStripMenuItem();
-        dataButtonContextDataDelete = new ToolStripMenuItem();
-        dataButtonContextDataSubstractBaseline = new ToolStripMenuItem();
+        dataContextDataSave = new ToolStripMenuItem();
+        dataContextDataPlot = new ToolStripMenuItem();
+        dataContextDataDelete = new ToolStripMenuItem();
+        dataContextDataSubstractBaseline = new ToolStripMenuItem();
         plotSetMenu = new ContextMenuStrip(components);
-        plotButtonContextPlotSetHighlight = new ToolStripMenuItem();
-        plotButtonContextPlotSetDelete = new ToolStripMenuItem();
-        plotButtonContextPlotSetPeakSelect = new ToolStripMenuItem();
+        plotContextPlotSetHighlight = new ToolStripMenuItem();
+        plotContextPlotSetDelete = new ToolStripMenuItem();
+        plotContextPlotSetPeaksProcess = new ToolStripMenuItem();
         plotMenu = new ContextMenuStrip(components);
-        plotButtonContextPlotDelete = new ToolStripMenuItem();
-        plotButtonContextPlotPeakSelect = new ToolStripMenuItem();
+        plotContextPlotDelete = new ToolStripMenuItem();
+        plotContextPlotPeaksProcess = new ToolStripMenuItem();
         tableLayoutPanelMain.SuspendLayout();
         mainMenuStrip.SuspendLayout();
         tableLayoutPanelMiddle.SuspendLayout();
@@ -309,30 +310,30 @@ partial class MainForm {
         // 
         plotNavigation.Dock = DockStyle.Fill;
         plotNavigation.ImageScalingSize = new Size(32, 32);
-        plotNavigation.Items.AddRange(new ToolStripItem[] { addPointToolStripMenuItem, removeLastPointToolStripMenuItem, processPeaksToolStripMenuItem });
+        plotNavigation.Items.AddRange(new ToolStripItem[] { plotButtonAddPeak, plotButtonDeleteLastPeak, plotButtonClearPeaks });
         plotNavigation.Location = new Point(0, 0);
         plotNavigation.Name = "plotNavigation";
         plotNavigation.Size = new Size(1032, 40);
         plotNavigation.TabIndex = 8;
         plotNavigation.Text = "menuStrip1";
         // 
-        // addPointToolStripMenuItem
+        // plotButtonAddPeak
         // 
-        addPointToolStripMenuItem.Name = "addPointToolStripMenuItem";
-        addPointToolStripMenuItem.Size = new Size(218, 36);
-        addPointToolStripMenuItem.Text = "Add on next click";
+        plotButtonAddPeak.Name = "plotButtonAddPeak";
+        plotButtonAddPeak.Size = new Size(135, 36);
+        plotButtonAddPeak.Text = "Add peak";
         // 
-        // removeLastPointToolStripMenuItem
+        // plotButtonDeleteLastPeak
         // 
-        removeLastPointToolStripMenuItem.Name = "removeLastPointToolStripMenuItem";
-        removeLastPointToolStripMenuItem.Size = new Size(163, 36);
-        removeLastPointToolStripMenuItem.Text = "Remove last";
+        plotButtonDeleteLastPeak.Name = "plotButtonDeleteLastPeak";
+        plotButtonDeleteLastPeak.Size = new Size(147, 36);
+        plotButtonDeleteLastPeak.Text = "Delete last";
         // 
-        // processPeaksToolStripMenuItem
+        // plotButtonClearPeaks
         // 
-        processPeaksToolStripMenuItem.Name = "processPeaksToolStripMenuItem";
-        processPeaksToolStripMenuItem.Size = new Size(181, 36);
-        processPeaksToolStripMenuItem.Text = "Process peaks";
+        plotButtonClearPeaks.Name = "plotButtonClearPeaks";
+        plotButtonClearPeaks.Size = new Size(156, 36);
+        plotButtonClearPeaks.Text = "Clear peaks";
         // 
         // tableLayoutPanelRightUp
         // 
@@ -383,7 +384,7 @@ partial class MainForm {
         // menuStrip1
         // 
         menuStrip1.ImageScalingSize = new Size(32, 32);
-        menuStrip1.Items.AddRange(new ToolStripItem[] { plotButtonClear });
+        menuStrip1.Items.AddRange(new ToolStripItem[] { plotButtonClear, plotButtonResize });
         menuStrip1.Location = new Point(0, 0);
         menuStrip1.Name = "menuStrip1";
         menuStrip1.Size = new Size(494, 40);
@@ -395,6 +396,12 @@ partial class MainForm {
         plotButtonClear.Name = "plotButtonClear";
         plotButtonClear.Size = new Size(88, 36);
         plotButtonClear.Text = "Clear";
+        // 
+        // plotButtonResize
+        // 
+        plotButtonResize.Name = "plotButtonResize";
+        plotButtonResize.Size = new Size(100, 36);
+        plotButtonResize.Text = "Resize";
         // 
         // plotTree
         // 
@@ -408,141 +415,141 @@ partial class MainForm {
         // dataSetMenu
         // 
         dataSetMenu.ImageScalingSize = new Size(32, 32);
-        dataSetMenu.Items.AddRange(new ToolStripItem[] { dataNodeContextSave, dataButtonContextDataSetPlot, dataButtonContextDataSetAddToPlot, dataButtonContextDataSetDelete, dataNodeContextSubstractBaseline });
+        dataSetMenu.Items.AddRange(new ToolStripItem[] { dataNodeContextSave, dataContextDataSetPlot, dataContextDataSetAddToPlot, dataContextDataSetDelete, dataNodeContextSubstractBaseline });
         dataSetMenu.Name = "dataNodeContext1";
         dataSetMenu.Size = new Size(386, 194);
         dataSetMenu.Tag = "";
         // 
         // dataNodeContextSave
         // 
-        dataNodeContextSave.DropDownItems.AddRange(new ToolStripItem[] { dataButtonContextDataSetSaveAs, dataButtonContextDataSetAndSubsetsSaveAs });
+        dataNodeContextSave.DropDownItems.AddRange(new ToolStripItem[] { dataContextDataSetSaveAs, dataContextDataSetAndSubsetsSaveAs });
         dataNodeContextSave.Name = "dataNodeContextSave";
         dataNodeContextSave.Size = new Size(385, 38);
         dataNodeContextSave.Text = "Save series as .esp";
         // 
-        // dataButtonContextDataSetSaveAs
+        // dataContextDataSetSaveAs
         // 
-        dataButtonContextDataSetSaveAs.Name = "dataButtonContextDataSetSaveAs";
-        dataButtonContextDataSetSaveAs.Size = new Size(409, 44);
-        dataButtonContextDataSetSaveAs.Text = "Only this series";
+        dataContextDataSetSaveAs.Name = "dataContextDataSetSaveAs";
+        dataContextDataSetSaveAs.Size = new Size(409, 44);
+        dataContextDataSetSaveAs.Text = "Only this series";
         // 
-        // dataButtonContextDataSetAndSubsetsSaveAs
+        // dataContextDataSetAndSubsetsSaveAs
         // 
-        dataButtonContextDataSetAndSubsetsSaveAs.Name = "dataButtonContextDataSetAndSubsetsSaveAs";
-        dataButtonContextDataSetAndSubsetsSaveAs.Size = new Size(409, 44);
-        dataButtonContextDataSetAndSubsetsSaveAs.Text = "This series and subseries";
+        dataContextDataSetAndSubsetsSaveAs.Name = "dataContextDataSetAndSubsetsSaveAs";
+        dataContextDataSetAndSubsetsSaveAs.Size = new Size(409, 44);
+        dataContextDataSetAndSubsetsSaveAs.Text = "This series and subseries";
         // 
-        // dataButtonContextDataSetPlot
+        // dataContextDataSetPlot
         // 
-        dataButtonContextDataSetPlot.Name = "dataButtonContextDataSetPlot";
-        dataButtonContextDataSetPlot.Size = new Size(385, 38);
-        dataButtonContextDataSetPlot.Text = "Plot series";
+        dataContextDataSetPlot.Name = "dataContextDataSetPlot";
+        dataContextDataSetPlot.Size = new Size(385, 38);
+        dataContextDataSetPlot.Text = "Plot series";
         // 
-        // dataButtonContextDataSetAddToPlot
+        // dataContextDataSetAddToPlot
         // 
-        dataButtonContextDataSetAddToPlot.Name = "dataButtonContextDataSetAddToPlot";
-        dataButtonContextDataSetAddToPlot.Size = new Size(385, 38);
-        dataButtonContextDataSetAddToPlot.Text = "Add series to plot";
+        dataContextDataSetAddToPlot.Name = "dataContextDataSetAddToPlot";
+        dataContextDataSetAddToPlot.Size = new Size(385, 38);
+        dataContextDataSetAddToPlot.Text = "Add series to plot";
         // 
-        // dataButtonContextDataSetDelete
+        // dataContextDataSetDelete
         // 
-        dataButtonContextDataSetDelete.Name = "dataButtonContextDataSetDelete";
-        dataButtonContextDataSetDelete.Size = new Size(385, 38);
-        dataButtonContextDataSetDelete.Text = "Delete series";
+        dataContextDataSetDelete.Name = "dataContextDataSetDelete";
+        dataContextDataSetDelete.Size = new Size(385, 38);
+        dataContextDataSetDelete.Text = "Delete series";
         // 
         // dataNodeContextSubstractBaseline
         // 
-        dataNodeContextSubstractBaseline.DropDownItems.AddRange(new ToolStripItem[] { dataButtonContextDataSetSubstactBaseline, dataButtonContextDataSetAndSubsetsSubstractBaseline });
+        dataNodeContextSubstractBaseline.DropDownItems.AddRange(new ToolStripItem[] { dataContextDataSetSubstactBaseline, dataContextDataSetAndSubsetsSubstractBaseline });
         dataNodeContextSubstractBaseline.Name = "dataNodeContextSubstractBaseline";
         dataNodeContextSubstractBaseline.Size = new Size(385, 38);
         dataNodeContextSubstractBaseline.Text = "Substract baseline for series";
         // 
-        // dataButtonContextDataSetSubstactBaseline
+        // dataContextDataSetSubstactBaseline
         // 
-        dataButtonContextDataSetSubstactBaseline.Name = "dataButtonContextDataSetSubstactBaseline";
-        dataButtonContextDataSetSubstactBaseline.Size = new Size(409, 44);
-        dataButtonContextDataSetSubstactBaseline.Text = "Only this series";
+        dataContextDataSetSubstactBaseline.Name = "dataContextDataSetSubstactBaseline";
+        dataContextDataSetSubstactBaseline.Size = new Size(409, 44);
+        dataContextDataSetSubstactBaseline.Text = "Only this series";
         // 
-        // dataButtonContextDataSetAndSubsetsSubstractBaseline
+        // dataContextDataSetAndSubsetsSubstractBaseline
         // 
-        dataButtonContextDataSetAndSubsetsSubstractBaseline.Name = "dataButtonContextDataSetAndSubsetsSubstractBaseline";
-        dataButtonContextDataSetAndSubsetsSubstractBaseline.Size = new Size(409, 44);
-        dataButtonContextDataSetAndSubsetsSubstractBaseline.Text = "This series and subseries";
+        dataContextDataSetAndSubsetsSubstractBaseline.Name = "dataContextDataSetAndSubsetsSubstractBaseline";
+        dataContextDataSetAndSubsetsSubstractBaseline.Size = new Size(409, 44);
+        dataContextDataSetAndSubsetsSubstractBaseline.Text = "This series and subseries";
         // 
         // dataMenu
         // 
         dataMenu.ImageScalingSize = new Size(32, 32);
-        dataMenu.Items.AddRange(new ToolStripItem[] { dataButtonContextDataSave, dataButtonContextDataPlot, dataButtonContextDataDelete, dataButtonContextDataSubstractBaseline });
+        dataMenu.Items.AddRange(new ToolStripItem[] { dataContextDataSave, dataContextDataPlot, dataContextDataDelete, dataContextDataSubstractBaseline });
         dataMenu.Name = "contextMenuStrip2";
         dataMenu.Size = new Size(282, 156);
         // 
-        // dataButtonContextDataSave
+        // dataContextDataSave
         // 
-        dataButtonContextDataSave.Name = "dataButtonContextDataSave";
-        dataButtonContextDataSave.Size = new Size(281, 38);
-        dataButtonContextDataSave.Text = "Save as .esp";
+        dataContextDataSave.Name = "dataContextDataSave";
+        dataContextDataSave.Size = new Size(281, 38);
+        dataContextDataSave.Text = "Save as .esp";
         // 
-        // dataButtonContextDataPlot
+        // dataContextDataPlot
         // 
-        dataButtonContextDataPlot.Name = "dataButtonContextDataPlot";
-        dataButtonContextDataPlot.Size = new Size(281, 38);
-        dataButtonContextDataPlot.Text = "Plot";
+        dataContextDataPlot.Name = "dataContextDataPlot";
+        dataContextDataPlot.Size = new Size(281, 38);
+        dataContextDataPlot.Text = "Plot";
         // 
-        // dataButtonContextDataDelete
+        // dataContextDataDelete
         // 
-        dataButtonContextDataDelete.Name = "dataButtonContextDataDelete";
-        dataButtonContextDataDelete.Size = new Size(281, 38);
-        dataButtonContextDataDelete.Text = "Delete";
+        dataContextDataDelete.Name = "dataContextDataDelete";
+        dataContextDataDelete.Size = new Size(281, 38);
+        dataContextDataDelete.Text = "Delete";
         // 
-        // dataButtonContextDataSubstractBaseline
+        // dataContextDataSubstractBaseline
         // 
-        dataButtonContextDataSubstractBaseline.Name = "dataButtonContextDataSubstractBaseline";
-        dataButtonContextDataSubstractBaseline.Size = new Size(281, 38);
-        dataButtonContextDataSubstractBaseline.Text = "Substract baseline";
+        dataContextDataSubstractBaseline.Name = "dataContextDataSubstractBaseline";
+        dataContextDataSubstractBaseline.Size = new Size(281, 38);
+        dataContextDataSubstractBaseline.Text = "Substract baseline";
         // 
         // plotSetMenu
         // 
         plotSetMenu.ImageScalingSize = new Size(32, 32);
-        plotSetMenu.Items.AddRange(new ToolStripItem[] { plotButtonContextPlotSetHighlight, plotButtonContextPlotSetDelete, plotButtonContextPlotSetPeakSelect });
+        plotSetMenu.Items.AddRange(new ToolStripItem[] { plotContextPlotSetHighlight, plotContextPlotSetDelete, plotContextPlotSetPeaksProcess });
         plotSetMenu.Name = "plotSetMenu";
-        plotSetMenu.Size = new Size(325, 118);
+        plotSetMenu.Size = new Size(340, 118);
         // 
-        // plotButtonContextPlotSetHighlight
+        // plotContextPlotSetHighlight
         // 
-        plotButtonContextPlotSetHighlight.Name = "plotButtonContextPlotSetHighlight";
-        plotButtonContextPlotSetHighlight.Size = new Size(324, 38);
-        plotButtonContextPlotSetHighlight.Text = "Highlight On\\Off";
+        plotContextPlotSetHighlight.Name = "plotContextPlotSetHighlight";
+        plotContextPlotSetHighlight.Size = new Size(339, 38);
+        plotContextPlotSetHighlight.Text = "Highlight On\\Off";
         // 
-        // plotButtonContextPlotSetDelete
+        // plotContextPlotSetDelete
         // 
-        plotButtonContextPlotSetDelete.Name = "plotButtonContextPlotSetDelete";
-        plotButtonContextPlotSetDelete.Size = new Size(324, 38);
-        plotButtonContextPlotSetDelete.Text = "Delete series";
+        plotContextPlotSetDelete.Name = "plotContextPlotSetDelete";
+        plotContextPlotSetDelete.Size = new Size(339, 38);
+        plotContextPlotSetDelete.Text = "Delete series";
         // 
-        // plotButtonContextPlotSetPeakSelect
+        // plotContextPlotSetPeaksProcess
         // 
-        plotButtonContextPlotSetPeakSelect.Name = "plotButtonContextPlotSetPeakSelect";
-        plotButtonContextPlotSetPeakSelect.Size = new Size(324, 38);
-        plotButtonContextPlotSetPeakSelect.Text = "Select peaks for series";
+        plotContextPlotSetPeaksProcess.Name = "plotContextPlotSetPeaksProcess";
+        plotContextPlotSetPeaksProcess.Size = new Size(339, 38);
+        plotContextPlotSetPeaksProcess.Text = "Process peaks for series";
         // 
         // plotMenu
         // 
         plotMenu.ImageScalingSize = new Size(32, 32);
-        plotMenu.Items.AddRange(new ToolStripItem[] { plotButtonContextPlotDelete, plotButtonContextPlotPeakSelect });
+        plotMenu.Items.AddRange(new ToolStripItem[] { plotContextPlotDelete, plotContextPlotPeaksProcess });
         plotMenu.Name = "plotMenu";
-        plotMenu.Size = new Size(221, 80);
+        plotMenu.Size = new Size(236, 80);
         // 
-        // plotButtonContextPlotDelete
+        // plotContextPlotDelete
         // 
-        plotButtonContextPlotDelete.Name = "plotButtonContextPlotDelete";
-        plotButtonContextPlotDelete.Size = new Size(220, 38);
-        plotButtonContextPlotDelete.Text = "Delete";
+        plotContextPlotDelete.Name = "plotContextPlotDelete";
+        plotContextPlotDelete.Size = new Size(235, 38);
+        plotContextPlotDelete.Text = "Delete";
         // 
-        // plotButtonContextPlotPeakSelect
+        // plotContextPlotPeaksProcess
         // 
-        plotButtonContextPlotPeakSelect.Name = "plotButtonContextPlotPeakSelect";
-        plotButtonContextPlotPeakSelect.Size = new Size(220, 38);
-        plotButtonContextPlotPeakSelect.Text = "Select peaks";
+        plotContextPlotPeaksProcess.Name = "plotContextPlotPeaksProcess";
+        plotContextPlotPeaksProcess.Size = new Size(235, 38);
+        plotContextPlotPeaksProcess.Text = "Process peaks";
         // 
         // MainForm
         // 
@@ -610,33 +617,34 @@ partial class MainForm {
     private ContextMenuStrip dataSetMenu;
     private ContextMenuStrip dataMenu;
     private ToolStripMenuItem dataNodeContextSave;
-    private ToolStripMenuItem dataButtonContextDataSetSaveAs;
-    private ToolStripMenuItem dataButtonContextDataSetAndSubsetsSaveAs;
-    private ToolStripMenuItem dataButtonContextDataSetPlot;
-    private ToolStripMenuItem dataButtonContextDataSetAddToPlot;
-    private ToolStripMenuItem dataButtonContextDataSetDelete;
-    private ToolStripMenuItem dataButtonContextDataSave;
-    private ToolStripMenuItem dataButtonContextDataPlot;
-    private ToolStripMenuItem dataButtonContextDataDelete;
+    private ToolStripMenuItem dataContextDataSetSaveAs;
+    private ToolStripMenuItem dataContextDataSetAndSubsetsSaveAs;
+    private ToolStripMenuItem dataContextDataSetPlot;
+    private ToolStripMenuItem dataContextDataSetAddToPlot;
+    private ToolStripMenuItem dataContextDataSetDelete;
+    private ToolStripMenuItem dataContextDataSave;
+    private ToolStripMenuItem dataContextDataPlot;
+    private ToolStripMenuItem dataContextDataDelete;
     private TableLayoutPanel tableLayoutPanel1;
     private MenuStrip menuStrip1;
     private TreeView plotTree;
     private ToolStripMenuItem plotButtonClear;
     private ScottPlot.WinForms.FormsPlot plotView;
     private ToolStripMenuItem dataNodeContextSubstractBaseline;
-    private ToolStripMenuItem dataButtonContextDataSubstractBaseline;
+    private ToolStripMenuItem dataContextDataSubstractBaseline;
     private ToolStripMenuItem dataButtonClear;
     private ToolStripMenuItem rootButtonRefresh;
     private ContextMenuStrip plotSetMenu;
     private ContextMenuStrip plotMenu;
-    private ToolStripMenuItem plotButtonContextPlotDelete;
-    private ToolStripMenuItem plotButtonContextPlotSetDelete;
-    private ToolStripMenuItem plotButtonContextPlotSetHighlight;
-    private ToolStripMenuItem dataButtonContextDataSetSubstactBaseline;
-    private ToolStripMenuItem dataButtonContextDataSetAndSubsetsSubstractBaseline;
-    private ToolStripMenuItem plotButtonContextPlotSetPeakSelect;
-    private ToolStripMenuItem plotButtonContextPlotPeakSelect;
-    private ToolStripMenuItem addPointToolStripMenuItem;
-    private ToolStripMenuItem removeLastPointToolStripMenuItem;
-    private ToolStripMenuItem processPeaksToolStripMenuItem;
+    private ToolStripMenuItem plotContextPlotDelete;
+    private ToolStripMenuItem plotContextPlotSetDelete;
+    private ToolStripMenuItem plotContextPlotSetHighlight;
+    private ToolStripMenuItem dataContextDataSetSubstactBaseline;
+    private ToolStripMenuItem dataContextDataSetAndSubsetsSubstractBaseline;
+    private ToolStripMenuItem plotContextPlotSetPeaksProcess;
+    private ToolStripMenuItem plotContextPlotPeaksProcess;
+    private ToolStripMenuItem plotButtonAddPeak;
+    private ToolStripMenuItem plotButtonDeleteLastPeak;
+    private ToolStripMenuItem plotButtonClearPeaks;
+    private ToolStripMenuItem plotButtonResize;
 }

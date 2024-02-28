@@ -31,5 +31,7 @@ public abstract class PlotController {
 
     public abstract void Refresh();
 
+    public abstract void Resize();
+
     public abstract Task SetCoordinates(float xScreen, float yScreen);
 }
