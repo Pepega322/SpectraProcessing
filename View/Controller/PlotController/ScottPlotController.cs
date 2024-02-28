@@ -3,14 +3,16 @@ using Model.DataStorages;
 using Model.Controllers;
 using ScottPlot.Palettes;
 using ScottPlot.WinForms;
+using Plot = Model.DataFormats.Plot;
+using ScottPlot;
 
 namespace View.Controllers;
 internal class ScottPlotController : PlotController, ITree {
     private FormsPlot form;
-    private PlotSet? HighlightedSet;
-    private Plot? HighlightedPlot;
+    private PlotSet? highlightedSet;
+    private Plot? highlightedPlot;
 
-    public ScottPlotController(FormsPlot form) : base(new SctPlotStorage()) {
+    public ScottPlotController(FormsPlot form) : base(new SctPlotStorage("Single Plots")) {
         this.form = form;
         form.Plot.Add.Palette = new Category20();
         form.Plot.XLabel("Raman shift, cm-1");
@@ -27,13 +29,6 @@ internal class ScottPlotController : PlotController, ITree {
             storage.Add(set.Name, destination);
     }
 
-    private void PlotDataTo(Data data, DataSet destination) {
-        if (data is not Spectra spectra || destination.Contains(spectra)) return;
-        var format = SctPlot.GetPlotFormat(spectra);
-        var plot = SctPlot.PlotSpectra(format, spectra, form);
-        destination.Add(plot);
-    }
-
     public override async Task RemovePlotAsync(Plot plot, PlotSet owner)
         => await Task.Run(() => RemovePlotFrom(plot, owner));
 
@@ -42,50 +37,32 @@ internal class ScottPlotController : PlotController, ITree {
         await Task.Run(() => Parallel.ForEach((IEnumerable<Plot>)set, p => RemovePlotFrom(p, set)));
     }
 
-    private void RemovePlotFrom(Plot plot, PlotSet owner) {
-        if (plot is not SctPlot plt) return;
-        lock (form.Plot) form.Plot.Remove(plt.Plot);
-        owner.Remove(plot);
-    }
-
     public override async Task ChangePlotVisibilityAsync(Plot plot, bool isVisible)
         => await Task.Run(() => ChangeVisibility(plot, isVisible));
 
     public override async Task ChangePlotSetVisibilityAsync(PlotSet set, bool isVisible)
         => await Task.Run(() => Parallel.ForEach((IEnumerable<Plot>)set, plot => ChangeVisibility(plot, isVisible)));
 
-
-    private void ChangeVisibility(Data data, bool isVisible) {
-        if (data is not SctPlot plot) return;
-        plot.ChangeVisibility(isVisible);
-    }
-
     public override async Task ChangePlotHighlightionAsync(Plot plot) {
-        if (HighlightedPlot != null)
-            await Task.Run(() => ChangeHighlightion(HighlightedPlot, false));
+        if (highlightedPlot != null)
+            await Task.Run(() => ChangeHighlightion(highlightedPlot, false));
 
-        if (HighlightedPlot != plot) {
-            HighlightedPlot = plot;
-            await Task.Run(() => ChangeHighlightion(HighlightedPlot, true));
+        if (highlightedPlot != plot) {
+            highlightedPlot = plot;
+            await Task.Run(() => ChangeHighlightion(highlightedPlot, true));
         }
-        else HighlightedPlot = null;
+        else highlightedPlot = null;
     }
 
     public override async Task ChangePlotSetHighlightionAsync(PlotSet set) {
-        if (HighlightedSet != null)
-            await Task.Run(() => Parallel.ForEach((IEnumerable<Plot>)HighlightedSet, plot => ChangeHighlightion(plot, false)));
+        if (highlightedSet != null)
+            await Task.Run(() => Parallel.ForEach((IEnumerable<Plot>)highlightedSet, plot => ChangeHighlightion(plot, false)));
 
-        if (HighlightedSet != set) {
-            HighlightedSet = set;
-            await Task.Run(() => Parallel.ForEach((IEnumerable<Plot>)HighlightedSet, plot => ChangeHighlightion(plot, true)));
+        if (highlightedSet != set) {
+            highlightedSet = set;
+            await Task.Run(() => Parallel.ForEach((IEnumerable<Plot>)highlightedSet, plot => ChangeHighlightion(plot, true)));
         }
-        else HighlightedSet = null;
-    }
-
-
-    private void ChangeHighlightion(Plot plot, bool isHighlighted) {
-        if (plot is not SctPlot sct) return;
-        sct.ChangeHighlightion(isHighlighted);
+        else highlightedSet = null;
     }
 
     public override void Refresh() {
@@ -96,9 +73,16 @@ internal class ScottPlotController : PlotController, ITree {
 
     public override void Clear() {
         storage.Clear();
-        HighlightedPlot = null;
-        HighlightedSet = null;
+        highlightedPlot = null;
+        highlightedSet = null;
         form.Plot.Clear();
+    }
+
+    public override async Task SetCoordinates(float xScreen, float yScreen) {
+        await Task.Run(() => {
+            var c = form.Plot.GetCoordinates(xScreen, yScreen);
+            Coordinates = new Point<float>((float)c.X, (float)c.Y);
+        });
     }
 
     public IEnumerable<TreeNode> GetTree() {
@@ -120,5 +104,28 @@ internal class ScottPlotController : PlotController, ITree {
             if (setNode.Nodes.Count > 0)
                 yield return setNode;
         }
+    }
+
+    private void ChangeHighlightion(Plot plot, bool isHighlighted) {
+        if (plot is not SctPlot sct) return;
+        sct.ChangeHighlightion(isHighlighted);
+    }
+
+    private void RemovePlotFrom(Plot plot, PlotSet owner) {
+        if (plot is not SctPlot plt) return;
+        lock (form.Plot) form.Plot.Remove(plt.Plot);
+        owner.Remove(plot);
+    }
+
+    private void PlotDataTo(Data data, DataSet destination) {
+        if (data is not Spectra spectra || destination.Contains(spectra)) return;
+        var format = SctPlot.GetPlotFormat(spectra);
+        var plot = SctPlot.PlotSpectra(format, spectra, form);
+        destination.Add(plot);
+    }
+
+    private void ChangeVisibility(Data data, bool isVisible) {
+        if (data is not SctPlot plot) return;
+        plot.ChangeVisibility(isVisible);
     }
 }

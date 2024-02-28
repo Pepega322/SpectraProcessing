@@ -13,6 +13,9 @@ public class MainController {
     public event Action? OnDataChanged;
     public event Action? OnPlotChanged;
     public event Action? OnRootChanged;
+    public event Action? OnMousePlotCoordinatesChanged;
+
+    public Point<float> PlotCoordinates => plotController.Coordinates;
 
     public MainController(FormsPlot plot) {
         //var pathToDesktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
@@ -24,6 +27,19 @@ public class MainController {
     }
 
     #region PlotControllerMethods
+    public async Task ContextDataSetAddToPlot(object? sender, EventArgs e) {
+        if (GetContextSet(sender, out DataSet set)) {
+            await plotController.AddDataSetPlotAsync(set, false);
+            plotController.Refresh();
+            OnPlotChanged?.Invoke();
+        }
+        else throw new Exception();
+    }
+
+    public async Task ContextDataSetPlot(object? sender, EventArgs e) {
+        plotController.Clear();
+        await ContextDataSetAddToPlot(sender, e);
+    }
 
     public async Task PlotAddDataToDefault(object? sender, TreeNodeMouseClickEventArgs e) {
         if (e.Button is not MouseButtons.Left) return;
@@ -45,25 +61,18 @@ public class MainController {
         else throw new Exception();
     }
 
-    public async Task ContextDataSetAddToPlot(object? sender, EventArgs e) {
-        if (GetContextSet(sender, out DataSet set)) {
-            await plotController.AddDataSetPlotAsync(set, false);
+    public async Task ChangePlotSetVisibility(object? sender, TreeViewEventArgs e) {
+        if (e.Node?.Tag is PlotSet set) {
+            await plotController.ChangePlotSetVisibilityAsync(set, e.Node.Checked);
             plotController.Refresh();
             OnPlotChanged?.Invoke();
         }
-        else throw new Exception();
     }
 
-    public async Task ContextDataSetPlot(object? sender, EventArgs e) {
-        plotController.Clear();
-        await ContextDataSetAddToPlot(sender, e);
-    }
-
-    public async Task ContextPlotDelete(object? sender, EventArgs e) {
-        if (GetContextData(sender, out Data plot) && GetContextParentSet(sender, out DataSet set)) {
-            await plotController.RemovePlotAsync((Plot)plot, (PlotSet)set);
+    public async Task ContextPlotSetHighlight(object? sender, EventArgs e) {
+        if (GetContextSet(sender, out DataSet set)) {
+            await plotController.ChangePlotSetHighlightionAsync((PlotSet)set);
             plotController.Refresh();
-            OnPlotChanged?.Invoke();
         }
         else throw new Exception();
     }
@@ -77,18 +86,19 @@ public class MainController {
         else throw new Exception();
     }
 
+    public async Task ContextPlotSetPeakSelect(object? sender, EventArgs e) {
+        //if (GetContextSet(sender, out DataSet set)) {
+        //    PeaksInfo info = await plotController.ProcessPlotSet((PlotSet)set);
+        //    dataController.AddDataToDefaultSet(info);
+        //    OnDataChanged?.Invoke();    
+        //}
+        //else throw new Exception();
+    }
+
     public async Task ChangePlotVisibility(object? sender, TreeViewEventArgs e) {
         if (e.Node?.Tag is Plot plot) {
             await plotController.ChangePlotVisibilityAsync(plot, e.Node.Checked);
             plotController.Refresh();
-        }
-    }
-
-    public async Task ChangePlotSetVisibility(object? sender, TreeViewEventArgs e) {
-        if (e.Node?.Tag is PlotSet set) {
-            await plotController.ChangePlotSetVisibilityAsync(set, e.Node.Checked);
-            plotController.Refresh();
-            OnPlotChanged?.Invoke();
         }
     }
 
@@ -100,14 +110,23 @@ public class MainController {
         }
     }
 
-    public async Task ContextPlotSetHighlight(object? sender, EventArgs e) {
-        if (GetContextSet(sender, out DataSet set)) {
-            await plotController.ChangePlotSetHighlightionAsync((PlotSet)set);
+    public async Task ContextPlotDelete(object? sender, EventArgs e) {
+        if (GetContextData(sender, out Data plot) && GetContextParentSet(sender, out DataSet set)) {
+            await plotController.RemovePlotAsync((Plot)plot, (PlotSet)set);
             plotController.Refresh();
+            OnPlotChanged?.Invoke();
         }
         else throw new Exception();
     }
 
+    public async Task ContextPlotPeakSelect(object? sender, EventArgs e) {
+        //if (GetContextData(sender, out Data data)) {
+        //    PeaksInfo info = await plotController.ProcessPlot((Plot)data);
+        //    dataController.AddDataToDefaultSet(info);
+        //    OnDataChanged?.Invoke();
+        //}
+        //else throw new Exception();
+    }
 
     public void PlotClear() {
         plotController.Clear();
@@ -116,9 +135,10 @@ public class MainController {
 
     }
 
-    //public void PlotRefresh() {
-
-    //}
+    public async Task SetPlotCoordinates(object? sender, MouseEventArgs e) {
+        await plotController.SetCoordinates(e.X, e.Y);
+        OnMousePlotCoordinatesChanged?.Invoke();
+    }
 
     public IEnumerable<TreeNode> PlotGetTree() => plotController.GetTree();
 
@@ -164,7 +184,7 @@ public class MainController {
     public async Task ContextDataSubstractBaseline(object? sender, EventArgs e) {
         GetContextData(sender, out Data data);
         GetContextParentSet(sender, out DataSet set);
-        await dataController.SubstractBaselineForDataAsync( data);
+        await dataController.SubstractBaselineForDataAsync(data);
         OnDataChanged?.Invoke();
     }
 
@@ -286,8 +306,6 @@ public class MainController {
         set = node.Parent.Tag as DataSet;
         return set != null;
     }
-
-
 
     #endregion
 }

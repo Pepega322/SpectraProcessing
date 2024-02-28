@@ -4,9 +4,11 @@ using Model.DataStorages;
 namespace Model.Controllers;
 public abstract class PlotController {
     protected PlotStorage storage;
+    public Point<float> Coordinates { get; protected set; }
 
     protected PlotController(PlotStorage storage) {
         this.storage = storage;
+        Coordinates = new Point<float>(0f, 0f);
     }
 
     public abstract Task AddDataPlotAsync(Data data);
@@ -28,4 +30,6 @@ public abstract class PlotController {
     public abstract void Clear();
 
     public abstract void Refresh();
+
+    public abstract Task SetCoordinates(float xScreen, float yScreen);
 }
