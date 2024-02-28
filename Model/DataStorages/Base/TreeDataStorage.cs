@@ -1,7 +1,10 @@
 ﻿namespace Model.DataStorages;
 public abstract class TreeDataStorage : DataStorage, IEnumerable<KeyValuePair<string, TreeDataSetNode>> {
+    protected TreeDataStorage(string defaultSetKey)
+        : base(defaultSetKey) { }
+
     protected override bool AddSet(string setKey, DataSet set) {
-        if (set is not TreeDataSetNode) 
+        if (set is not TreeDataSetNode)
             throw new ArgumentException(nameof(set) + "isn't treeData set");
         storage.Add(setKey, set);
         return true;

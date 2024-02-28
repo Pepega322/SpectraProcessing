@@ -1,6 +1,9 @@
 ﻿
 namespace Model.DataStorages;
 public abstract class PlotStorage : DataStorage, IEnumerable<KeyValuePair<string, PlotSet>> {
+    protected PlotStorage(string defaultSetKey)
+        : base(defaultSetKey) { }
+
     protected override bool AddSet(string setKey, DataSet set) {
         if (set is not PlotSet)
             throw new ArgumentException(nameof(set) + "isn't plot set");

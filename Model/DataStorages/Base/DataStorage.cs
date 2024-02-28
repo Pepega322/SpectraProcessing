@@ -3,14 +3,15 @@ using Model.DataFormats;
 
 namespace Model.DataStorages;
 public abstract class DataStorage : IEnumerable<KeyValuePair<string, DataSet>> {
-    protected const string DefaultSetKey = "Default";
+    protected string defaultSetKey;
     protected Dictionary<string, DataSet> storage;
-    public DataSet DefaultSet => storage[DefaultSetKey];
+    public DataSet DefaultSet => storage[defaultSetKey];
 
     public DataSet this[string setKey] => storage[setKey];
 
-    public DataStorage() {
+    protected DataStorage(string defaultSetKey) {
         storage = new Dictionary<string, DataSet>();
+        this.defaultSetKey = defaultSetKey;
         AddDefaultSet();
     }
 
@@ -39,7 +40,7 @@ public abstract class DataStorage : IEnumerable<KeyValuePair<string, DataSet>> {
 
     public abstract bool Add(string setKey, DataSet set);
 
-    public bool Remove(string setKey) => setKey != DefaultSetKey ? storage.Remove(setKey) : false;
+    public bool Remove(string setKey) => setKey != defaultSetKey ? storage.Remove(setKey) : false;
 
     public void Clear() {
         storage.Clear();

@@ -12,6 +12,7 @@ public partial class MainForm : Form {
         controller.OnRootChanged += async () => await BuildTreeAsync(rootTree, controller.RootGetTree);
         controller.OnDataChanged += async () => await BuildTreeAsync(dataTree, controller.DataGetTree);
         controller.OnPlotChanged += async () => await BuildTreeAsync(plotTree, controller.PlotGetTree);
+        controller.OnMousePlotCoordinatesChanged += DrawMouseCoordinates;
 
         _ = BuildTreeAsync(rootTree, controller.RootGetTree);
         _ = BuildTreeAsync(dataTree, controller.DataGetTree);
@@ -45,10 +46,9 @@ public partial class MainForm : Form {
         dataButtonContextDataPlot.Click += async (sender, e) => await controller.ContextDataPlot(sender, e);
         dataButtonContextDataSubstractBaseline.Click += async (sender, e) => await controller.ContextDataSubstractBaseline(sender, e);
 
-        //plotTree.MouseDown += TreeNodeClickSelectt;
-        //plotTree.MouseDoubleClick += TreeNodeClickSelectt;
         plotSetMenu.Tag = plotTree;
         plotMenu.Tag = plotTree;
+        plotView.MouseMove += async (sender, e) => await controller.SetPlotCoordinates(sender, e);
         plotTree.NodeMouseClick += TreeNodeClickSelect;
         plotTree.NodeMouseClick += PlotDrawContextMenu;
         plotTree.NodeMouseClick += PlotSetDrawContextMenu;
@@ -57,17 +57,17 @@ public partial class MainForm : Form {
         plotButtonClear.Click += (sender, e) => controller.PlotClear();
         plotButtonContextPlotSetHighlight.Click += async (sender, e) => await controller.ContextPlotSetHighlight(sender, e);
         plotButtonContextPlotSetDelete.Click += async (sender, e) => await controller.ContextPlotSetDelete(sender, e);
+        plotButtonContextPlotSetPeakSelect.Click += async (sender, e) => await controller.ContextPlotSetPeakSelect(sender, e);
         plotButtonContextPlotDelete.Click += async (sender, e) => await controller.ContextPlotDelete(sender, e);
+        plotButtonContextPlotPeakSelect.Click += async (sender, e) => await controller.ContextPlotPeakSelect(sender, e);
         plotTree.AfterCheck += async (sender, e) => await controller.ChangePlotSetVisibility(sender, e);
         plotTree.AfterCheck += async (sender, e) => await controller.ChangePlotVisibility(sender, e);
 
-        plotView.MouseMove += UpdateMouseCoordinates;
     }
 
-    private void UpdateMouseCoordinates(object? sender, MouseEventArgs e) {
-        var form = (ScottPlot.WinForms.FormsPlot)sender;
-        var coord = form.Plot.GetCoordinates(new ScottPlot.Pixel(e.X, e.Y));
-        mouseCoordinatesBox.Text = $"X:{Math.Round(coord.X, 2)}\tY:{Math.Round(coord.Y, 2)}";
+    private void DrawMouseCoordinates() {
+        var point = controller.PlotCoordinates;
+        mouseCoordinatesBox.Text = $"X:{Math.Round(point.X, 2)}\tY:{Math.Round(point.Y, 2)}";
     }
 
     private void TreeNodeClickSelect(object? sender, TreeNodeMouseClickEventArgs e) {
@@ -77,31 +77,24 @@ public partial class MainForm : Form {
     }
 
     private void PlotSetDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e) {
-        if (e.Button is MouseButtons.Right && e.Node.Tag is PlotSet set) {
+        if (e.Button is MouseButtons.Right && e.Node.Tag is PlotSet) {
             e.Node.ContextMenuStrip = plotSetMenu;
         }
     }
 
     private void PlotDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e) {
-        if (e.Button is MouseButtons.Right && e.Node.Tag is Plot plot) {
-            if (e.Node.Parent.Tag is not PlotSet)
-                throw new Exception("PlotDrawContextMenu Method works wrong");
+        if (e.Button is MouseButtons.Right && e.Node.Tag is Plot)
             e.Node.ContextMenuStrip = plotMenu;
-        }
     }
 
     private void DataSetDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e) {
-        if (e.Button is MouseButtons.Right && e.Node.Tag is DataSet set) {
+        if (e.Button is MouseButtons.Right && e.Node.Tag is DataSet)
             e.Node.ContextMenuStrip = dataSetMenu;
-        }
     }
 
     private void DataDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e) {
-        if (e.Button is MouseButtons.Right && e.Node.Tag is Data data) {
-            if (e.Node.Parent.Tag is not TreeDataSetNode)
-                throw new Exception("DataDrawContextMenu Method works wrong");
+        if (e.Button is MouseButtons.Right && e.Node.Tag is Data)
             e.Node.ContextMenuStrip = dataMenu;
-        }
     }
 
     private async Task BuildTreeAsync(TreeView tree, Func<IEnumerable<TreeNode>> nodeSource) {

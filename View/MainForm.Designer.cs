@@ -46,6 +46,9 @@ partial class MainForm {
         dataButtonClear = new ToolStripMenuItem();
         tableLayoutPanelMiddleMiddle = new TableLayoutPanel();
         plotNavigation = new MenuStrip();
+        addPointToolStripMenuItem = new ToolStripMenuItem();
+        removeLastPointToolStripMenuItem = new ToolStripMenuItem();
+        processPeaksToolStripMenuItem = new ToolStripMenuItem();
         tableLayoutPanelRightUp = new TableLayoutPanel();
         mouseCoordinatesBox = new TextBox();
         plotView = new ScottPlot.WinForms.FormsPlot();
@@ -71,8 +74,10 @@ partial class MainForm {
         plotSetMenu = new ContextMenuStrip(components);
         plotButtonContextPlotSetHighlight = new ToolStripMenuItem();
         plotButtonContextPlotSetDelete = new ToolStripMenuItem();
+        plotButtonContextPlotSetPeakSelect = new ToolStripMenuItem();
         plotMenu = new ContextMenuStrip(components);
         plotButtonContextPlotDelete = new ToolStripMenuItem();
+        plotButtonContextPlotPeakSelect = new ToolStripMenuItem();
         tableLayoutPanelMain.SuspendLayout();
         mainMenuStrip.SuspendLayout();
         tableLayoutPanelMiddle.SuspendLayout();
@@ -82,6 +87,7 @@ partial class MainForm {
         tableLayoutPanelLeftDown.SuspendLayout();
         dataNavigation.SuspendLayout();
         tableLayoutPanelMiddleMiddle.SuspendLayout();
+        plotNavigation.SuspendLayout();
         tableLayoutPanelRightUp.SuspendLayout();
         tableLayoutPanel1.SuspendLayout();
         menuStrip1.SuspendLayout();
@@ -303,11 +309,30 @@ partial class MainForm {
         // 
         plotNavigation.Dock = DockStyle.Fill;
         plotNavigation.ImageScalingSize = new Size(32, 32);
+        plotNavigation.Items.AddRange(new ToolStripItem[] { addPointToolStripMenuItem, removeLastPointToolStripMenuItem, processPeaksToolStripMenuItem });
         plotNavigation.Location = new Point(0, 0);
         plotNavigation.Name = "plotNavigation";
         plotNavigation.Size = new Size(1032, 40);
         plotNavigation.TabIndex = 8;
         plotNavigation.Text = "menuStrip1";
+        // 
+        // addPointToolStripMenuItem
+        // 
+        addPointToolStripMenuItem.Name = "addPointToolStripMenuItem";
+        addPointToolStripMenuItem.Size = new Size(218, 36);
+        addPointToolStripMenuItem.Text = "Add on next click";
+        // 
+        // removeLastPointToolStripMenuItem
+        // 
+        removeLastPointToolStripMenuItem.Name = "removeLastPointToolStripMenuItem";
+        removeLastPointToolStripMenuItem.Size = new Size(163, 36);
+        removeLastPointToolStripMenuItem.Text = "Remove last";
+        // 
+        // processPeaksToolStripMenuItem
+        // 
+        processPeaksToolStripMenuItem.Name = "processPeaksToolStripMenuItem";
+        processPeaksToolStripMenuItem.Size = new Size(181, 36);
+        processPeaksToolStripMenuItem.Text = "Process peaks";
         // 
         // tableLayoutPanelRightUp
         // 
@@ -478,34 +503,46 @@ partial class MainForm {
         // plotSetMenu
         // 
         plotSetMenu.ImageScalingSize = new Size(32, 32);
-        plotSetMenu.Items.AddRange(new ToolStripItem[] { plotButtonContextPlotSetHighlight, plotButtonContextPlotSetDelete });
+        plotSetMenu.Items.AddRange(new ToolStripItem[] { plotButtonContextPlotSetHighlight, plotButtonContextPlotSetDelete, plotButtonContextPlotSetPeakSelect });
         plotSetMenu.Name = "plotSetMenu";
-        plotSetMenu.Size = new Size(270, 80);
+        plotSetMenu.Size = new Size(325, 118);
         // 
         // plotButtonContextPlotSetHighlight
         // 
         plotButtonContextPlotSetHighlight.Name = "plotButtonContextPlotSetHighlight";
-        plotButtonContextPlotSetHighlight.Size = new Size(269, 38);
+        plotButtonContextPlotSetHighlight.Size = new Size(324, 38);
         plotButtonContextPlotSetHighlight.Text = "Highlight On\\Off";
         // 
         // plotButtonContextPlotSetDelete
         // 
         plotButtonContextPlotSetDelete.Name = "plotButtonContextPlotSetDelete";
-        plotButtonContextPlotSetDelete.Size = new Size(269, 38);
+        plotButtonContextPlotSetDelete.Size = new Size(324, 38);
         plotButtonContextPlotSetDelete.Text = "Delete series";
+        // 
+        // plotButtonContextPlotSetPeakSelect
+        // 
+        plotButtonContextPlotSetPeakSelect.Name = "plotButtonContextPlotSetPeakSelect";
+        plotButtonContextPlotSetPeakSelect.Size = new Size(324, 38);
+        plotButtonContextPlotSetPeakSelect.Text = "Select peaks for series";
         // 
         // plotMenu
         // 
         plotMenu.ImageScalingSize = new Size(32, 32);
-        plotMenu.Items.AddRange(new ToolStripItem[] { plotButtonContextPlotDelete });
+        plotMenu.Items.AddRange(new ToolStripItem[] { plotButtonContextPlotDelete, plotButtonContextPlotPeakSelect });
         plotMenu.Name = "plotMenu";
-        plotMenu.Size = new Size(159, 42);
+        plotMenu.Size = new Size(221, 80);
         // 
         // plotButtonContextPlotDelete
         // 
         plotButtonContextPlotDelete.Name = "plotButtonContextPlotDelete";
-        plotButtonContextPlotDelete.Size = new Size(158, 38);
+        plotButtonContextPlotDelete.Size = new Size(220, 38);
         plotButtonContextPlotDelete.Text = "Delete";
+        // 
+        // plotButtonContextPlotPeakSelect
+        // 
+        plotButtonContextPlotPeakSelect.Name = "plotButtonContextPlotPeakSelect";
+        plotButtonContextPlotPeakSelect.Size = new Size(220, 38);
+        plotButtonContextPlotPeakSelect.Text = "Select peaks";
         // 
         // MainForm
         // 
@@ -533,6 +570,8 @@ partial class MainForm {
         dataNavigation.PerformLayout();
         tableLayoutPanelMiddleMiddle.ResumeLayout(false);
         tableLayoutPanelMiddleMiddle.PerformLayout();
+        plotNavigation.ResumeLayout(false);
+        plotNavigation.PerformLayout();
         tableLayoutPanelRightUp.ResumeLayout(false);
         tableLayoutPanelRightUp.PerformLayout();
         tableLayoutPanel1.ResumeLayout(false);
@@ -595,4 +634,9 @@ partial class MainForm {
     private ToolStripMenuItem plotButtonContextPlotSetHighlight;
     private ToolStripMenuItem dataButtonContextDataSetSubstactBaseline;
     private ToolStripMenuItem dataButtonContextDataSetAndSubsetsSubstractBaseline;
+    private ToolStripMenuItem plotButtonContextPlotSetPeakSelect;
+    private ToolStripMenuItem plotButtonContextPlotPeakSelect;
+    private ToolStripMenuItem addPointToolStripMenuItem;
+    private ToolStripMenuItem removeLastPointToolStripMenuItem;
+    private ToolStripMenuItem processPeaksToolStripMenuItem;
 }

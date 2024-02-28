@@ -6,7 +6,7 @@ using Model.Controllers;
 namespace View.Controllers;
 public class WindowsDataController : DataController, ITree {
     public WindowsDataController(DataWriter writer)
-        : base(writer, new DirectoryDataTreeStorage()) { }
+        : base(writer, new DirectoryDataTreeStorage("Single Data")) { }
 
     public override async Task WriteSetAsAsync(DataSet set, string path, string extension, bool writeSubsets)
         => await Task.Run(() => WriteSetAs((DirectoryDataSetNode)set, path, extension, writeSubsets));
