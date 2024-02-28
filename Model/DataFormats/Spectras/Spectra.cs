@@ -34,18 +34,16 @@ public abstract class Spectra : Data, IWriteable, ICopyable {
 
     public abstract Data CreateCopy();
 
-    protected abstract (IReadOnlyList<float> xS, float[] yS) ReadPoints(params string[] contents);
-
-    public virtual IEnumerable<string> ToContents() {
+    public IEnumerable<string> ToContents() {
         for (var i = 0; i < xS.Count; i++)
             yield return $"{xS[i]} {yS[i]}";
     }
 
     public virtual IEnumerable<string> ToOriginalContents() => ToContents();
 
-    public virtual (IReadOnlyList<float> xS, float[] yS) GetPoints() => (xS, yS.ToArray());
+    public (IReadOnlyList<float> xS, float[] yS) GetPoints() => (xS, yS.ToArray());
 
-    public Spectra SubstractBaseLine() {
+    public virtual Spectra SubstractBaseLine() {
         var copy = (Spectra)CreateCopy();
         copy.Name = $"{copy.Name} -b";
         var baseline = MathOperations.GetLinearRegression((IList<float>)xS, yS);
@@ -54,7 +52,7 @@ public abstract class Spectra : Data, IWriteable, ICopyable {
         return copy;
     }
 
-    public virtual Peak CalculatePeak(float xStart, float xEnd) {
+    public virtual PeakInfo ProcessPeak(float xStart, float xEnd) {
         if (xEnd < xStart) (xStart, xEnd) = (xEnd, xStart);
         var left = MathOperations.GetClosestIndex((IList<float>)xS, xStart);
         var right = MathOperations.GetClosestIndex((IList<float>)xS, xEnd);
@@ -68,6 +66,8 @@ public abstract class Spectra : Data, IWriteable, ICopyable {
             var deltaX = xS[index + 1] - xS[index];
             square += MathOperations.GetQuadrangleSquare(heigth, nextHeigth, deltaX);
         }
-        return new Peak(this, xS[left], yS[right], maxHeigth, square);
+        return new PeakInfo(this, xS[left], xS[right], square, maxHeigth);
     }
+
+    protected abstract (IReadOnlyList<float> xS, float[] yS) ReadPoints(params string[] contents);
 }
