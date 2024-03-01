@@ -4,22 +4,14 @@ using Model.DataFormats;
 
 namespace View.Controllers;
 
-public class SctPlotPeakBorder : PeakBorder {
-    public FormsPlot Form { get; set; }
-    public readonly VerticalLine LeftLine;
-    public readonly VerticalLine RigthLine;
-
-    public SctPlotPeakBorder(FormsPlot form, float left, float right)
-        : base(left, right) {
-        Form = form;
-        LeftLine = form.Plot.Add.VerticalLine(Left, 1);
-        RigthLine = form.Plot.Add.VerticalLine(Rigth, 1, LeftLine.Color);
-    }
-
-    public void RemoveFromPlot() {
-        lock (Form.Plot) {
-            Form.Plot.Remove(LeftLine);
-            Form.Plot.Remove(RigthLine);
+public record SctPlotPeakBorder(float Left, float Right, VerticalLine LeftLine, VerticalLine RigthLine) : PeakBorder(Left, Right) {
+    public static SctPlotPeakBorder AddOnPlot(FormsPlot form, float left, float right) {
+        lock (form.Plot) {
+            var leftLine = form.Plot.Add.VerticalLine(left, 1);
+            var rigthtLine = form.Plot.Add.VerticalLine(right, 1, leftLine.Color);
+            form.Plot.Remove(leftLine);
+            form.Plot.Remove(rigthtLine);
+            return new SctPlotPeakBorder(left, right, leftLine, rigthtLine);
         }
     }
 }

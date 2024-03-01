@@ -1,14 +1,16 @@
-﻿using Model.DataFormats;
+﻿using Model.Controllers;
+using Model.DataFormats;
 using Model.DataSources;
 using Model.DataStorages;
+using Model.MathHelper;
 using ScottPlot.WinForms;
 using View.Controllers;
 
 namespace View;
 public class MainController {
-    private WindowsDirectoryController dirController;
-    private WindowsDataController dataController;
-    private ScottPlotController plotController;
+    private RootController dirController;
+    private DataController dataController;
+    private PlotController plotController;
 
     public event Action? OnDataChanged;
     public event Action? OnPlotChanged;
@@ -18,10 +20,10 @@ public class MainController {
     public Point<float> PlotCoordinates => plotController.Coordinates;
 
     public MainController(FormsPlot plot) {
-        var pathToDesktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-        dirController = new WindowsDirectoryController(pathToDesktop);
+        //var pathToDesktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        //dirController = new WindowsDirectoryController(pathToDesktop);
         //dirController= new WindowsDirectoryController("D:\\Study\\Chemfuck\\Lab\\MixturesData");
-        //dirController = new WindowsDirectoryController("d:\\Study\\Chemfuck\\Lab\\MixturesData\\TestSpectras\\");
+        dirController = new WindowsDirectoryController("d:\\Study\\Chemfuck\\Lab\\MixturesData\\TestSpectras\\");
         dataController = new WindowsDataController(new WindowsWriter());
         plotController = new ScottPlotController(plot);
     }
@@ -89,7 +91,7 @@ public class MainController {
 
     public async Task ContextPlotSetPeaksProcess(object? sender, EventArgs e) {
         if (GetContextSet(sender, out DataSet set)) {
-            PeaksInfo info = await plotController.ProcessPlotSet((PlotSet)set);
+            var info = await plotController.ProcessPlotSet((PlotSet)set);
             var path = dirController.SelectPathInDialog();
             if (path == null) return;
             await dataController.WriteDataAsAsync(info, path, ".txt");
@@ -132,17 +134,17 @@ public class MainController {
     }
 
     public async Task PlotAddPeak(object? sender, EventArgs e) {
-        bool result = await plotController.AddPeak();
+        bool result = await plotController.AddBorder();
         if (result) plotController.Refresh();
     }
 
     public async Task PlotDeleteLastPeak(object? sender, EventArgs e) {
-        bool result = await plotController.DeleteLastPeak();
+        bool result = await plotController.DeleteLastBorder();
         if (result) plotController.Refresh();
     }
 
     public async Task PlotClearPeaks(object? sender, EventArgs e) {
-        bool result = await plotController.ClearPeaks();
+        bool result = await plotController.ClearBorders();
         if (result) plotController.Refresh();
     }
 
@@ -162,7 +164,7 @@ public class MainController {
         plotController.Refresh();
     }
 
-    public IEnumerable<TreeNode> PlotGetTree() => plotController.GetTree();
+    public IEnumerable<TreeNode> PlotGetTree() => ((ITree)plotController).GetTree();
 
     #endregion
 
@@ -228,7 +230,7 @@ public class MainController {
         OnDataChanged?.Invoke();
     }
 
-    public IEnumerable<TreeNode> DataGetTree() => dataController.GetTree();
+    public IEnumerable<TreeNode> DataGetTree() => ((ITree)dataController).GetTree();
 
     #endregion
 
@@ -274,7 +276,7 @@ public class MainController {
         }
     }
 
-    public IEnumerable<TreeNode> RootGetTree() => dirController.GetTree();
+    public IEnumerable<TreeNode> RootGetTree() => ((ITree)dirController).GetTree();
 
     #endregion
 

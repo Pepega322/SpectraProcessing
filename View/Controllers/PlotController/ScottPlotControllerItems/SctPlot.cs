@@ -7,40 +7,20 @@ using Color = ScottPlot.Color;
 
 namespace View.Controllers;
 public class SctPlot : Plot {
-    private static Dictionary<IReadOnlyList<float>, float[]> xSPlots = [];
-    private static Color HighlightionColor = Colors.Black;
-
-    private FormsPlot form;
-    public SctPlotFromats Format { get; private set; }
-    public IPlottable Plot { get; private set; }
-    public Color Color { get; private set; }
-    public bool IsVisible => Plot.IsVisible;
-
-    private SctPlot(SctPlotFromats format, Spectra spectra, FormsPlot form, IPlottable plt, Color color)
-        : base(spectra) {
-        Format = format;
-        Plot = plt;
-        Color = color;
-        this.form = form;
-    }
-
-    public static SctPlot PlotSpectra(SctPlotFromats format, Spectra spectra, FormsPlot form) {
-        var (xS, yS) = spectra.GetPoints();
-        lock (xSPlots) {
-            if (!xSPlots.ContainsKey(xS))
-                xSPlots.Add(xS, xS.ToArray());
-        }
+    public static readonly Color HighlightionColor = Colors.Black;
+    public static SctPlot PlotSpectra(FormsPlot form, Spectra s) {
         IPlottable plot;
         Color color;
         lock (form.Plot) {
-            switch (format) {
-                case SctPlotFromats.Signal:
-                    var signal = form.Plot.Add.Signal(yS, ((ASP)spectra).Delta);
+            switch (s.Format) {
+                case SpectraFormat.ASP:
+                    var delta = ((ASP)s).Info.Delta;
+                    var signal = form.Plot.Add.Signal(s.Points.Y.ToArray(), delta);
                     color = signal.Color;
                     plot = signal;
                     break;
-                case SctPlotFromats.SignalXY:
-                    var signalXY = form.Plot.Add.SignalXY(xSPlots[xS], yS);
+                case SpectraFormat.ESP:
+                    var signalXY = form.Plot.Add.SignalXY(s.Points.X.ToArray(), s.Points.Y.ToArray());
                     color = signalXY.Color;
                     plot = signalXY;
                     break;
@@ -48,25 +28,31 @@ public class SctPlot : Plot {
                     throw new NotImplementedException();
             }
         }
-        return new SctPlot(format, spectra, form, plot, color);
+        return new SctPlot(s, form, plot, color);
     }
 
-    public static SctPlotFromats GetPlotFormat(Spectra spectra) {
-        if (spectra is ASP) return SctPlotFromats.Signal;
-        if (spectra is ESP) return SctPlotFromats.SignalXY;
-        throw new NotImplementedException();
+    private FormsPlot form;
+    public IPlottable Plot { get; private set; }
+    public Color Color { get; private set; }
+    public bool IsVisible => Plot.IsVisible;
+
+    private SctPlot(Spectra spectra, FormsPlot form, IPlottable plt, Color color)
+        : base(spectra) {
+        Plot = plt;
+        Color = color;
+        this.form = form;
     }
 
     public void ChangeHighlightion(bool isHighlight) {
         lock (form.Plot) {
             form.Plot.Remove(Plot);
-            switch (Format) {
-                case SctPlotFromats.Signal:
+            switch (Spectra.Format) {
+                case SpectraFormat.ASP:
                     var signal = (Signal)Plot;
                     signal.Color = isHighlight ? HighlightionColor : Color;
                     form.Plot.Add.Plottable(signal);
                     break;
-                case SctPlotFromats.SignalXY:
+                case SpectraFormat.ESP:
                     var signalXY = (SignalXY)Plot;
                     signalXY.Color = isHighlight ? HighlightionColor : Color;
                     form.Plot.Add.Plottable(signalXY);

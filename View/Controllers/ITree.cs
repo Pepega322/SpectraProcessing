@@ -1,5 +1,4 @@
 ﻿namespace View;
-internal interface ITree
-{
+internal interface ITree {
     IEnumerable<TreeNode> GetTree();
 }

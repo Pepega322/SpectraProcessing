@@ -4,8 +4,8 @@ using Model.DataStorages;
 
 namespace Model.Controllers;
 public abstract class DataController {
-    protected DataWriter writer;
-    protected DataStorage storage;
+    protected DataWriter writer { get; init; }
+    protected DataStorage storage { get; init; }
 
     public DataController(DataWriter writer, DataStorage storage) {
         this.writer = writer;
@@ -15,6 +15,10 @@ public abstract class DataController {
     public abstract Task WriteDataAsAsync(Data data, string path, string extension);
 
     public abstract Task WriteSetAsAsync(DataSet set, string path, string extension, bool writeSubsets);
+
+    public abstract Task SubstractBaselineForSetAsync(DataSet set, bool includeSubsets);
+
+    public abstract Task SubstractBaselineForDataAsync(Data data);
 
     public bool AddSet(string setKey, DataSet setNode) => storage.Add(setKey, setNode);
 

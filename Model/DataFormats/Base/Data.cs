@@ -2,7 +2,7 @@
 public abstract class Data {
     public static readonly Undefined Undefined = new("Undefined");
 
-    public string Name { get; protected set; } = null!;
+    public string Name { get; protected set; }
 
     protected Data(string name) {
         Name = name;

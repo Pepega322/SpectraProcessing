@@ -1,22 +1,30 @@
-﻿using System.Numerics;
+﻿using Model.DataFormats;
+using System.Drawing;
+using System.Numerics;
 
 namespace Model.MathHelper;
 internal class MathOperations {
-    public static Func<float, float> GetLinearRegression(IList<float> xS, IList<float> yS) {
-        var xSum = xS.Take(xS.Count).Sum();
-        var x2Sum = xS.Take(xS.Count).Sum(e => e * e);
-        var ySum = yS.Take(xS.Count).Sum();
+    public static Func<float, float> GetLinearRegression(SpectraPoints points) {
+        var xSum = points.X.Sum();
+        var x2Sum = points.X.Sum(e => e * e);
+        var ySum = points.Y.Sum();
         var xySum = 0f;
-        for (var i = 0; i < xS.Count; i++)
-            xySum += xS[i] * yS[i];
+        for (var i = 0; i < points.Count; i++)
+            xySum += points.X[i] * points.Y[i];
 
-        var z = xS.Count * x2Sum - xSum * xSum;
-        var a = (xS.Count * xySum - xSum * ySum) / z;
+        var z = points.Count * x2Sum - xSum * xSum;
+        var a = (points.Count * xySum - xSum * ySum) / z;
         var b = (ySum * x2Sum - xSum * xySum) / z;
         return x => a * x + b;
     }
 
-    public static int GetClosestIndex<T>(IList<T> arr, T element) where T : INumber<T> {
+    public static Func<float, float> GetLinearRegression(Point<float> p1, Point<float> p2) {
+        var a = (p2.Y - p1.Y) / (p2.X - p1.X);
+        var b = p1.Y - a * p1.X;
+        return x => a * x + b;
+    }
+
+    public static int GetClosestIndex<T>(IReadOnlyList<T> arr, T element) where T : INumber<T> {
         var left = 0;
         var right = arr.Count - 1;
         while (left < right) {

@@ -12,9 +12,13 @@ public class WindowsReader : DataReader {
             return Data.Undefined;
 
         var contents = File.ReadAllLines(file.FullName);
-        if (Spectra.TryParse(format, file.Name, contents, out Spectra? spectra, out string? message))
-            return spectra;
-
-        return new Сorrupted(file.FullName, message);
+        Data data;
+        try {
+            data = Spectra.Parse(format, file.Name, contents);
+        }
+        catch (Exception ex) {
+            data = new Сorrupted(file.FullName, ex.Message);
+        }
+        return data;
     }
 }

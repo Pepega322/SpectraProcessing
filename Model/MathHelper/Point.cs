@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace Model.DataFormats;
+namespace Model.MathHelper;
 public struct Point<T> where T : struct, INumber<T> {
     public readonly T X;
     public readonly T Y;

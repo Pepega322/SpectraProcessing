@@ -12,8 +12,8 @@ public partial class MainForm : Form {
         controller.OnPlotChanged += async () => await BuildTreeAsync(plotTree, controller.PlotGetTree);
         controller.OnPlotMouseCoordinatesChanged += DrawMouseCoordinates;
 
-        //_ = BuildTreeAsync(rootTree, controller.RootGetTree);
-        //_ = BuildTreeAsync(dataTree, controller.DataGetTree);
+        _ = BuildTreeAsync(rootTree, controller.RootGetTree);
+        _ = BuildTreeAsync(dataTree, controller.DataGetTree);
 
         rootTree.NodeMouseClick += TreeNodeClickSelect;
         rootTree.NodeMouseDoubleClick += (sender, e) => controller.RootDoubleClick(sender, e);
@@ -52,13 +52,13 @@ public partial class MainForm : Form {
         plotTree.NodeMouseClick += PlotSetDrawContextMenu;
         plotTree.NodeMouseDoubleClick += TreeNodeClickSelect;
         plotTree.NodeMouseDoubleClick += async (sender, e) => await controller.PlotChangePlotHighlightion(sender, e);
+        plotTree.AfterCheck += async (sender, e) => await controller.ChangePlotSetVisibility(sender, e);
+        plotTree.AfterCheck += async (sender, e) => await controller.ChangePlotVisibility(sender, e);
         plotButtonClear.Click += (sender, e) => controller.PlotClear();
         plotButtonResize.Click += (sender, e) => controller.PlotResize();
         plotContextPlotSetHighlight.Click += async (sender, e) => await controller.ContextPlotSetHighlight(sender, e);
         plotContextPlotSetDelete.Click += async (sender, e) => await controller.ContextPlotSetDelete(sender, e);
         plotContextPlotDelete.Click += async (sender, e) => await controller.ContextPlotDelete(sender, e);
-        plotTree.AfterCheck += async (sender, e) => await controller.ChangePlotSetVisibility(sender, e);
-        plotTree.AfterCheck += async (sender, e) => await controller.ChangePlotVisibility(sender, e);
 
         plotButtonAddPeak.Click += async (sender, e) => await controller.PlotAddPeak(sender, e);
         plotButtonDeleteLastPeak.Click += async (sender, e) => await controller.PlotDeleteLastPeak(sender, e);

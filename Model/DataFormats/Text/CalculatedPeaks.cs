@@ -1,10 +1,10 @@
 ﻿using System.Collections;
 
 namespace Model.DataFormats;
-public class PeaksInfo : Data, IWriteable, IEnumerable<PeakInfo> {
+public class CalculatedPeaks : Data, IWriteable, IEnumerable<PeakInfo> {
     private List<PeakInfo> peaks = new();
 
-    public PeaksInfo(string name)
+    public CalculatedPeaks(string name)
         : base(name) { }
 
     public void Add(PeakInfo record) {
@@ -14,7 +14,10 @@ public class PeaksInfo : Data, IWriteable, IEnumerable<PeakInfo> {
 
     public IEnumerable<string> ToContents() {
         yield return "Name Square Heigth Start End";
-        foreach (var info in peaks.OrderByDescending(p => p.Spectra.Name))
+        foreach (var info in peaks
+            .OrderBy(p => p.XStart)
+            .ThenBy(p => p.XEnd)
+            .ThenBy(p => p.Spectra.Name))
             yield return info.ToString();
     }
 

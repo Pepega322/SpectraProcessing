@@ -319,13 +319,18 @@ partial class MainForm {
         // 
         // plotButtonAddPeak
         // 
+        plotButtonAddPeak.ForeColor = SystemColors.ControlText;
         plotButtonAddPeak.Name = "plotButtonAddPeak";
+        plotButtonAddPeak.ShortcutKeyDisplayString = "Ctrl+S";
+        plotButtonAddPeak.ShortcutKeys = Keys.Control | Keys.S;
         plotButtonAddPeak.Size = new Size(135, 36);
         plotButtonAddPeak.Text = "Add peak";
         // 
         // plotButtonDeleteLastPeak
         // 
         plotButtonDeleteLastPeak.Name = "plotButtonDeleteLastPeak";
+        plotButtonDeleteLastPeak.ShortcutKeyDisplayString = "Ctrl+Z";
+        plotButtonDeleteLastPeak.ShortcutKeys = Keys.Control | Keys.Z;
         plotButtonDeleteLastPeak.Size = new Size(147, 36);
         plotButtonDeleteLastPeak.Text = "Delete last";
         // 

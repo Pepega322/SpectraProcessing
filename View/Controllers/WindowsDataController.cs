@@ -8,42 +8,25 @@ public class WindowsDataController : DataController, ITree {
     public WindowsDataController(DataWriter writer)
         : base(writer, new DirectoryDataTreeStorage("Single Data")) { }
 
-    public override async Task WriteSetAsAsync(DataSet set, string path, string extension, bool writeSubsets)
-        => await Task.Run(() => WriteSetAs((DirectoryDataSetNode)set, path, extension, writeSubsets));
-
     public override async Task WriteDataAsAsync(Data data, string path, string extension)
         => await Task.Run(() => WriteDataAs(data, path, extension));
 
-    private void WriteSetAs(DirectoryDataSetNode set, string path, string extension, bool writeSubsets,
-        Dictionary<DirectoryDataSetNode, string>? track = null) {
-        switch (writeSubsets) {
-            case false:
-                var data = set.Where(data => data is IWriteable);
-                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-                if (data.Any())
-                    Parallel.ForEach(data, d => WriteDataAs(d, path, extension));
-                break;
-            case true:
-                if (track == null)
-                    track = LinkNodesAndOutputFolder(set, path);
-                Parallel.ForEach(track.Keys, set => WriteSetAs(set, track[set], extension, true, track));
-                break;
+    public override async Task WriteSetAsAsync(DataSet set, string path, string extension, bool writeSubsets)
+        => await Task.Run(() => WriteSetAs((DirectoryDataSetNode)set, path, extension, writeSubsets));
 
-        }
-    }
+    public override async Task SubstractBaselineForDataAsync(Data data)
+        => await Task.Run(() => SubstractBaseline(data, storage.DefaultSet));
 
-    private void WriteDataAs(Data data, string path, string extension) {
-        if (data is IWriteable writeable) {
-            var fullName = Path.Combine(path, $"{data.Name}{extension}");
-            writer.WriteData(writeable, fullName);
-        }
-    }
-
-    public async Task SubstractBaselineForSetAsync(DataSet set, bool includeSubsets)
+    public override async Task SubstractBaselineForSetAsync(DataSet set, bool includeSubsets)
         => await Task.Run(() => SubstractBaselineForSet(set, includeSubsets));
 
-    public async Task SubstractBaselineForDataAsync(Data data)
-        => await Task.Run(() => SubstractBaseline(data, storage.DefaultSet));
+    public IEnumerable<TreeNode> GetTree() {
+        foreach (var pair in storage) {
+            var node = new TreeNode { Text = pair.Key, Tag = pair.Value };
+            ConnectDataSubnodes(node);
+            yield return node;
+        }
+    }
 
     private void SubstractBaselineForSet(DataSet set, bool includeSubsets) {
         switch (includeSubsets) {
@@ -107,11 +90,28 @@ public class WindowsDataController : DataController, ITree {
         }
     }
 
-    public IEnumerable<TreeNode> GetTree() {
-        foreach (var pair in storage) {
-            var node = new TreeNode { Text = pair.Key, Tag = pair.Value };
-            ConnectDataSubnodes(node);
-            yield return node;
+    private void WriteSetAs(DirectoryDataSetNode set, string path, string extension, bool writeSubsets,
+          Dictionary<DirectoryDataSetNode, string>? track = null) {
+        switch (writeSubsets) {
+            case false:
+                var data = set.Where(data => data is IWriteable);
+                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                if (data.Any())
+                    Parallel.ForEach(data, d => WriteDataAs(d, path, extension));
+                break;
+            case true:
+                if (track == null)
+                    track = LinkNodesAndOutputFolder(set, path);
+                Parallel.ForEach(track.Keys, set => WriteSetAs(set, track[set], extension, true, track));
+                break;
+
+        }
+    }
+
+    private void WriteDataAs(Data data, string path, string extension) {
+        if (data is IWriteable writeable) {
+            var fullName = Path.Combine(path, $"{data.Name}{extension}");
+            writer.WriteData(writeable, fullName);
         }
     }
 }

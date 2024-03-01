@@ -1,14 +1,16 @@
 ﻿using Model.DataFormats;
 using Model.DataStorages;
+using Model.MathHelper;
 
 namespace Model.Controllers;
 public abstract class PlotController {
-    protected PlotStorage storage;
-    public Point<float> Coordinates { get; protected set; }
+    protected PlotStorage storage { get; init; }
+    protected PeakBordersController bordersControler { get; init; }
+    public Point<float> Coordinates => bordersControler.Coordinates;
 
-    protected PlotController(PlotStorage storage) {
+    protected PlotController(PlotStorage storage, PeakBordersController bordersControler) {
         this.storage = storage;
-        Coordinates = new Point<float>(0f, 0f);
+        this.bordersControler = bordersControler;
     }
 
     public abstract Task AddDataPlotAsync(Data data);
@@ -27,11 +29,21 @@ public abstract class PlotController {
 
     public abstract Task ChangePlotSetHighlightionAsync(PlotSet set);
 
-    public abstract void Clear();
+    public abstract Task<CalculatedPeaks> ProcessPlot(Plot plot);
+
+    public abstract Task<CalculatedPeaks> ProcessPlotSet(PlotSet set);
 
     public abstract void Refresh();
 
     public abstract void Resize();
 
+    public abstract void Clear();
+
     public abstract Task SetCoordinates(float xScreen, float yScreen);
+
+    public abstract Task<bool> AddBorder();
+
+    public abstract Task<bool> DeleteLastBorder();
+
+    public abstract Task<bool> ClearBorders();
 }

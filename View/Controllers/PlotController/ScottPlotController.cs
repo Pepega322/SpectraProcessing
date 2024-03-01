@@ -4,21 +4,20 @@ using Model.Controllers;
 using ScottPlot.Palettes;
 using ScottPlot.WinForms;
 using Plot = Model.DataFormats.Plot;
+using Model.MathHelper;
 
 namespace View.Controllers;
 internal class ScottPlotController : PlotController, ITree {
-    private FormsPlot form;
-    private PlotSet? highlightedSet;
-    private Plot? highlightedPlot;
+    private FormsPlot form { get; set; }
+    private PlotSet? highlightedSet { get; set; }
+    private Plot? highlightedPlot { get; set; }
 
-    private List<SctPlotPeakBorder> peakBorders;
-
-    public ScottPlotController(FormsPlot form) : base(new SctPlotStorage("Single Plots")) {
+    public ScottPlotController(FormsPlot form)
+        : base(new SctPlotStorage("Single Plots"), new ScotPlotPeakController(form)) {
         this.form = form;
         form.Plot.Add.Palette = new Category20();
         form.Plot.XLabel("Raman shift, cm-1");
         form.Plot.YLabel("Intensity");
-        peakBorders = new List<SctPlotPeakBorder>();
     }
 
     public override async Task AddDataPlotAsync(Data data)
@@ -67,51 +66,17 @@ internal class ScottPlotController : PlotController, ITree {
         else highlightedSet = null;
     }
 
-    public override async Task SetCoordinates(float xScreen, float yScreen) {
-        await Task.Run(() => {
-            var c = form.Plot.GetCoordinates(xScreen, yScreen);
-            Coordinates = new Point<float>((float)c.X, (float)c.Y);
-        });
-    }
-
-    public async Task<PeaksInfo> ProcessPlotSet(PlotSet set) {
-        var info = new PeaksInfo($"{set.Name} (set peaks)");
+    public override async Task<CalculatedPeaks> ProcessPlotSet(PlotSet set) {
+        var info = new CalculatedPeaks($"{set.Name} (set peaks)");
         foreach (var plot in (IEnumerable<Plot>)set)
-            await Task.Run(() => Parallel.ForEach(peakBorders, b => info.Add(plot.Spectra.ProcessPeak(b))));
+            await Task.Run(() => Parallel.ForEach(bordersControler.Borders, b => info.Add(plot.Spectra.ProcessPeak(b))));
         return info;
     }
 
-    public async Task<PeaksInfo> ProcessPlot(Plot plot) {
-        var info = new PeaksInfo($"{plot.Name} (peaks)");
-        await Task.Run(() => Parallel.ForEach(peakBorders, b => info.Add(plot.Spectra.ProcessPeak(b))));
+    public override async Task<CalculatedPeaks> ProcessPlot(Plot plot) {
+        var info = new CalculatedPeaks($"{plot.Name} (peaks)");
+        await Task.Run(() => Parallel.ForEach(bordersControler.Borders, b => info.Add(plot.Spectra.ProcessPeak(b))));
         return info;
-    }
-
-    public async Task<bool> AddPeak() {
-        var start = await GetXCoordinateByClick();
-        var end = await GetXCoordinateByClick();
-        var border = await Task.Run(() => new SctPlotPeakBorder(form, start, end));
-        peakBorders.Add(border);
-        return true;
-    }
-
-    public async Task<bool> DeleteLastPeak() {
-        if (peakBorders.Count == 0) return false;
-        await Task.Run(() => {
-            var last = peakBorders[peakBorders.Count - 1];
-            last.RemoveFromPlot();
-            peakBorders.RemoveAt(peakBorders.Count - 1);
-        });
-        return true;
-    }
-
-    public async Task<bool> ClearPeaks() {
-        if (peakBorders.Count == 0) return false;
-        await Task.Run(() => {
-            Parallel.ForEach(peakBorders, b => b.RemoveFromPlot());
-            peakBorders.Clear();
-        });
-        return true;
     }
 
     public override void Refresh() {
@@ -128,10 +93,29 @@ internal class ScottPlotController : PlotController, ITree {
         highlightedPlot = null;
         highlightedSet = null;
         form.Plot.Clear();
-        foreach (var border in peakBorders) {
-            form.Plot.Add.Plottable(border.LeftLine);
-            form.Plot.Add.Plottable(border.RigthLine);
-        }
+        bordersControler.RedrawBorders();
+    }
+
+    private void ChangeHighlightion(Plot plot, bool isHighlighted) {
+        if (plot is not SctPlot sct) return;
+        sct.ChangeHighlightion(isHighlighted);
+    }
+
+    private void RemovePlotFrom(Plot plot, PlotSet owner) {
+        if (plot is not SctPlot plt) return;
+        lock (form.Plot) form.Plot.Remove(plt.Plot);
+        owner.Remove(plot);
+    }
+
+    private void PlotDataTo(Data data, DataSet destination) {
+        if (data is not Spectra spectra || destination.Contains(spectra)) return;
+        var plot = SctPlot.PlotSpectra(form, spectra);
+        destination.Add(plot);
+    }
+
+    private void ChangeVisibility(Data data, bool isVisible) {
+        if (data is not SctPlot plot) return;
+        plot.ChangeVisibility(isVisible);
     }
 
     public IEnumerable<TreeNode> GetTree() {
@@ -155,39 +139,23 @@ internal class ScottPlotController : PlotController, ITree {
         }
     }
 
-    private void ChangeHighlightion(Plot plot, bool isHighlighted) {
-        if (plot is not SctPlot sct) return;
-        sct.ChangeHighlightion(isHighlighted);
+    #region borderControllerMethods
+
+    public override async Task SetCoordinates(float xScreen, float yScreen) {
+        await Task.Run(() => {
+            var c = form.Plot.GetCoordinates(xScreen, yScreen);
+            bordersControler.SetCoordinates((float)c.X, (float)c.Y);
+        });
     }
 
-    private void RemovePlotFrom(Plot plot, PlotSet owner) {
-        if (plot is not SctPlot plt) return;
-        lock (form.Plot) form.Plot.Remove(plt.Plot);
-        owner.Remove(plot);
-    }
+    public override async Task<bool> AddBorder()
+        => await bordersControler.AddBorder();
 
-    private void PlotDataTo(Data data, DataSet destination) {
-        if (data is not Spectra spectra || destination.Contains(spectra)) return;
-        var format = SctPlot.GetPlotFormat(spectra);
-        var plot = SctPlot.PlotSpectra(format, spectra, form);
-        destination.Add(plot);
-    }
+    public override async Task<bool> DeleteLastBorder()
+        => await bordersControler.DeleteLast();
 
-    private void ChangeVisibility(Data data, bool isVisible) {
-        if (data is not SctPlot plot) return;
-        plot.ChangeVisibility(isVisible);
-    }
+    public override async Task<bool> ClearBorders()
+        => await Task.Run(bordersControler.Clear);
 
-    private async Task<float> GetXCoordinateByClick() {
-        object value = null;
-        MouseEventHandler handler = (sender, e) => value = Coordinates.X;
-        form.MouseDown += handler;
-        await WaitWhile(() => value is null);
-        form.MouseDown -= handler;
-        return (float)value;
-    }
-
-    private async Task WaitWhile(Func<bool> condition) {
-        await Task.Run(() => { while (condition()) { } });
-    }
+    #endregion
 }

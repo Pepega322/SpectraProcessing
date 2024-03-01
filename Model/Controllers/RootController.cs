@@ -4,7 +4,7 @@ using Model.DataStorages;
 
 namespace Model.Controllers;
 public abstract class RootController {
-    protected DataReader reader;
+    protected DataReader reader {  get; init; }
 
     protected RootController(DataReader reader) {
         this.reader = reader;
