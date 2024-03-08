@@ -41,7 +41,7 @@ partial class MainForm {
         rootTree = new TreeView();
         imageListForRootFolder = new ImageList(components);
         tableLayoutPanelLeftDown = new TableLayoutPanel();
-        dataTree = new TreeView();
+        datatorageTree = new TreeView();
         dataNavigation = new MenuStrip();
         dataButtonClear = new ToolStripMenuItem();
         tableLayoutPanelMiddleMiddle = new TableLayoutPanel();
@@ -56,7 +56,7 @@ partial class MainForm {
         menuStrip1 = new MenuStrip();
         plotButtonClear = new ToolStripMenuItem();
         plotButtonResize = new ToolStripMenuItem();
-        plotTree = new TreeView();
+        plotStorageTree = new TreeView();
         dataSetMenu = new ContextMenuStrip(components);
         dataNodeContextSave = new ToolStripMenuItem();
         dataContextDataSetSaveAs = new ToolStripMenuItem();
@@ -253,7 +253,7 @@ partial class MainForm {
         // 
         tableLayoutPanelLeftDown.ColumnCount = 1;
         tableLayoutPanelLeftDown.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-        tableLayoutPanelLeftDown.Controls.Add(dataTree, 0, 1);
+        tableLayoutPanelLeftDown.Controls.Add(datatorageTree, 0, 1);
         tableLayoutPanelLeftDown.Controls.Add(dataNavigation, 0, 0);
         tableLayoutPanelLeftDown.Dock = DockStyle.Fill;
         tableLayoutPanelLeftDown.Location = new Point(3, 461);
@@ -264,13 +264,13 @@ partial class MainForm {
         tableLayoutPanelLeftDown.Size = new Size(338, 453);
         tableLayoutPanelLeftDown.TabIndex = 2;
         // 
-        // dataTree
+        // datatorageTree
         // 
-        dataTree.Dock = DockStyle.Fill;
-        dataTree.Location = new Point(3, 43);
-        dataTree.Name = "dataTree";
-        dataTree.Size = new Size(332, 407);
-        dataTree.TabIndex = 5;
+        datatorageTree.Dock = DockStyle.Fill;
+        datatorageTree.Location = new Point(3, 43);
+        datatorageTree.Name = "datatorageTree";
+        datatorageTree.Size = new Size(332, 407);
+        datatorageTree.TabIndex = 5;
         // 
         // dataNavigation
         // 
@@ -376,7 +376,7 @@ partial class MainForm {
         tableLayoutPanel1.ColumnCount = 1;
         tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
         tableLayoutPanel1.Controls.Add(menuStrip1, 0, 0);
-        tableLayoutPanel1.Controls.Add(plotTree, 0, 1);
+        tableLayoutPanel1.Controls.Add(plotStorageTree, 0, 1);
         tableLayoutPanel1.Dock = DockStyle.Fill;
         tableLayoutPanel1.Location = new Point(1391, 3);
         tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -408,16 +408,16 @@ partial class MainForm {
         plotButtonResize.Size = new Size(100, 36);
         plotButtonResize.Text = "Resize";
         // 
-        // plotTree
+        // plotStorageTree
         // 
-        plotTree.CheckBoxes = true;
-        plotTree.Dock = DockStyle.Fill;
-        plotTree.Location = new Point(3, 43);
-        plotTree.Name = "plotTree";
-        plotTree.Size = new Size(488, 871);
-        plotTree.TabIndex = 1;
+        plotStorageTree.CheckBoxes = true;
+        plotStorageTree.Dock = DockStyle.Fill;
+        plotStorageTree.Location = new Point(3, 43);
+        plotStorageTree.Name = "plotStorageTree";
+        plotStorageTree.Size = new Size(488, 871);
+        plotStorageTree.TabIndex = 1;
         // 
-        // dataSetMenu
+        // dataStorageMenu
         // 
         dataSetMenu.ImageScalingSize = new Size(32, 32);
         dataSetMenu.Items.AddRange(new ToolStripItem[] { dataNodeContextSave, dataContextDataSetPlot, dataContextDataSetAddToPlot, dataContextDataSetDelete, dataNodeContextSubstractBaseline });
@@ -512,7 +512,7 @@ partial class MainForm {
         dataContextDataSubstractBaseline.Size = new Size(281, 38);
         dataContextDataSubstractBaseline.Text = "Substract baseline";
         // 
-        // plotSetMenu
+        // plotStorageMenu
         // 
         plotSetMenu.ImageScalingSize = new Size(32, 32);
         plotSetMenu.Items.AddRange(new ToolStripItem[] { plotContextPlotSetHighlight, plotContextPlotSetDelete, plotContextPlotSetPeaksProcess });
@@ -608,7 +608,7 @@ partial class MainForm {
     private MenuStrip rootNavigation;
     private TreeView rootTree;
     private ToolStripMenuItem rootButtonSelect;
-    private TreeView dataTree;
+    private TreeView datatorageTree;
     private TableLayoutPanel tableLayoutPanelLeftDown;
     private MenuStrip dataNavigation;
     private TableLayoutPanel tableLayoutPanelMiddleMiddle;
@@ -632,7 +632,7 @@ partial class MainForm {
     private ToolStripMenuItem dataContextDataDelete;
     private TableLayoutPanel tableLayoutPanel1;
     private MenuStrip menuStrip1;
-    private TreeView plotTree;
+    private TreeView plotStorageTree;
     private ToolStripMenuItem plotButtonClear;
     private ScottPlot.WinForms.FormsPlot plotView;
     private ToolStripMenuItem dataNodeContextSubstractBaseline;
