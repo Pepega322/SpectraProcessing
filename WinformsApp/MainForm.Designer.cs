@@ -417,7 +417,7 @@ partial class MainForm {
         plotStorageTree.Size = new Size(488, 871);
         plotStorageTree.TabIndex = 1;
         // 
-        // dataStorageMenu
+        // dataSetMenu
         // 
         dataSetMenu.ImageScalingSize = new Size(32, 32);
         dataSetMenu.Items.AddRange(new ToolStripItem[] { dataNodeContextSave, dataContextDataSetPlot, dataContextDataSetAddToPlot, dataContextDataSetDelete, dataNodeContextSubstractBaseline });
@@ -512,7 +512,7 @@ partial class MainForm {
         dataContextDataSubstractBaseline.Size = new Size(281, 38);
         dataContextDataSubstractBaseline.Text = "Substract baseline";
         // 
-        // plotStorageMenu
+        // plotSetMenu
         // 
         plotSetMenu.ImageScalingSize = new Size(32, 32);
         plotSetMenu.Items.AddRange(new ToolStripItem[] { plotContextPlotSetHighlight, plotContextPlotSetDelete, plotContextPlotSetPeaksProcess });
