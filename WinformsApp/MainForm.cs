@@ -35,7 +35,7 @@ public partial class MainForm : Form {
         dataButtonClear.Click += (sender, e) => controller.DataClear();
         dataContextDataSetSaveAs.Click += async (sender, e) => await controller.ContextDataSetSaveAsESPAsync(sender, e);
         dataContextDataSetAndSubsetsSaveAs.Click += async (sender, e) => await controller.ContextDataSetAndSubsetsSaveAsESPAsync(sender, e);
-        dataContextDataSetDelete.Click += (sender, e) => controller.ContextDataSetDelete(sender, e);
+        dataContextDataSetDelete.Click += async (sender, e) => await controller.ContextDataSetDelete(sender, e);
         dataContextDataSetPlot.Click += async (sender, e) => await controller.ContextDataClearDraw(sender, e);
         dataContextDataSetAddToPlot.Click += async (sender, e) => await controller.ContextSetAddDraw(sender, e);
         dataContextDataSetSubstactBaseline.Click += async (sender, e) => await controller.ContextSetOnlySubstractBaselineAsync(sender, e);
@@ -49,7 +49,7 @@ public partial class MainForm : Form {
 
         plotSetMenu.Tag = plotStorageTree;
         plotMenu.Tag = plotStorageTree;
-        plotView.MouseMove += async (sender, e) => await controller.SetPlotCoordinates(sender, e);
+        plotView.MouseMove += (sender, e) => controller.SetPlotCoordinates(sender, e);
         plotStorageTree.NodeMouseClick += TreeNodeClickSelect;
         plotStorageTree.NodeMouseClick += PlotDrawContextMenu;
         plotStorageTree.NodeMouseClick += PlotSetDrawContextMenu;
