@@ -71,6 +71,12 @@ public class SpectraProcessingController(SpectraGraphics graphics) {
         return copy[set];
     }
 
+    public static Spectra SetGetAverageSpectra(DataSet<Spectra> set) {
+        var average = set.Average();
+        average.Name = $"{set.Name} (average)";
+        return average;
+    }
+
     public void ClearBorders() {
         lock (borders) {
             Parallel.ForEach(borders.Borders, b => graphics.EraseThreadSafe(b.GetPlot()));

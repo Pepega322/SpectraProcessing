@@ -32,7 +32,7 @@ public class WinformsMainController {
     public WinformsMainController(FormsPlot form) {
         this.form = form;
         dialogController = new WinformsDialogController();
-        var path = "D:\\Study\\Chemfuck\\Lab\\MixturesData";
+        var path = "D:\\Study\\Chemfuck\\Lab\\MixturesData\\laba";
         spectraSource = new(path, new SpectraFileReader(new ScottSpectraParser()));
         spectraStorage = new("Single data");
         spectraWriter = new();
@@ -46,124 +46,139 @@ public class WinformsMainController {
 
     #region PlotControllerMethods
 
-    public async Task ContextSetAddDraw(object? sender, EventArgs e) {
+    public Task ContextSetAddDraw(object? sender, EventArgs e) {
         var set = WinformsTreeViewHelpers.GetContextSet<Spectra>(sender);
         spectraPlotStorage.AddSet(new DataSet<Spectra>(set.Name, set));
-        await Task.Run(() => spectraGraphicsController.DrawSet(set));
+        spectraGraphicsController.DrawSet(set);
         form.Refresh();
         OnPlotChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
-    public async Task ContextDataClearDraw(object? sender, EventArgs e) {
+    public Task ContextDataClearDraw(object? sender, EventArgs e) {
         spectraPlotStorage.Clear();
         spectraGraphicsController.Clear();
-        await ContextSetAddDraw(sender, e);
+        ContextSetAddDraw(sender, e);
+        return Task.CompletedTask;
     }
 
-    public async Task DataAddDrawToDefault(object? sender, TreeNodeMouseClickEventArgs e) {
-        if (e.Button is not MouseButtons.Left || e.Node.Tag is not Spectra spectra) return;
+    public Task DataAddDrawToDefault(object? sender, TreeNodeMouseClickEventArgs e) {
+        if (e.Button is not MouseButtons.Left || e.Node.Tag is not Spectra spectra) return Task.CompletedTask;
         spectraPlotStorage.AddDataToDefault(spectra);
-        await Task.Run(() => spectraGraphicsController.Draw(spectra));
+        spectraGraphicsController.Draw(spectra);
         form.Refresh();
         OnPlotChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
-    public async Task ContextClearDataDrawToDefault(object? sender, EventArgs e) {
+    public Task ContextClearDataDrawToDefault(object? sender, EventArgs e) {
         var spectra = WinformsTreeViewHelpers.GetContextData<Spectra>(sender);
         spectraPlotStorage.Clear();
         spectraPlotStorage.AddDataToDefault(spectra);
         spectraGraphicsController.Clear();
-        await Task.Run(() => spectraGraphicsController.Draw(spectra));
+        spectraGraphicsController.Draw(spectra);
         form.Refresh();
         OnPlotChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
-    public async Task ChangeSetVisibility(object? sender, TreeViewEventArgs e) {
+    public Task ChangeSetVisibility(object? sender, TreeViewEventArgs e) {
         if (e.Node?.Tag is DataSet<Spectra> set) {
-            await Task.Run(() => spectraGraphicsController.SetChangeVisibility(set, e.Node.Checked));
+            spectraGraphicsController.SetChangeVisibility(set, e.Node.Checked);
             form.Refresh();
             OnPlotChanged?.Invoke();
         }
+        return Task.CompletedTask;
     }
 
-    public async Task ChangeDataVisibility(object? sender, TreeViewEventArgs e) {
+    public Task ChangeDataVisibility(object? sender, TreeViewEventArgs e) {
         if (e.Node?.Tag is Spectra spectra) {
-            await Task.Run(() => spectraGraphicsController.ChangeVisibility(spectra, e.Node.Checked));
+            spectraGraphicsController.ChangeVisibility(spectra, e.Node.Checked);
             form.Refresh();
         }
+        return Task.CompletedTask;
     }
 
-    public async Task ContextSetHighlight(object? sender, EventArgs e) {
+    public Task ContextSetHighlight(object? sender, EventArgs e) {
         var set = WinformsTreeViewHelpers.GetContextSet<Spectra>(sender);
-        await Task.Run(() => spectraGraphicsController.SetChangeHighlightion(set));
+        spectraGraphicsController.SetChangeHighlightion(set);
         form.Refresh();
+        return Task.CompletedTask;
     }
 
-    public async Task DataHighlight(object? sender, TreeNodeMouseClickEventArgs e) {
+    public Task DataHighlight(object? sender, TreeNodeMouseClickEventArgs e) {
         var node = WinformsTreeViewHelpers.GetClickTreeNode(sender);
         if (node.Tag is Spectra spectra && node.Checked) {
-            await Task.Run(() => spectraGraphicsController.ChangeHighlightion(spectra));
+            spectraGraphicsController.ChangeHighlightion(spectra);
             form.Refresh();
         }
+        return Task.CompletedTask;
     }
 
-    public async Task ContextSetDelete(object? sender, EventArgs e) {
+    public Task ContextSetDelete(object? sender, EventArgs e) {
         var set = WinformsTreeViewHelpers.GetContextSet<Spectra>(sender);
         spectraPlotStorage.DeleteSet(set);
-        await Task.Run(() => spectraGraphicsController.EraseSet(set));
+        spectraGraphicsController.EraseSet(set);
         form.Refresh();
         OnPlotChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
-    public async Task ContextSpectraDelete(object? sender, EventArgs e) {
+    public Task ContextSpectraDelete(object? sender, EventArgs e) {
         var spectra = WinformsTreeViewHelpers.GetContextData<Spectra>(sender);
         var owner = WinformsTreeViewHelpers.GetContextParentSet<Spectra>(sender);
         spectraPlotStorage.DeleteData(owner, spectra);
-        await Task.Run(() => spectraGraphicsController.Erase(spectra));
+        spectraGraphicsController.Erase(spectra);
         form.Refresh();
         OnPlotChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
-    public async Task ContextSetPeaksProcess(object? sender, EventArgs e) {
+    public Task ContextSetPeaksProcess(object? sender, EventArgs e) {
         var set = WinformsTreeViewHelpers.GetContextSet<Spectra>(sender);
-        var info = await Task.Run(() => processingController.SetProcessPeaks(set));
-        var fullname = dialogController.SelectFullNameInDialog(".txt");
-        if (fullname == null) return;
-        await Task.Run(() => peaksInfoWriter.DataWriteAs(info, fullname));
+        var fullname = dialogController.SelectFullNameInDialog(set.Name, ".txt");
+        if (fullname == null) return Task.CompletedTask; ;
+        var info = processingController.SetProcessPeaks(set);
+        peaksInfoWriter.DataWriteAs(info, fullname);
+        return Task.CompletedTask;
     }
 
-    public async Task ContextDataPeaksProcess(object? sender, EventArgs e) {
+    public Task ContextDataPeaksProcess(object? sender, EventArgs e) {
         var spectra = WinformsTreeViewHelpers.GetContextData<Spectra>(sender);
-        var info = await Task.Run(() => processingController.ProcessPeaks(spectra));
-        var fullname = dialogController.SelectFullNameInDialog(".txt");
-        if (fullname == null) return;
-        await Task.Run(() => peaksInfoWriter.DataWriteAs(info, fullname));
+        var fullname = dialogController.SelectFullNameInDialog(spectra.Name, ".txt");
+        if (fullname == null) return Task.CompletedTask;
+        var info = processingController.ProcessPeaks(spectra);
+        peaksInfoWriter.DataWriteAs(info, fullname);
+        return Task.CompletedTask;
     }
 
     public async Task PlotAddPeakBorders(object? sender, EventArgs e) {
         var start = await coordinateController.GetCoordinateByClick();
         var end = await coordinateController.GetCoordinateByClick();
         var border = new ScottPeakBorder(start.X, end.X);
-        await Task.Run(() => processingController.AddBorder(border));
+        processingController.AddBorder(border);
         form.Refresh();
     }
 
-    public async Task PlotDeleteLastPeakBorders(object? sender, EventArgs e) {
+    public Task PlotDeleteLastPeakBorders(object? sender, EventArgs e) {
         var last = processingController.Borders.LastOrDefault();
-        if (last == default) return;
-        await Task.Run(() => processingController.RemoveBorder(last));
+        if (last == default) return Task.CompletedTask;
+        processingController.RemoveBorder(last);
         form.Refresh();
+        return Task.CompletedTask;
     }
 
-    public async Task PlotClearPeakBorders(object? sender, EventArgs e) {
-        await Task.Run(processingController.ClearBorders);
+    public Task PlotClearPeakBorders(object? sender, EventArgs e) {
+        processingController.ClearBorders();
         form.Refresh();
+        return Task.CompletedTask;
     }
 
-    public async Task SetPlotCoordinates(object? sender, MouseEventArgs e) {
-        var coord = await Task.Run(() => form.Plot.GetCoordinates(e.X, e.Y));
+    public Task SetPlotCoordinates(object? sender, MouseEventArgs e) {
+        var coord = form.Plot.GetCoordinates(e.X, e.Y);
         coordinateController.SetCoordinates((float)coord.X, (float)coord.Y);
         OnPlotMouseCoordinatesChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
     public void PlotClear() {
@@ -204,48 +219,62 @@ public class WinformsMainController {
 
     #region DataControllerMethods
 
-    public async Task ContextDataSetAndSubsetsSaveAsESPAsync(object? sender, EventArgs e) {
+    public Task ContextDataSetAndSubsetsSaveAsESPAsync(object? sender, EventArgs e) {
         var path = dialogController.SelectPathInDialog();
-        if (path is null) return;
+        if (path is null) return Task.CompletedTask;
         var set = WinformsTreeViewHelpers.GetContextSet<Spectra>(sender);
         var outputPath = Path.Combine(path, $"{set.Name} (converted full depth)");
-        await Task.Run(() => spectraWriter.SetFullDepthWriteAs(set, outputPath, ".esp"));
+        spectraWriter.SetFullDepthWriteAs(set, outputPath, ".esp");
+        return Task.CompletedTask;
     }
 
-    public async Task ContextDataSetSaveAsESPAsync(object? sender, EventArgs e) {
+    public Task ContextDataSetSaveAsESPAsync(object? sender, EventArgs e) {
         var path = dialogController.SelectPathInDialog();
-        if (path is null) return;
+        if (path is null) return Task.CompletedTask;
         var set = WinformsTreeViewHelpers.GetContextSet<Spectra>(sender);
         var outputPath = Path.Combine(path, $"{set.Name} (converted)");
-        await Task.Run(() => spectraWriter.SetOnlyWriteAs(set, outputPath, ".esp"));
+        spectraWriter.SetOnlyWriteAs(set, outputPath, ".esp");
+        return Task.CompletedTask;
     }
 
-    public async Task ContextDataSaveAsESPAsync(object? sender, EventArgs e) {
-        var fullname = dialogController.SelectFullNameInDialog(".esp");
-        if (fullname is null) return;
+    public Task ContextDataSaveAsESPAsync(object? sender, EventArgs e) {
         var data = WinformsTreeViewHelpers.GetContextData<Spectra>(sender);
-        await Task.Run(() => spectraWriter.DataWriteAs(data, fullname));
+        var fullname = dialogController.SelectFullNameInDialog(data.Name, ".esp");
+        if (fullname is null) return Task.CompletedTask;
+        spectraWriter.DataWriteAs(data, fullname);
+        return Task.CompletedTask;
     }
 
-    public async Task ContextSetFullDepthSubstractBaselineAsync(object? sender, EventArgs e) {
+    public Task ContextSetFullDepthSubstractBaselineAsync(object? sender, EventArgs e) {
         var root = WinformsTreeViewHelpers.GetContextSet<Spectra>(sender);
-        var substractedSet = await Task.Run(() => SpectraProcessingController.SetFullDepthSubstractBaseLin(root));
+        var substractedSet = SpectraProcessingController.SetFullDepthSubstractBaseLin(root);
         spectraStorage.AddSet(substractedSet);
         OnDataChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
-    public async Task ContextSetOnlySubstractBaselineAsync(object? sender, EventArgs e) {
+    public Task ContextSetOnlySubstractBaselineAsync(object? sender, EventArgs e) {
         var set = WinformsTreeViewHelpers.GetContextSet<Spectra>(sender);
-        var substractedSet = await Task.Run(() => SpectraProcessingController.SetOnlySubstractBaseline(set));
+        var substractedSet = SpectraProcessingController.SetOnlySubstractBaseline(set);
         spectraStorage.AddSet(substractedSet);
         OnDataChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
-    public async Task ContextDataSubstractBaselineAsync(object? sender, EventArgs e) {
+    public Task ContextDataSubstractBaselineAsync(object? sender, EventArgs e) {
         var data = WinformsTreeViewHelpers.GetContextData<Spectra>(sender);
-        var substracted = await Task.Run(() => SpectraProcessingController.SubstractBaseline(data));
+        var substracted = SpectraProcessingController.SubstractBaseline(data);
         spectraStorage.AddDataToDefault(substracted);
         OnDataChanged?.Invoke();
+        return Task.CompletedTask;
+    }
+
+    public Task ContextSetOnlyGetAverageSpectra(object? sender, EventArgs e) {
+        var set = WinformsTreeViewHelpers.GetContextSet<Spectra>(sender);
+        var average = SpectraProcessingController.SetGetAverageSpectra(set);
+        spectraStorage.AddDataToDefault(average);
+        OnDataChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
     public void ContextDataSetDelete(object? sender, EventArgs e) {
@@ -300,16 +329,18 @@ public class WinformsMainController {
 
     #region DirectoryControllerMethods
 
-    public async Task RootReadWithSubdirsAsync(object? sender, EventArgs e) {
-        var set = await Task.Run(spectraSource.ReadRootFullDepth);
+    public Task RootReadWithSubdirsAsync(object? sender, EventArgs e) {
+        var set = spectraSource.ReadRootFullDepth();
         spectraStorage.AddSet(set);
         OnDataChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
-    public async Task RootReadAsync(object? sender, EventArgs e) {
-        var set = await Task.Run(spectraSource.ReadRoot);
+    public Task RootReadAsync(object? sender, EventArgs e) {
+        var set = spectraSource.ReadRoot();
         spectraStorage.AddSet(set);
         OnDataChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
     public void RootSelect(object? sender, EventArgs e) {
@@ -327,17 +358,17 @@ public class WinformsMainController {
         OnRootChanged?.Invoke();
     }
 
-    public async void RootDoubleClick(object? sender, TreeNodeMouseClickEventArgs e) {
+    public Task RootDoubleClick(object? sender, TreeNodeMouseClickEventArgs e) {
         if (e.Node.Tag is FileInfo file) {
-            var data = await Task.Run(() => spectraSource.Read(file.FullName));
+            var data = spectraSource.Read(file.FullName);
             if (data != null && spectraStorage.AddDataToDefault(data))
                 OnDataChanged?.Invoke();
         }
-
-        if (e.Node.Tag is DirectoryInfo newRoot) {
+        else if (e.Node.Tag is DirectoryInfo newRoot) {
             if (spectraSource.ChangeRoot(newRoot.FullName))
                 OnRootChanged?.Invoke();
         }
+        return Task.CompletedTask;
     }
 
     public IEnumerable<TreeNode> RootGetTree() {
@@ -356,9 +387,6 @@ public class WinformsMainController {
             };
         }
     }
-
-    #endregion
-    #region SupportWinformMethods
 
     #endregion
 }

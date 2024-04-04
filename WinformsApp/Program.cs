@@ -1,4 +1,6 @@
-﻿namespace View;
+﻿using WinformsApp;
+
+namespace View;
 
 internal static class Program
 {

@@ -1,5 +1,6 @@
 ﻿using Domain.MathHelp;
 using Domain.SpectraData.ProcessingInfo;
+using System.Collections.Concurrent;
 
 namespace Domain.SpectraData.Support;
 
@@ -9,6 +10,31 @@ public static class SpectraExtensions {
         float transformationRule(float x, float y) => y - baseline(x);
         var newPoints = s.Points.Transform(transformationRule);
         return s.ChangePoints(newPoints);
+    }
+
+    public static Spectra Average(this IEnumerable<Spectra> spectras) {
+        var spectrasPerX = new Dictionary<float, int>();
+        var spectrasYSum = new Dictionary<float, float>();
+        foreach (var spectra in spectras) {
+            var points = spectra.Points;
+            for (var i = 0; i < points.Count; i++) {
+                var x = points.X[i];
+                var y = points.Y[i];
+                if (!spectrasPerX.ContainsKey(x)) spectrasPerX.Add(x, 1);
+                else spectrasPerX[x]++;
+                if (!spectrasYSum.ContainsKey(x)) spectrasYSum.Add(x, y);
+                else spectrasYSum[x] += y;
+            }
+        }
+        var resultX  = spectrasPerX.Keys.OrderBy(x => x).ToList();
+        var resultY = resultX
+            .Select(x => spectrasYSum[x] / spectrasPerX[x])
+            .ToList();
+        var newPoints = new SpectraPoints(resultX, resultY);
+        var result = spectras.First().Copy();
+        result.Name = "average";
+        result.ChangePoints(newPoints);
+        return result;
     }
 
     public static PeakInfo ProcessPeak(this Spectra s, PeakBorder border) {

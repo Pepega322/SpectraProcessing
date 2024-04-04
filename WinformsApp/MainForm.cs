@@ -2,9 +2,11 @@
 using Domain.SpectraData;
 using View.Controllers;
 
-namespace View;
+namespace WinformsApp;
+
 public partial class MainForm : Form {
     private readonly WinformsMainController controller;
+
     public MainForm() {
         InitializeComponent();
         controller = new(plotView);
@@ -16,7 +18,7 @@ public partial class MainForm : Form {
         _ = BuildTreeAsync(rootTree, controller.RootGetTree);
 
         rootTree.NodeMouseClick += TreeNodeClickSelect;
-        rootTree.NodeMouseDoubleClick += (sender, e) => controller.RootDoubleClick(sender, e);
+        rootTree.NodeMouseDoubleClick += async (sender, e) => await controller.RootDoubleClick(sender, e);
         rootButtonSelect.Click += (sender, e) => controller.RootSelect(sender, e);
         rootButtonStepBack.Click += (sender, e) => controller.RootStepBack(sender, e);
         rootButtonRefresh.Click += (sender, e) => controller.RootRefresh(sender, e);
@@ -31,14 +33,14 @@ public partial class MainForm : Form {
         datatorageTree.NodeMouseDoubleClick += async (sender, e) => await controller.DataAddDrawToDefault(sender, e);
 
         dataButtonClear.Click += (sender, e) => controller.DataClear();
-        dataContextDataSetSaveAs.Click += async (sender, e) =>
-        await controller.ContextDataSetSaveAsESPAsync(sender, e);
+        dataContextDataSetSaveAs.Click += async (sender, e) => await controller.ContextDataSetSaveAsESPAsync(sender, e);
         dataContextDataSetAndSubsetsSaveAs.Click += async (sender, e) => await controller.ContextDataSetAndSubsetsSaveAsESPAsync(sender, e);
         dataContextDataSetDelete.Click += (sender, e) => controller.ContextDataSetDelete(sender, e);
         dataContextDataSetPlot.Click += async (sender, e) => await controller.ContextDataClearDraw(sender, e);
         dataContextDataSetAddToPlot.Click += async (sender, e) => await controller.ContextSetAddDraw(sender, e);
         dataContextDataSetSubstactBaseline.Click += async (sender, e) => await controller.ContextSetOnlySubstractBaselineAsync(sender, e);
         dataContextDataSetAndSubsetsSubstractBaseline.Click += async (sender, e) => await controller.ContextSetFullDepthSubstractBaselineAsync(sender, e);
+        dataContextDataSetGetAverageSpectra.Click += async (sender, e) => await controller.ContextSetOnlyGetAverageSpectra(sender, e);
 
         dataContextDataSave.Click += async (sender, e) => await controller.ContextDataSaveAsESPAsync(sender, e);
         dataContextDataDelete.Click += (sender, e) => controller.ContextDataDelete(sender, e);
@@ -71,7 +73,7 @@ public partial class MainForm : Form {
 
     private void DrawMouseCoordinates() {
         var point = controller.PlotCoordinates;
-        mouseCoordinatesBox.Text = $"X:{Math.Round(point.X, 2)}\tY:{Math.Round(point.Y, 2)}";
+        mouseCoordinatesBox.Text = $@"X:{point.X: 0.00} {point.Y: 0.00}";
     }
 
     private void TreeNodeClickSelect(object? sender, TreeNodeMouseClickEventArgs e) {

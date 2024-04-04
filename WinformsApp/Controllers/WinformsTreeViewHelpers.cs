@@ -34,7 +34,7 @@ internal static class WinformsTreeViewHelpers {
 
     private static TreeNode GetContextTreeNode(object? sender) {
         var item = sender as ToolStripDropDownItem ?? throw new Exception();
-        var contextMenu = item.Owner as ContextMenuStrip ?? throw new Exception();
+        var contextMenu = item.Owner as ContextMenuStrip ;
         while (contextMenu == null) {
             var t = item.Owner as ToolStripDropDownMenu ?? throw new Exception();
             contextMenu = t.OwnerItem?.Owner as ContextMenuStrip ?? throw new Exception();

@@ -1,4 +1,4 @@
-﻿namespace View;
+﻿namespace WinformsApp;
 
 partial class MainForm {
     /// <summary>
@@ -67,6 +67,7 @@ partial class MainForm {
         dataNodeContextSubstractBaseline = new ToolStripMenuItem();
         dataContextDataSetSubstactBaseline = new ToolStripMenuItem();
         dataContextDataSetAndSubsetsSubstractBaseline = new ToolStripMenuItem();
+        dataContextDataSetGetAverageSpectra = new ToolStripMenuItem();
         dataMenu = new ContextMenuStrip(components);
         dataContextDataSave = new ToolStripMenuItem();
         dataContextDataPlot = new ToolStripMenuItem();
@@ -420,9 +421,9 @@ partial class MainForm {
         // dataSetMenu
         // 
         dataSetMenu.ImageScalingSize = new Size(32, 32);
-        dataSetMenu.Items.AddRange(new ToolStripItem[] { dataNodeContextSave, dataContextDataSetPlot, dataContextDataSetAddToPlot, dataContextDataSetDelete, dataNodeContextSubstractBaseline });
+        dataSetMenu.Items.AddRange(new ToolStripItem[] { dataNodeContextSave, dataContextDataSetPlot, dataContextDataSetAddToPlot, dataContextDataSetDelete, dataNodeContextSubstractBaseline, dataContextDataSetGetAverageSpectra });
         dataSetMenu.Name = "dataNodeContext1";
-        dataSetMenu.Size = new Size(386, 194);
+        dataSetMenu.Size = new Size(386, 232);
         dataSetMenu.Tag = "";
         // 
         // dataNodeContextSave
@@ -480,6 +481,12 @@ partial class MainForm {
         dataContextDataSetAndSubsetsSubstractBaseline.Name = "dataContextDataSetAndSubsetsSubstractBaseline";
         dataContextDataSetAndSubsetsSubstractBaseline.Size = new Size(409, 44);
         dataContextDataSetAndSubsetsSubstractBaseline.Text = "This series and subseries";
+        // 
+        // dataContextDataSetGetAverageSpectra
+        // 
+        dataContextDataSetGetAverageSpectra.Name = "dataContextDataSetGetAverageSpectra";
+        dataContextDataSetGetAverageSpectra.Size = new Size(385, 38);
+        dataContextDataSetGetAverageSpectra.Text = "Get average spectra";
         // 
         // dataMenu
         // 
@@ -652,4 +659,5 @@ partial class MainForm {
     private ToolStripMenuItem plotButtonDeleteLastPeak;
     private ToolStripMenuItem plotButtonClearPeaks;
     private ToolStripMenuItem plotButtonResize;
+    private ToolStripMenuItem dataContextDataSetGetAverageSpectra;
 }

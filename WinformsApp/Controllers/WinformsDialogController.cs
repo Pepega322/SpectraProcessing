@@ -9,9 +9,10 @@ public class WinformsDialogController : DialogController {
         return result == DialogResult.OK ? dialog.SelectedPath : null;
     }
 
-    public override string? SelectFullNameInDialog(string extension) {
+    public override string? SelectFullNameInDialog(string? defaultName = null, string? defaultExtension = null) {
         using SaveFileDialog dialog = new();
-        dialog.DefaultExt = extension;
+        dialog.FileName = defaultName ?? defaultName;
+        dialog.DefaultExt = defaultExtension ?? defaultExtension;
         DialogResult result = dialog.ShowDialog();
         return result == DialogResult.OK ? dialog.FileName : null;
     }
