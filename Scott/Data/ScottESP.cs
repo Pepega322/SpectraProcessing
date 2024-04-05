@@ -4,8 +4,8 @@ using Scott.GraphicsData;
 using System.Globalization;
 
 namespace Scott.Data;
-internal class ScottESP(string name, SpectraPoints points, ESPInfo info) : ESP(name, points, info) {
-    public static ESP Parse(string name, string[] contents) {
+internal class ScottEsp(string name, SpectraPoints points, ESPInfo info) : Esp(name, points, info) {
+    public static Esp Parse(string name, string[] contents) {
         var info = new ESPInfo(contents);
         var pointCount = contents.Length - FirstPointIndex;
         var xPoints = new List<float>(pointCount);
@@ -15,7 +15,7 @@ internal class ScottESP(string name, SpectraPoints points, ESPInfo info) : ESP(n
             yPoints.Add(float.Parse(pair[1], CultureInfo.InvariantCulture));
         }
         var points = new SpectraPoints(xPoints, yPoints);
-        return new ScottESP(name, points, info);
+        return new ScottEsp(name, points, info);
     }
 
     private SpectraPlot? plottable;
@@ -25,5 +25,5 @@ internal class ScottESP(string name, SpectraPoints points, ESPInfo info) : ESP(n
         return plottable;
     }
 
-    public override Spectra Copy() => new ScottESP(Name, Points, Info);
+    public override Spectra Copy() => new ScottEsp(Name, Points, Info);
 }

@@ -1,14 +1,9 @@
 ﻿using System.Numerics;
 
 namespace Domain.MathHelp;
-public struct Point<T> where T : struct, INumber<T>
-{
-    public readonly T X;
-    public readonly T Y;
 
-    public Point(T x, T y)
-    {
-        X = x;
-        Y = y;
-    }
+public struct Point<T>(T x, T y)
+	where T : struct, INumber<T> {
+	public readonly T X = x;
+	public readonly T Y = y;
 }

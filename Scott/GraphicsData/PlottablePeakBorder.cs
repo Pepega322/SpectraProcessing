@@ -8,9 +8,9 @@ public class PlottablePeakBorder : Plottable {
     public VerticalLine RightLine { get; init; }
 
     public PlottablePeakBorder(PeakBorder border) {
-        lock (builder) {
-            LeftLine = builder.Add.VerticalLine(border.Left, 1);
-            RightLine = builder.Add.VerticalLine(border.Rigth, 1);
+        lock (Builder) {
+            LeftLine = Builder.Add.VerticalLine(border.Left, 1);
+            RightLine = Builder.Add.VerticalLine(border.Rigth, 1);
         }
     }
 

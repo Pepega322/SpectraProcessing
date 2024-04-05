@@ -3,11 +3,11 @@ using Scott.GraphicsData;
 
 namespace Scott.Data;
 
-public class ScottPeakBorder(float Left, float Right) : PeakBorder(Left, Right) {
-    private SpectraPlot? plottable;
+public class ScottPeakBorder(float left, float right) : PeakBorder(left, right) {
+	private SpectraPlot? plottable;
 
-    public override SpectraPlot GetPlot() {
-        plottable ??= new PlottablePeakBorder(this);
-        return plottable;
-    }
+	public override SpectraPlot GetPlot() {
+		plottable ??= new PlottablePeakBorder(this);
+		return plottable;
+	}
 }

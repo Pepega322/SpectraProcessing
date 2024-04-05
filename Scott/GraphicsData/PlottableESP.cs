@@ -4,9 +4,9 @@ using ScottPlot.Plottables;
 
 namespace Scott.GraphicsData;
 internal class PlottableESP : PlottableSpectra {
-    public PlottableESP(ESP spectra) : base(spectra) {
-        lock (builder)
-            Plottable = builder.Add.SignalXY(spectra.Points.X.ToArray(), spectra.Points.Y.ToArray());
+    public PlottableESP(Esp spectra) : base(spectra) {
+        lock (Builder)
+            Plottable = Builder.Add.SignalXY(spectra.Points.X.ToArray(), spectra.Points.Y.ToArray());
     }
 
     public override IEnumerable<IPlottable> GetPlots() {

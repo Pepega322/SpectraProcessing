@@ -1,13 +1,15 @@
 ﻿using Domain;
 using Domain.SpectraData;
-using View.Controllers;
+using WinformsApp.Controllers;
 
 namespace WinformsApp;
 
-public partial class MainForm : Form {
+public partial class MainForm : Form
+{
     private readonly WinformsMainController controller;
 
-    public MainForm() {
+    public MainForm()
+    {
         InitializeComponent();
         controller = new(plotView);
         controller.OnRootChanged += async () => await BuildTreeAsync(rootTree, controller.RootGetTree);
@@ -32,20 +34,25 @@ public partial class MainForm : Form {
         datatorageTree.NodeMouseClick += DataSetDrawContextMenu;
         datatorageTree.NodeMouseDoubleClick += async (sender, e) => await controller.DataAddDrawToDefault(sender, e);
 
-        dataButtonClear.Click += (sender, e) => controller.DataClear();
-        dataContextDataSetSaveAs.Click += async (sender, e) => await controller.ContextDataSetSaveAsESPAsync(sender, e);
-        dataContextDataSetAndSubsetsSaveAs.Click += async (sender, e) => await controller.ContextDataSetAndSubsetsSaveAsESPAsync(sender, e);
-        dataContextDataSetDelete.Click += async (sender, e) => await controller.ContextDataSetDelete(sender, e);
+        dataButtonClear.Click += (_, _) => controller.DataClear();
+        dataContextDataSetSaveAs.Click += async (sender, e) => await controller.ContextDataSetSaveAsEspAsync(sender, e);
+        dataContextDataSetAndSubsetsSaveAs.Click += async (sender, e) =>
+            await controller.ContextDataSetAndSubsetsSaveAsEspAsync(sender, e);
+        dataContextDataSetDelete.Click += (sender, e) => controller.ContextDataSetDelete(sender, e);
         dataContextDataSetPlot.Click += async (sender, e) => await controller.ContextDataClearDraw(sender, e);
         dataContextDataSetAddToPlot.Click += async (sender, e) => await controller.ContextSetAddDraw(sender, e);
-        dataContextDataSetSubstactBaseline.Click += async (sender, e) => await controller.ContextSetOnlySubstractBaselineAsync(sender, e);
-        dataContextDataSetAndSubsetsSubstractBaseline.Click += async (sender, e) => await controller.ContextSetFullDepthSubstractBaselineAsync(sender, e);
-        dataContextDataSetGetAverageSpectra.Click += async (sender, e) => await controller.ContextSetOnlyGetAverageSpectra(sender, e);
+        dataContextDataSetSubstactBaseline.Click += async (sender, e) =>
+            await controller.ContextSetOnlySubstractBaselineAsync(sender, e);
+        dataContextDataSetAndSubsetsSubstractBaseline.Click += async (sender, e) =>
+            await controller.ContextSetFullDepthSubstractBaselineAsync(sender, e);
+        dataContextDataSetGetAverageSpectra.Click +=
+            async (sender, e) => await controller.ContextSetOnlyGetAverageSpectra(sender, e);
 
-        dataContextDataSave.Click += async (sender, e) => await controller.ContextDataSaveAsESPAsync(sender, e);
+        dataContextDataSave.Click += async (sender, e) => await controller.ContextDataSaveAsEspAsync(sender, e);
         dataContextDataDelete.Click += (sender, e) => controller.ContextDataDelete(sender, e);
         dataContextDataPlot.Click += async (sender, e) => await controller.ContextClearDataDrawToDefault(sender, e);
-        dataContextDataSubstractBaseline.Click += async (sender, e) => await controller.ContextDataSubstractBaselineAsync(sender, e);
+        dataContextDataSubstractBaseline.Click +=
+            async (sender, e) => await controller.ContextDataSubstractBaselineAsync(sender, e);
 
         plotSetMenu.Tag = plotStorageTree;
         plotMenu.Tag = plotStorageTree;
@@ -57,8 +64,8 @@ public partial class MainForm : Form {
         plotStorageTree.NodeMouseDoubleClick += async (sender, e) => await controller.DataHighlight(sender, e);
         plotStorageTree.AfterCheck += async (sender, e) => await controller.ChangeSetVisibility(sender, e);
         plotStorageTree.AfterCheck += async (sender, e) => await controller.ChangeDataVisibility(sender, e);
-        plotButtonClear.Click += (sender, e) => controller.PlotClear();
-        plotButtonResize.Click += (sender, e) => controller.PlotResize();
+        plotButtonClear.Click += (_, _) => controller.PlotClear();
+        plotButtonResize.Click += (_, _) => controller.PlotResize();
         plotContextPlotSetHighlight.Click += async (sender, e) => await controller.ContextSetHighlight(sender, e);
         plotContextPlotSetDelete.Click += async (sender, e) => await controller.ContextSetDelete(sender, e);
         plotContextPlotDelete.Click += async (sender, e) => await controller.ContextSpectraDelete(sender, e);
@@ -71,38 +78,46 @@ public partial class MainForm : Form {
         plotContextPlotPeaksProcess.Click += async (sender, e) => await controller.ContextDataPeaksProcess(sender, e);
     }
 
-    private void DrawMouseCoordinates() {
+    private void DrawMouseCoordinates()
+    {
         var point = controller.PlotCoordinates;
         mouseCoordinatesBox.Text = $@"X:{point.X: 0.00} {point.Y: 0.00}";
     }
 
-    private void TreeNodeClickSelect(object? sender, TreeNodeMouseClickEventArgs e) {
+    private void TreeNodeClickSelect(object? sender, TreeNodeMouseClickEventArgs e)
+    {
         if (sender is TreeView treeView) treeView.SelectedNode = e.Node;
         else throw new Exception(nameof(TreeNodeClickSelect));
     }
 
-    private void PlotSetDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e) {
-        if (e.Button is MouseButtons.Right && e.Node.Tag is DataSet<Spectra>) {
+    private void PlotSetDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e)
+    {
+        if (e.Button is MouseButtons.Right && e.Node.Tag is DataSet<Spectra>)
+        {
             e.Node.ContextMenuStrip = plotSetMenu;
         }
     }
 
-    private void PlotDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e) {
+    private void PlotDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e)
+    {
         if (e.Button is MouseButtons.Right && e.Node.Tag is Spectra)
             e.Node.ContextMenuStrip = plotMenu;
     }
 
-    private void DataSetDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e) {
+    private void DataSetDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e)
+    {
         if (e.Button is MouseButtons.Right && e.Node.Tag is DataSet<Spectra>)
             e.Node.ContextMenuStrip = dataSetMenu;
     }
 
-    private void DataDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e) {
+    private void DataDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e)
+    {
         if (e.Button is MouseButtons.Right && e.Node.Tag is Spectra)
             e.Node.ContextMenuStrip = dataMenu;
     }
 
-    private static async Task BuildTreeAsync(TreeView tree, Func<IEnumerable<TreeNode>> nodeSource) {
+    private static async Task BuildTreeAsync(TreeView tree, Func<IEnumerable<TreeNode>> nodeSource)
+    {
         tree.Nodes.Clear();
         tree.BeginUpdate();
         var nodes = await Task.Run(() => nodeSource().ToArray());

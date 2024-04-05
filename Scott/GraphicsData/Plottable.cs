@@ -2,23 +2,24 @@
 using ScottPlot;
 
 namespace Scott.GraphicsData;
+
 public abstract class Plottable : SpectraPlot {
-    protected readonly static Plot builder = new();
+	protected static readonly Plot Builder = new();
 
-    public Color DefaultColor { get; protected set; }
-    public Color Color { get; protected set; }
+	public Color DefaultColor { get; private set; }
+	protected Color Color { get; set; }
 
-    public abstract void SetColor(Color color);
+	public abstract void SetColor(Color color);
 
-    public abstract IEnumerable<IPlottable> GetPlots();
+	public abstract IEnumerable<IPlottable> GetPlots();
 
-    public override void ChangeVisibility(bool isVisible) {
-        IsVisible = isVisible;
-        foreach (IPlottable plot in GetPlots())
-            plot.IsVisible = IsVisible;
-    }
+	public override void ChangeVisibility(bool isVisible) {
+		IsVisible = isVisible;
+		foreach (IPlottable plot in GetPlots())
+			plot.IsVisible = IsVisible;
+	}
 
-    public void RememberColor() {
-        DefaultColor = Color;
-    }
+	public void RememberColor() {
+		DefaultColor = Color;
+	}
 }

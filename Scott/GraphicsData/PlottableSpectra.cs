@@ -2,13 +2,14 @@
 using ScottPlot;
 
 namespace Scott.GraphicsData;
+
 public abstract class PlottableSpectra(Spectra spectra) : Plottable {
-    public Spectra Spectra { get; init; } = spectra;
-    public IPlottable Plottable { get; protected set; } = null!;
+	private Spectra Spectra { get; init; } = spectra;
+	protected IPlottable Plottable { get; init; } = null!;
 
-    public override bool Equals(object? obj) {
-        return obj is PlottableSpectra spectra && spectra.Spectra.Equals(Spectra);
-    }
+	public override bool Equals(object? obj) {
+		return obj is PlottableSpectra spectra && spectra.Spectra.Equals(Spectra);
+	}
 
-    public override int GetHashCode() => Spectra.GetHashCode();
+	public override int GetHashCode() => Spectra.GetHashCode();
 }

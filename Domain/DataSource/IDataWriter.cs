@@ -1,4 +1,5 @@
 ﻿namespace Domain.DataSource;
+
 public interface IDataWriter {
-    void WriteData(IWriteable data, string path);
+	void WriteData(IWriteable data, string path);
 }
