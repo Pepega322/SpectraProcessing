@@ -2,7 +2,7 @@
 
 namespace Domain.SpectraData.ProcessingInfo;
 
-public class PeakInfoSet : Data, IWriteable
+public class PeakInfoSet : IWriteable
 {
 	private readonly List<PeakInfo> peaks = [];
 

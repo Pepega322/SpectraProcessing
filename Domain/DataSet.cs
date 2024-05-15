@@ -2,7 +2,7 @@
 
 namespace Domain;
 
-public class DataSet<TData> : IEnumerable<TData> where TData : Data
+public class DataSet<TData> : IEnumerable<TData>
 {
 	private readonly HashSet<TData> set;
 	private readonly HashSet<DataSet<TData>> subsets;

@@ -3,7 +3,7 @@ using Domain.SpectraData.Support;
 
 namespace Domain.SpectraData;
 
-public abstract class Spectra(string name, SpectraPoints points) : Data, IWriteable
+public abstract class Spectra(string name, SpectraPoints points) : IWriteable
 {
 	public string Name { get; set; } = name;
 	protected SpectraFormat Format { get; init; }

@@ -3,7 +3,7 @@ using Domain.DataSource;
 
 namespace Controllers;
 
-public sealed class DirectorySourceController<TData>(string path, IDataSource<TData> source) where TData : Data
+public sealed class DirectorySourceController<TData>(string path, IDataSource<TData> source) where TData : class
 {
 	public DirectoryInfo Root { get; private set; } = new DirectoryInfo(path);
 

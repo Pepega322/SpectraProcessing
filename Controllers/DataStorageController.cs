@@ -2,7 +2,7 @@
 
 namespace Controllers;
 
-public class DataStorageController<TData>(string defaultSetKey) where TData : Data
+public class DataStorageController<TData>(string defaultSetKey)
 {
 	private readonly DataStorage<TData> storage = new(defaultSetKey);
 	public IEnumerable<KeyValuePair<string, DataSet<TData>>> StorageRecords => storage;

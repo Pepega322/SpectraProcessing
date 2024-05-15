@@ -1,6 +1,6 @@
 ﻿namespace Domain.SpectraData;
 
-public abstract class SpectraPlot : Data
+public abstract class SpectraPlot
 {
 	public bool IsVisible { get; protected set; }
 

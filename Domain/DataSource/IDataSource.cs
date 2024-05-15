@@ -1,6 +1,6 @@
 ﻿namespace Domain.DataSource;
 
-public interface IDataSource<TData> where TData : Data
+public interface IDataSource<TData>
 {
 	TData? Get(string path);
 }

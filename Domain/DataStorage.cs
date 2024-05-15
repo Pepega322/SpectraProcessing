@@ -2,7 +2,7 @@
 
 namespace Domain;
 
-public class DataStorage<TData> : IEnumerable<KeyValuePair<string, DataSet<TData>>> where TData : Data
+public class DataStorage<TData> : IEnumerable<KeyValuePair<string, DataSet<TData>>> 
 {
 	private readonly string defaultKey;
 	private readonly Dictionary<string, DataSet<TData>> storage;

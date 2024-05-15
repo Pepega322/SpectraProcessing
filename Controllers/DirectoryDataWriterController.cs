@@ -4,7 +4,7 @@ using Domain.DataSource;
 
 namespace Controllers;
 
-public sealed class DirectoryDataWriterController<TData> where TData : Data, IWriteable
+public sealed class DirectoryDataWriterController<TData> where TData :  IWriteable
 {
 	private readonly FileWriter writer = new();
 
