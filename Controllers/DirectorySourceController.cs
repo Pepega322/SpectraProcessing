@@ -3,21 +3,27 @@ using Domain.DataSource;
 
 namespace Controllers;
 
-public sealed class DirectorySourceController<TData>(string path, IDataSource<TData> source) where TData : Data {
+public sealed class DirectorySourceController<TData>(string path, IDataSource<TData> source) where TData : Data
+{
 	public DirectoryInfo Root { get; private set; } = new DirectoryInfo(path);
 
-	public TData? Read(string fullName) {
-		try {
+	public TData? Read(string fullName)
+	{
+		try
+		{
 			return source.Get(fullName);
 		}
-		catch {
+		catch
+		{
 			return null;
 		}
 	}
 
-	public DataSet<TData> ReadRoot() {
+	public DataSet<TData> ReadRoot()
+	{
 		var set = new DataSet<TData>(Root.Name);
-		Parallel.ForEach(Root.GetFiles(), (file) => {
+		Parallel.ForEach(Root.GetFiles(), (file) =>
+		{
 			var data = Read(file.FullName);
 			if (data != null)
 				set.AddThreadSafe(data);
@@ -25,18 +31,22 @@ public sealed class DirectorySourceController<TData>(string path, IDataSource<TD
 		return set;
 	}
 
-	public DataSet<TData> ReadRootFullDepth() {
+	public DataSet<TData> ReadRootFullDepth()
+	{
 		var rootSet = new DataSet<TData>(Root.Name);
 		var queue = new Queue<(DataSet<TData> Node, DirectoryInfo Directory)>();
 		queue.Enqueue((rootSet, Root));
-		while (queue.Count > 0) {
+		while (queue.Count > 0)
+		{
 			var (node, dir) = queue.Dequeue();
-			Parallel.ForEach(dir.GetFiles(), (file) => {
+			Parallel.ForEach(dir.GetFiles(), (file) =>
+			{
 				var data = Read(file.FullName);
 				if (data != null)
 					node.AddThreadSafe(data);
 			});
-			foreach (var subdir in dir.GetDirectories()) {
+			foreach (var subdir in dir.GetDirectories())
+			{
 				var subnode = new DataSet<TData>(subdir.Name);
 				node.AddSubsetThreadSafe(subnode);
 				queue.Enqueue((subnode, subdir));
@@ -46,14 +56,16 @@ public sealed class DirectorySourceController<TData>(string path, IDataSource<TD
 		return rootSet;
 	}
 
-	public bool ChangeRoot(string path) {
+	public bool ChangeRoot(string path)
+	{
 		var newDir = new DirectoryInfo(path);
 		if (!newDir.Exists) return false;
 		Root = new DirectoryInfo(path);
 		return true;
 	}
 
-	public bool StepBack() {
+	public bool StepBack()
+	{
 		return Root.Parent != null && ChangeRoot(Root.Parent.FullName);
 	}
 }

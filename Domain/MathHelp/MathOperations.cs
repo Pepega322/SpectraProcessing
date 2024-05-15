@@ -3,8 +3,10 @@ using System.Numerics;
 
 namespace Domain.MathHelp;
 
-internal static class MathOperations {
-	public static Func<float, float> GetLinearRegression(SpectraPoints points) {
+internal static class MathOperations
+{
+	public static Func<float, float> GetLinearRegression(SpectraPoints points)
+	{
 		var xSum = points.X.Sum();
 		var x2Sum = points.X.Sum(e => e * e);
 		var ySum = points.Y.Sum();
@@ -18,16 +20,19 @@ internal static class MathOperations {
 		return x => a * x + b;
 	}
 
-	public static Func<float, float> GetLinearRegression(Point<float> p1, Point<float> p2) {
+	public static Func<float, float> GetLinearRegression(Point<float> p1, Point<float> p2)
+	{
 		var a = (p2.Y - p1.Y) / (p2.X - p1.X);
 		var b = p1.Y - a * p1.X;
 		return x => a * x + b;
 	}
 
-	public static int GetClosestIndex<T>(IReadOnlyList<T> arr, T element) where T : INumber<T> {
+	public static int GetClosestIndex<T>(IReadOnlyList<T> arr, T element) where T : INumber<T>
+	{
 		var left = 0;
 		var right = arr.Count - 1;
-		while (left < right) {
+		while (left < right)
+		{
 			var middle = (left + right) / 2;
 			if (element <= arr[middle])
 				right = middle;

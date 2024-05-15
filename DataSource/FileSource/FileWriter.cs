@@ -2,8 +2,10 @@
 
 namespace DataSource.FileSource;
 
-public class FileWriter : IDataWriter {
-	public void WriteData(IWriteable data, string fullName) {
+public class FileWriter : IDataWriter
+{
+	public void WriteData(IWriteable data, string fullName)
+	{
 		var file = File.Create(fullName);
 		file.Close();
 		File.AppendAllLines(fullName, data.ToContents());

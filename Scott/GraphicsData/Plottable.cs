@@ -3,7 +3,8 @@ using ScottPlot;
 
 namespace Scott.GraphicsData;
 
-public abstract class Plottable : SpectraPlot {
+public abstract class Plottable : SpectraPlot
+{
 	protected static readonly Plot Builder = new();
 
 	public Color DefaultColor { get; private set; }
@@ -13,13 +14,15 @@ public abstract class Plottable : SpectraPlot {
 
 	public abstract IEnumerable<IPlottable> GetPlots();
 
-	public override void ChangeVisibility(bool isVisible) {
+	public override void ChangeVisibility(bool isVisible)
+	{
 		IsVisible = isVisible;
 		foreach (IPlottable plot in GetPlots())
 			plot.IsVisible = IsVisible;
 	}
 
-	public void RememberColor() {
+	public void RememberColor()
+	{
 		DefaultColor = Color;
 	}
 }

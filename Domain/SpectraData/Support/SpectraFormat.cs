@@ -1,5 +1,7 @@
 ﻿namespace Domain.SpectraData.Support;
-public enum SpectraFormat {
-    ASP,
-    ESP
+
+public enum SpectraFormat
+{
+	ASP,
+	ESP
 }

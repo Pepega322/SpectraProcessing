@@ -4,8 +4,10 @@ using Domain.SpectraData.Support;
 
 namespace DataSource.FileSource;
 
-public class SpectraFileReader(ISpectraParser parser) : IDataSource<Spectra> {
-	public Spectra Get(string fullName) {
+public class SpectraFileReader(ISpectraParser parser) : IDataSource<Spectra>
+{
+	public Spectra Get(string fullName)
+	{
 		var file = new FileInfo(fullName);
 		if (!file.Exists)
 			throw new FileNotFoundException(fullName);
@@ -15,10 +17,12 @@ public class SpectraFileReader(ISpectraParser parser) : IDataSource<Spectra> {
 
 		var contents = File.ReadAllLines(file.FullName);
 		Spectra data;
-		try {
+		try
+		{
 			data = parser.Parse(format, file.Name, contents);
 		}
-		catch (Exception e) {
+		catch (Exception e)
+		{
 			throw new CorruptedFileException($"{fullName}{Environment.NewLine}{e.Message}");
 		}
 

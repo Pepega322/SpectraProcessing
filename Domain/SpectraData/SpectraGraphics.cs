@@ -1,6 +1,7 @@
 ﻿namespace Domain.SpectraData;
 
-public abstract class SpectraGraphics {
+public abstract class SpectraGraphics
+{
 	protected readonly HashSet<SpectraPlot> Plots = [];
 	protected int PlotCount => Plots.Count;
 
