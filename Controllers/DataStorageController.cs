@@ -1,20 +1,23 @@
-﻿using Domain;
+﻿using Controllers.Interfaces;
+using Controllers.Settings;
+using Domain.Storage;
+using Microsoft.Extensions.Options;
 
 namespace Controllers;
 
-public class DataStorageController<TData>(string defaultSetKey)
+public sealed class DataStorageController<TData>(IOptions<DataStorageSettings> settings) : IDataStorageController<TData>
 {
-	private readonly DataStorage<TData> storage = new(defaultSetKey);
+	private readonly DataStorage<TData> storage = new(settings.Value.DefaultDataSetName);
 	public IEnumerable<KeyValuePair<string, DataSet<TData>>> StorageRecords => storage;
 
-	public bool AddDataToDefault(TData data)
+	public bool AddDataToDefaultSet(TData data)
 	{
 		return storage.DefaultSet.AddThreadSafe(data);
 	}
 
-	public void AddSet(DataSet<TData> set)
+	public void AddDataSet(DataSet<TData> set)
 	{
-		storage.AddThreadSafe(set.Name, set);
+		storage.Add(set.Name, set);
 	}
 
 	public void Clear()
@@ -27,9 +30,9 @@ public class DataStorageController<TData>(string defaultSetKey)
 		return dataOwner.RemoveThreadSafe(data);
 	}
 
-	public void DeleteSet(DataSet<TData> set)
+	public void DeleteDataSet(DataSet<TData> set)
 	{
-		if (storage.ContainsKeyThreadSafe(set.Name) && storage[set.Name] == set)
+		if (storage.ContainsKey(set.Name) && storage[set.Name] == set)
 		{
 			storage.RemoveThreadSafe(set.Name);
 		}

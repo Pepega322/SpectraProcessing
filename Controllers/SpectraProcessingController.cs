@@ -1,85 +1,105 @@
-﻿using Domain;
+﻿using System.Collections.Concurrent;
+using Controllers.Interfaces;
+using Domain.Graphics;
 using Domain.SpectraData;
-using Domain.SpectraData.ProcessingInfo;
-using Domain.SpectraData.Support;
+using Domain.SpectraData.Processing;
+using Domain.Storage;
+using Scott.Formats;
 
 namespace Controllers;
 
-public class SpectraProcessingController(SpectraGraphics graphics)
+public sealed class SpectraProcessingController(
+	IPlotDrawer<SctPlot> drawer,
+	IPlotBuilder<PeakBorder, PeakBorderPlot> plotBuilder
+) : ISpectraProcessingController
 {
-	private readonly SpectraGraphics graphics = graphics;
-	private readonly PeakBordersStorage borders = new();
-	public int BordersCount => borders.Count;
-	public IEnumerable<PeakBorder> Borders => borders.Borders;
+	public IEnumerable<PeakBorder> Borders => borders.Keys;
+	private readonly ConcurrentDictionary<PeakBorder, PeakBorderPlot> borders = [];
 
 	public void AddBorder(PeakBorder border)
 	{
-		lock (borders)
-		{
-			if (!borders.AddThreadSafe(border)) return;
-			var plot = border.GetPlot();
-			graphics.DrawThreadSafe(plot);
-		}
+		if (borders.ContainsKey(border)) return;
+		var plot = plotBuilder.GetPlot(border);
+		drawer.Draw(plot);
+		borders.TryAdd(border, plot);
 	}
 
 	public void RemoveBorder(PeakBorder border)
 	{
-		borders.RemoveThreadSafe(border);
-		var plot = border.GetPlot();
-		graphics.EraseThreadSafe(plot);
+		if (!borders.TryGetValue(border, out var plot)) return;
+		drawer.Erase(plot);
+		borders.TryRemove(border, out _);
 	}
 
-	public PeakInfoSet SetProcessPeaks(DataSet<Spectra> set)
+	public void ClearBorders()
+	{
+		foreach (var plot in borders.Values)
+		{
+			drawer.Erase(plot);
+		}
+
+		borders.Clear();
+	}
+
+	public void RedrawBorders()
+	{
+		foreach (var plot in borders.Values)
+		{
+			drawer.Erase(plot);
+		}
+	}
+
+	public PeakInfoSet ProcessPeaksForSingleSpectra(Spectra spectra)
+	{
+		var result = new PeakInfoSet();
+		Parallel.ForEach(borders.Keys, border =>
+		{
+			var info = spectra.ProcessPeak(border);
+			result.Add(info);
+		});
+		return result;
+	}
+
+	public PeakInfoSet ProcessPeaksForSpectraSet(DataSet<Spectra> set)
 	{
 		var result = new PeakInfoSet();
 		Parallel.ForEach(set, spectra =>
 		{
-			Parallel.ForEach(borders.Borders, border =>
+			foreach (var border in Borders)
 			{
 				var info = spectra.ProcessPeak(border);
-				result.AddThreadSafe(info);
-			});
+				result.Add(info);
+			}
 		});
 		return result;
 	}
 
-	public PeakInfoSet ProcessPeaks(Spectra spectra)
-	{
-		var result = new PeakInfoSet();
-		Parallel.ForEach(borders.Borders, border =>
-		{
-			var info = spectra.ProcessPeak(border);
-			result.AddThreadSafe(info);
-		});
-		return result;
-	}
-
-	public static Spectra SubstractBaseline(Spectra spectra)
+	public Spectra SubstractBaselineForSingleSpectra(Spectra spectra)
 	{
 		var substracted = spectra.SubstractBaseLine();
 		substracted.Name = $"{spectra.Name} b-";
 		return substracted;
 	}
 
-	public static DataSet<Spectra> SetOnlySubstractBaseline(DataSet<Spectra> set)
+	public DataSet<Spectra> SubstractBaselineForSingleSpectraSet(DataSet<Spectra> set)
 	{
 		var substractedSet = new DataSet<Spectra>($"{set.Name} b-");
 		Parallel.ForEach(set, spectra =>
 		{
-			var substracted = SubstractBaseline(spectra);
+			var substracted = SubstractBaselineForSingleSpectra(spectra);
 			substractedSet.AddThreadSafe(substracted);
 		});
 		return substractedSet;
 	}
 
-	public static DataSet<Spectra> SetFullDepthSubstractBaseLin(DataSet<Spectra> set)
+	public DataSet<Spectra> SubstractBaselineForSpectraSetFullDepth(DataSet<Spectra> set)
 	{
 		var refToCopy = set.CopyBranchStructureThreadSafe($"{set.Name} b-");
 		foreach (var subset in refToCopy.Keys)
 		{
 			Parallel.ForEach(subset, spectra =>
 			{
-				var substracted = SubstractBaseline(spectra);
+				var substracted = SubstractBaselineForSingleSpectra(spectra);
 				refToCopy[set].AddThreadSafe(substracted);
 			});
 		}
@@ -87,29 +107,10 @@ public class SpectraProcessingController(SpectraGraphics graphics)
 		return refToCopy[set];
 	}
 
-	public static Spectra SetGetAverageSpectra(DataSet<Spectra> set)
+	public Spectra GetAverageSpectraForSet(DataSet<Spectra> set)
 	{
-		var average = set.Average();
+		var average = set.GetAverageSpectra(out _);
 		average.Name = $"{set.Name} (average)";
 		return average;
-	}
-
-	public void ClearBorders()
-	{
-		lock (borders)
-		{
-			Parallel.ForEach(borders.Borders, b => graphics.EraseThreadSafe(b.GetPlot()));
-			borders.ClearThreadSafe();
-		}
-	}
-
-	public void RedrawBorders()
-	{
-		lock (borders)
-			Parallel.ForEach(borders.Borders, b =>
-			{
-				var plot = b.GetPlot();
-				graphics.DrawThreadSafe(plot);
-			});
 	}
 }

@@ -1,31 +1,36 @@
-﻿using DataSource.FileSource;
-using Domain;
-using Domain.DataSource;
+﻿using Controllers.Interfaces;
+using Domain.InputOutput;
+using Domain.Storage;
 
 namespace Controllers;
 
-public sealed class DirectoryDataWriterController<TData> where TData :  IWriteable
+public sealed class DirectoryDataWriterController(IDataWriter writer) : IDataWriterController
 {
-	private readonly FileWriter writer = new();
-
-	public void DataWriteAs(TData data, string path)
+	public void DataWriteAs<TData>(TData data, string path)
+		where TData : IWriteableData
 	{
 		writer.WriteData(data, path);
 	}
 
-	public void SetOnlyWriteAs(DataSet<TData> set, string path, string extension)
+	public void SetOnlyWriteAs<TData>(DataSet<TData> set, string path, string extension)
+		where TData : IWriteableData
 	{
 		if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 		Parallel.ForEach(set, d => DataWriteAs(d, Path.Combine(path, $"{d.Name}{extension}")));
 	}
 
-	public void SetFullDepthWriteAs(DataSet<TData> root, string path, string extension)
+	public void SetFullDepthWriteAs<TData>(DataSet<TData> root, string path, string extension)
+		where TData : IWriteableData
 	{
-		var track = DirectoryDataWriterController<TData>.LinkSetAndOutputFolder(root, path);
-		Parallel.ForEach(track.Keys, set => SetOnlyWriteAs(set, track[set], extension));
+		var track = LinkSetAndOutputFolder(root, path);
+		foreach (var set in track.Keys)
+		{
+			SetOnlyWriteAs(set, track[set], extension);
+		}
 	}
 
-	private static Dictionary<DataSet<TData>, string> LinkSetAndOutputFolder(DataSet<TData> set, string path)
+	private static Dictionary<DataSet<TData>, string> LinkSetAndOutputFolder<TData>(DataSet<TData> set, string path)
+		where TData : IWriteableData
 	{
 		var track = new Dictionary<DataSet<TData>, string> {[set] = path};
 		var queue = new Queue<DataSet<TData>>();
