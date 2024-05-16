@@ -7,13 +7,11 @@ namespace Controllers;
 
 public sealed class ScottSpectraGraphicsController(IPlotDrawer<SctPlot> drawer) : IGraphicsController<SpectraPlot>
 {
-	private readonly HashSet<SpectraPlot> plotted = [];
 	private SpectraPlot? highlightedData;
 	private DataSet<SpectraPlot>? highlightedSet;
 
 	public void DrawData(SpectraPlot plot)
 	{
-		plotted.Add(plot);
 		drawer.Draw(plot);
 	}
 
@@ -27,7 +25,6 @@ public sealed class ScottSpectraGraphicsController(IPlotDrawer<SctPlot> drawer) 
 
 	public void EraseData(SpectraPlot plot)
 	{
-		plotted.Remove(plot);
 		drawer.Erase(plot);
 	}
 

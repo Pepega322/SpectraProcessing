@@ -1,11 +1,25 @@
 ﻿using Controllers.Interfaces;
 using Domain.SpectraData.Processing;
+using ScottPlot.WinForms;
 
 namespace Application.Controllers;
 
-public class WinformsCoordinateController(Control form) : ICoordinateController
+public class CoordinateController(FormsPlot form) : ICoordinateController
 {
-	public Point<float> Coordinates { get; set; } = new(0f, 0f);
+	private Point<float> coordinates = new(0f, 0f);
+
+	public Point<float> Coordinates
+	{
+		get => coordinates;
+		set
+		{
+			var c = form.Plot.GetCoordinates(value.X, value.Y);
+			coordinates = new Point<float>((float) c.X, (float) c.Y);
+			OnChange?.Invoke();
+		}
+	}
+
+	public event Action? OnChange;
 
 	public async Task<Point<float>> GetCoordinateByClick()
 	{

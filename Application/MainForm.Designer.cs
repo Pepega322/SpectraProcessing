@@ -41,7 +41,7 @@ partial class MainForm {
         rootTree = new TreeView();
         imageListForRootFolder = new ImageList(components);
         tableLayoutPanelLeftDown = new TableLayoutPanel();
-        datatorageTree = new TreeView();
+        dataStorageTree = new TreeView();
         dataNavigation = new MenuStrip();
         dataButtonClear = new ToolStripMenuItem();
         tableLayoutPanelMiddleMiddle = new TableLayoutPanel();
@@ -64,22 +64,20 @@ partial class MainForm {
         dataContextDataSetPlot = new ToolStripMenuItem();
         dataContextDataSetAddToPlot = new ToolStripMenuItem();
         dataContextDataSetDelete = new ToolStripMenuItem();
-        dataNodeContextSubstractBaseline = new ToolStripMenuItem();
-        dataContextDataSetSubstactBaseline = new ToolStripMenuItem();
-        dataContextDataSetAndSubsetsSubstractBaseline = new ToolStripMenuItem();
-        dataContextDataSetGetAverageSpectra = new ToolStripMenuItem();
         dataMenu = new ContextMenuStrip(components);
         dataContextDataSave = new ToolStripMenuItem();
         dataContextDataPlot = new ToolStripMenuItem();
         dataContextDataDelete = new ToolStripMenuItem();
-        dataContextDataSubstractBaseline = new ToolStripMenuItem();
         plotSetMenu = new ContextMenuStrip(components);
         plotContextPlotSetHighlight = new ToolStripMenuItem();
         plotContextPlotSetDelete = new ToolStripMenuItem();
         plotContextPlotSetPeaksProcess = new ToolStripMenuItem();
+        plotContextPlotSetSubstractBaseLine = new ToolStripMenuItem();
+        plotContextPlotSetAverageSpectra = new ToolStripMenuItem();
         plotMenu = new ContextMenuStrip(components);
         plotContextPlotDelete = new ToolStripMenuItem();
         plotContextPlotPeaksProcess = new ToolStripMenuItem();
+        plotContextPlotSubstractBaseLine = new ToolStripMenuItem();
         tableLayoutPanelMain.SuspendLayout();
         mainMenuStrip.SuspendLayout();
         tableLayoutPanelMiddle.SuspendLayout();
@@ -254,7 +252,7 @@ partial class MainForm {
         // 
         tableLayoutPanelLeftDown.ColumnCount = 1;
         tableLayoutPanelLeftDown.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-        tableLayoutPanelLeftDown.Controls.Add(datatorageTree, 0, 1);
+        tableLayoutPanelLeftDown.Controls.Add(dataStorageTree, 0, 1);
         tableLayoutPanelLeftDown.Controls.Add(dataNavigation, 0, 0);
         tableLayoutPanelLeftDown.Dock = DockStyle.Fill;
         tableLayoutPanelLeftDown.Location = new Point(3, 461);
@@ -265,13 +263,13 @@ partial class MainForm {
         tableLayoutPanelLeftDown.Size = new Size(338, 453);
         tableLayoutPanelLeftDown.TabIndex = 2;
         // 
-        // datatorageTree
+        // dataStorageTree
         // 
-        datatorageTree.Dock = DockStyle.Fill;
-        datatorageTree.Location = new Point(3, 43);
-        datatorageTree.Name = "datatorageTree";
-        datatorageTree.Size = new Size(332, 407);
-        datatorageTree.TabIndex = 5;
+        dataStorageTree.Dock = DockStyle.Fill;
+        dataStorageTree.Location = new Point(3, 43);
+        dataStorageTree.Name = "dataStorageTree";
+        dataStorageTree.Size = new Size(332, 407);
+        dataStorageTree.TabIndex = 5;
         // 
         // dataNavigation
         // 
@@ -421,16 +419,16 @@ partial class MainForm {
         // dataSetMenu
         // 
         dataSetMenu.ImageScalingSize = new Size(32, 32);
-        dataSetMenu.Items.AddRange(new ToolStripItem[] { dataNodeContextSave, dataContextDataSetPlot, dataContextDataSetAddToPlot, dataContextDataSetDelete, dataNodeContextSubstractBaseline, dataContextDataSetGetAverageSpectra });
+        dataSetMenu.Items.AddRange(new ToolStripItem[] { dataNodeContextSave, dataContextDataSetPlot, dataContextDataSetAddToPlot, dataContextDataSetDelete });
         dataSetMenu.Name = "dataNodeContext1";
-        dataSetMenu.Size = new Size(386, 232);
+        dataSetMenu.Size = new Size(284, 156);
         dataSetMenu.Tag = "";
         // 
         // dataNodeContextSave
         // 
         dataNodeContextSave.DropDownItems.AddRange(new ToolStripItem[] { dataContextDataSetSaveAs, dataContextDataSetAndSubsetsSaveAs });
         dataNodeContextSave.Name = "dataNodeContextSave";
-        dataNodeContextSave.Size = new Size(385, 38);
+        dataNodeContextSave.Size = new Size(283, 38);
         dataNodeContextSave.Text = "Save series as .esp";
         // 
         // dataContextDataSetSaveAs
@@ -448,120 +446,107 @@ partial class MainForm {
         // dataContextDataSetPlot
         // 
         dataContextDataSetPlot.Name = "dataContextDataSetPlot";
-        dataContextDataSetPlot.Size = new Size(385, 38);
+        dataContextDataSetPlot.Size = new Size(283, 38);
         dataContextDataSetPlot.Text = "Plot series";
         // 
         // dataContextDataSetAddToPlot
         // 
         dataContextDataSetAddToPlot.Name = "dataContextDataSetAddToPlot";
-        dataContextDataSetAddToPlot.Size = new Size(385, 38);
+        dataContextDataSetAddToPlot.Size = new Size(283, 38);
         dataContextDataSetAddToPlot.Text = "Add series to plot";
         // 
         // dataContextDataSetDelete
         // 
         dataContextDataSetDelete.Name = "dataContextDataSetDelete";
-        dataContextDataSetDelete.Size = new Size(385, 38);
+        dataContextDataSetDelete.Size = new Size(283, 38);
         dataContextDataSetDelete.Text = "Delete series";
-        // 
-        // dataNodeContextSubstractBaseline
-        // 
-        dataNodeContextSubstractBaseline.DropDownItems.AddRange(new ToolStripItem[] { dataContextDataSetSubstactBaseline, dataContextDataSetAndSubsetsSubstractBaseline });
-        dataNodeContextSubstractBaseline.Name = "dataNodeContextSubstractBaseline";
-        dataNodeContextSubstractBaseline.Size = new Size(385, 38);
-        dataNodeContextSubstractBaseline.Text = "Substract baseline for series";
-        // 
-        // dataContextDataSetSubstactBaseline
-        // 
-        dataContextDataSetSubstactBaseline.Name = "dataContextDataSetSubstactBaseline";
-        dataContextDataSetSubstactBaseline.Size = new Size(409, 44);
-        dataContextDataSetSubstactBaseline.Text = "Only this series";
-        // 
-        // dataContextDataSetAndSubsetsSubstractBaseline
-        // 
-        dataContextDataSetAndSubsetsSubstractBaseline.Name = "dataContextDataSetAndSubsetsSubstractBaseline";
-        dataContextDataSetAndSubsetsSubstractBaseline.Size = new Size(409, 44);
-        dataContextDataSetAndSubsetsSubstractBaseline.Text = "This series and subseries";
-        // 
-        // dataContextDataSetGetAverageSpectra
-        // 
-        dataContextDataSetGetAverageSpectra.Name = "dataContextDataSetGetAverageSpectra";
-        dataContextDataSetGetAverageSpectra.Size = new Size(385, 38);
-        dataContextDataSetGetAverageSpectra.Text = "Get average spectra";
         // 
         // dataMenu
         // 
         dataMenu.ImageScalingSize = new Size(32, 32);
-        dataMenu.Items.AddRange(new ToolStripItem[] { dataContextDataSave, dataContextDataPlot, dataContextDataDelete, dataContextDataSubstractBaseline });
+        dataMenu.Items.AddRange(new ToolStripItem[] { dataContextDataSave, dataContextDataPlot, dataContextDataDelete });
         dataMenu.Name = "contextMenuStrip2";
-        dataMenu.Size = new Size(282, 156);
+        dataMenu.Size = new Size(217, 118);
         // 
         // dataContextDataSave
         // 
         dataContextDataSave.Name = "dataContextDataSave";
-        dataContextDataSave.Size = new Size(281, 38);
+        dataContextDataSave.Size = new Size(216, 38);
         dataContextDataSave.Text = "Save as .esp";
         // 
         // dataContextDataPlot
         // 
         dataContextDataPlot.Name = "dataContextDataPlot";
-        dataContextDataPlot.Size = new Size(281, 38);
+        dataContextDataPlot.Size = new Size(216, 38);
         dataContextDataPlot.Text = "Plot";
         // 
         // dataContextDataDelete
         // 
         dataContextDataDelete.Name = "dataContextDataDelete";
-        dataContextDataDelete.Size = new Size(281, 38);
+        dataContextDataDelete.Size = new Size(216, 38);
         dataContextDataDelete.Text = "Delete";
-        // 
-        // dataContextDataSubstractBaseline
-        // 
-        dataContextDataSubstractBaseline.Name = "dataContextDataSubstractBaseline";
-        dataContextDataSubstractBaseline.Size = new Size(281, 38);
-        dataContextDataSubstractBaseline.Text = "Substract baseline";
         // 
         // plotSetMenu
         // 
         plotSetMenu.ImageScalingSize = new Size(32, 32);
-        plotSetMenu.Items.AddRange(new ToolStripItem[] { plotContextPlotSetHighlight, plotContextPlotSetDelete, plotContextPlotSetPeaksProcess });
+        plotSetMenu.Items.AddRange(new ToolStripItem[] { plotContextPlotSetHighlight, plotContextPlotSetDelete, plotContextPlotSetPeaksProcess, plotContextPlotSetSubstractBaseLine, plotContextPlotSetAverageSpectra });
         plotSetMenu.Name = "plotSetMenu";
-        plotSetMenu.Size = new Size(340, 118);
+        plotSetMenu.Size = new Size(397, 238);
         // 
         // plotContextPlotSetHighlight
         // 
         plotContextPlotSetHighlight.Name = "plotContextPlotSetHighlight";
-        plotContextPlotSetHighlight.Size = new Size(339, 38);
+        plotContextPlotSetHighlight.Size = new Size(396, 38);
         plotContextPlotSetHighlight.Text = "Highlight On\\Off";
         // 
         // plotContextPlotSetDelete
         // 
         plotContextPlotSetDelete.Name = "plotContextPlotSetDelete";
-        plotContextPlotSetDelete.Size = new Size(339, 38);
+        plotContextPlotSetDelete.Size = new Size(396, 38);
         plotContextPlotSetDelete.Text = "Delete series";
         // 
         // plotContextPlotSetPeaksProcess
         // 
         plotContextPlotSetPeaksProcess.Name = "plotContextPlotSetPeaksProcess";
-        plotContextPlotSetPeaksProcess.Size = new Size(339, 38);
+        plotContextPlotSetPeaksProcess.Size = new Size(396, 38);
         plotContextPlotSetPeaksProcess.Text = "Process peaks for series";
+        // 
+        // plotContextPlotSetSubstractBaseLine
+        // 
+        plotContextPlotSetSubstractBaseLine.Name = "plotContextPlotSetSubstractBaseLine";
+        plotContextPlotSetSubstractBaseLine.Size = new Size(396, 38);
+        plotContextPlotSetSubstractBaseLine.Text = "Subsctract baseline for series";
+        // 
+        // plotContextPlotSetAverageSpectra
+        // 
+        plotContextPlotSetAverageSpectra.Name = "plotContextPlotSetAverageSpectra";
+        plotContextPlotSetAverageSpectra.Size = new Size(396, 38);
+        plotContextPlotSetAverageSpectra.Text = "Get average spectra";
         // 
         // plotMenu
         // 
         plotMenu.ImageScalingSize = new Size(32, 32);
-        plotMenu.Items.AddRange(new ToolStripItem[] { plotContextPlotDelete, plotContextPlotPeaksProcess });
+        plotMenu.Items.AddRange(new ToolStripItem[] { plotContextPlotDelete, plotContextPlotPeaksProcess, plotContextPlotSubstractBaseLine });
         plotMenu.Name = "plotMenu";
-        plotMenu.Size = new Size(236, 80);
+        plotMenu.Size = new Size(282, 118);
         // 
         // plotContextPlotDelete
         // 
         plotContextPlotDelete.Name = "plotContextPlotDelete";
-        plotContextPlotDelete.Size = new Size(235, 38);
+        plotContextPlotDelete.Size = new Size(281, 38);
         plotContextPlotDelete.Text = "Delete";
         // 
         // plotContextPlotPeaksProcess
         // 
         plotContextPlotPeaksProcess.Name = "plotContextPlotPeaksProcess";
-        plotContextPlotPeaksProcess.Size = new Size(235, 38);
+        plotContextPlotPeaksProcess.Size = new Size(281, 38);
         plotContextPlotPeaksProcess.Text = "Process peaks";
+        // 
+        // plotContextPlotSubstractBaseLine
+        // 
+        plotContextPlotSubstractBaseLine.Name = "plotContextPlotSubstractBaseLine";
+        plotContextPlotSubstractBaseLine.Size = new Size(281, 38);
+        plotContextPlotSubstractBaseLine.Text = "Substract baseline";
         // 
         // MainForm
         // 
@@ -615,7 +600,7 @@ partial class MainForm {
     private MenuStrip rootNavigation;
     private TreeView rootTree;
     private ToolStripMenuItem rootButtonSelect;
-    private TreeView datatorageTree;
+    private TreeView dataStorageTree;
     private TableLayoutPanel tableLayoutPanelLeftDown;
     private MenuStrip dataNavigation;
     private TableLayoutPanel tableLayoutPanelMiddleMiddle;
@@ -642,8 +627,6 @@ partial class MainForm {
     private TreeView plotStorageTree;
     private ToolStripMenuItem plotButtonClear;
     private ScottPlot.WinForms.FormsPlot plotView;
-    private ToolStripMenuItem dataNodeContextSubstractBaseline;
-    private ToolStripMenuItem dataContextDataSubstractBaseline;
     private ToolStripMenuItem dataButtonClear;
     private ToolStripMenuItem rootButtonRefresh;
     private ContextMenuStrip plotSetMenu;
@@ -651,13 +634,13 @@ partial class MainForm {
     private ToolStripMenuItem plotContextPlotDelete;
     private ToolStripMenuItem plotContextPlotSetDelete;
     private ToolStripMenuItem plotContextPlotSetHighlight;
-    private ToolStripMenuItem dataContextDataSetSubstactBaseline;
-    private ToolStripMenuItem dataContextDataSetAndSubsetsSubstractBaseline;
     private ToolStripMenuItem plotContextPlotSetPeaksProcess;
     private ToolStripMenuItem plotContextPlotPeaksProcess;
     private ToolStripMenuItem plotButtonAddPeak;
     private ToolStripMenuItem plotButtonDeleteLastPeak;
     private ToolStripMenuItem plotButtonClearPeaks;
     private ToolStripMenuItem plotButtonResize;
-    private ToolStripMenuItem dataContextDataSetGetAverageSpectra;
+    private ToolStripMenuItem plotContextPlotSetSubstractBaseLine;
+    private ToolStripMenuItem plotContextPlotSetAverageSpectra;
+    private ToolStripMenuItem plotContextPlotSubstractBaseLine;
 }

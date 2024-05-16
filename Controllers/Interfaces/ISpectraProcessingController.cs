@@ -11,10 +11,9 @@ public interface ISpectraProcessingController
 	void RemoveBorder(PeakBorder border);
 	void ClearBorders();
 	void RedrawBorders();
-	PeakInfoSet ProcessPeaksForSingleSpectra(Spectra spectra);
-	PeakInfoSet ProcessPeaksForSpectraSet(DataSet<Spectra> set);
-	Spectra SubstractBaselineForSingleSpectra(Spectra spectra);
-	DataSet<Spectra> SubstractBaselineForSingleSpectraSet(DataSet<Spectra> set);
-	DataSet<Spectra> SubstractBaselineForSpectraSetFullDepth(DataSet<Spectra> set);
-	Spectra GetAverageSpectraForSet(DataSet<Spectra> set);
+	Task<PeakInfoSet> ProcessPeaksForSingleSpectra(Spectra spectra);
+	Task<PeakInfoSet> ProcessPeaksForSpectraSet(DataSet<Spectra> set);
+	Task<Spectra> SubstractBaseline(Spectra spectra);
+	Task<Spectra[]> SubstractBaseline(IEnumerable<Spectra> set);
+	Task<Spectra> GetAverageSpectra(IEnumerable<Spectra> set);
 }

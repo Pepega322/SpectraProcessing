@@ -49,68 +49,75 @@ public sealed class SpectraProcessingController(
 		}
 	}
 
-	public PeakInfoSet ProcessPeaksForSingleSpectra(Spectra spectra)
+	public async Task<PeakInfoSet> ProcessPeaksForSingleSpectra(Spectra spectra)
 	{
 		var result = new PeakInfoSet();
-		Parallel.ForEach(borders.Keys, border =>
+		await Task.Run(() =>
 		{
-			var info = spectra.ProcessPeak(border);
-			result.Add(info);
-		});
-		return result;
-	}
-
-	public PeakInfoSet ProcessPeaksForSpectraSet(DataSet<Spectra> set)
-	{
-		var result = new PeakInfoSet();
-		Parallel.ForEach(set, spectra =>
-		{
-			foreach (var border in Borders)
+			Parallel.ForEach(borders.Keys, border =>
 			{
 				var info = spectra.ProcessPeak(border);
 				result.Add(info);
-			}
+			});
 		});
 		return result;
 	}
 
-	public Spectra SubstractBaselineForSingleSpectra(Spectra spectra)
+	public async Task<PeakInfoSet> ProcessPeaksForSpectraSet(DataSet<Spectra> set)
 	{
-		var substracted = spectra.SubstractBaseLine();
+		var result = new PeakInfoSet();
+		await Task.Run(() =>
+		{
+			Parallel.ForEach(set, spectra =>
+			{
+				foreach (var border in Borders)
+				{
+					var info = spectra.ProcessPeak(border);
+					result.Add(info);
+				}
+			});
+		});
+		return result;
+	}
+
+	public async Task<Spectra> SubstractBaseline(Spectra spectra)
+	{
+		var substracted = await Task.Run(spectra.SubstractBaseLine);
 		substracted.Name = $"{spectra.Name} b-";
 		return substracted;
 	}
 
-	public DataSet<Spectra> SubstractBaselineForSingleSpectraSet(DataSet<Spectra> set)
+	public async Task<Spectra[]> SubstractBaseline(IEnumerable<Spectra> set)
 	{
-		var substractedSet = new DataSet<Spectra>($"{set.Name} b-");
-		Parallel.ForEach(set, spectra =>
+		var substractedSet = new ConcurrentBag<Spectra>();
+		await Task.Run(() =>
 		{
-			var substracted = SubstractBaselineForSingleSpectra(spectra);
-			substractedSet.AddThreadSafe(substracted);
-		});
-		return substractedSet;
-	}
-
-	public DataSet<Spectra> SubstractBaselineForSpectraSetFullDepth(DataSet<Spectra> set)
-	{
-		var refToCopy = set.CopyBranchStructureThreadSafe($"{set.Name} b-");
-		foreach (var subset in refToCopy.Keys)
-		{
-			Parallel.ForEach(subset, spectra =>
+			Parallel.ForEach(set, spectra =>
 			{
-				var substracted = SubstractBaselineForSingleSpectra(spectra);
-				refToCopy[set].AddThreadSafe(substracted);
+				var substracted = spectra.SubstractBaseLine();
+				substractedSet.Add(substracted);
 			});
-		}
-
-		return refToCopy[set];
+		});
+		return substractedSet.ToArray();
 	}
 
-	public Spectra GetAverageSpectraForSet(DataSet<Spectra> set)
+	// public DataSet<Spectra> SubstractBaselineForSpectraSetFullDepth(DataSet<Spectra> set)
+	// {
+	// 	var refToCopy = set.CopyBranchStructureThreadSafe($"{set.Name} b-");
+	// 	foreach (var subset in refToCopy.Keys)
+	// 	{
+	// 		Parallel.ForEach(subset, spectra =>
+	// 		{
+	// 			var substracted = SubstractBaseline(spectra);
+	// 			refToCopy[set].AddThreadSafe(substracted);
+	// 		});
+	// 	}
+	//
+	// 	return refToCopy[set];
+	// }
+
+	public async Task<Spectra> GetAverageSpectra(IEnumerable<Spectra> set)
 	{
-		var average = set.GetAverageSpectra(out _);
-		average.Name = $"{set.Name} (average)";
-		return average;
+		return await Task.Run(() => set.GetAverageSpectra(out _));
 	}
 }

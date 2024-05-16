@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 
 namespace Domain.Storage;
 
-public class DataStorage<T> : IEnumerable<KeyValuePair<string, DataSet<T>>>
+public class DataStorage<T> : IEnumerable<DataSet<T>>
 {
 	private readonly string defaultKey;
 	private readonly ConcurrentDictionary<string, DataSet<T>> storage;
@@ -19,9 +19,9 @@ public class DataStorage<T> : IEnumerable<KeyValuePair<string, DataSet<T>>>
 
 	public void Add(string key, DataSet<T> set)
 	{
-		while (!storage.TryAdd(key, set))
-		{
-		}
+		if (storage.TryAdd(key, set)) return;
+		key = GetNewSetKey(key);
+		storage.TryAdd(key, set);
 	}
 
 	public bool ContainsKey(string key)
@@ -58,7 +58,7 @@ public class DataStorage<T> : IEnumerable<KeyValuePair<string, DataSet<T>>>
 		}
 	}
 
-	public IEnumerator<KeyValuePair<string, DataSet<T>>> GetEnumerator() => storage.GetEnumerator();
+	public IEnumerator<DataSet<T>> GetEnumerator() => storage.Values.GetEnumerator();
 
 	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

@@ -2,7 +2,7 @@
 
 namespace Application.Controllers;
 
-public class WinformsDialogController : IDialogController
+public class DialogController : IDialogController
 {
 	public string? SelectPathInDialog()
 	{

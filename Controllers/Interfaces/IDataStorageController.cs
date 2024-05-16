@@ -4,7 +4,8 @@ namespace Controllers.Interfaces;
 
 public interface IDataStorageController<TData>
 {
-	IEnumerable<KeyValuePair<string, DataSet<TData>>> StorageRecords { get; }
+	event Action? OnChange;
+	IEnumerable< DataSet<TData>> StorageData { get; }
 	bool AddDataToDefaultSet(TData data);
 	void AddDataSet(DataSet<TData> set);
 	bool DeleteData(DataSet<TData> dataOwner, TData data);

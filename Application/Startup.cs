@@ -49,8 +49,9 @@ public static class Startup
 	{
 		services.AddSingleton<FormsPlot>(_ => formsPlot);
 		services.AddSingleton<Plot>(_ => formsPlot.Plot);
-		services.AddSingleton<Control>(_ => formsPlot);
 		services.AddTransient<IPalette>(_ => new ScottPlot.Palettes.Category20());
+		services.AddSingleton<CoordinateController>();
+
 		return services;
 	}
 
@@ -67,15 +68,15 @@ public static class Startup
 
 	private static IServiceCollection AddControllers(this IServiceCollection services)
 	{
-		services.AddSingleton<ICoordinateController, WinformsCoordinateController>();
-		services.AddSingleton<IDialogController, WinformsDialogController>();
-		services.AddSingleton<IDataReaderController<Spectra>, DirectoryDataReaderController<Spectra>>();
+		services.AddSingleton<IDialogController, DialogController>();
+		services.AddSingleton<IDataSourceController<Spectra>, DirectoryDataSourceController<Spectra>>();
 		services.AddSingleton<IDataWriterController, DirectoryDataWriterController>();
 		services.AddSingleton<IDataStorageController<Spectra>, DataStorageController<Spectra>>();
 		services.AddSingleton<IDataStorageController<SpectraPlot>, DataStorageController<SpectraPlot>>();
 		services.AddSingleton<IGraphicsController<SpectraPlot>, ScottSpectraGraphicsController>();
 		services.AddSingleton<ISpectraProcessingController, SpectraProcessingController>();
-		services.AddSingleton<WinformsMainController>();
+		services.AddSingleton<ICoordinateController, CoordinateController>();
+		services.AddSingleton<IPlotController, PlotController>();
 		return services;
 	}
 }
