@@ -3,13 +3,9 @@ using System.Collections.Immutable;
 
 namespace MathStatistics.SpectraProcessing;
 
-public class SpectraSetPeaks
+internal class SpectraSetPeaks
 {
 	private readonly ConcurrentDictionary<PeakBorders, ConcurrentBag<SpectraPeak>> storage = [];
-
-	public IReadOnlyList<PeakBorders> Borders
-		=> storage.Keys
-			.ToImmutableArray();
 
 	public IReadOnlyList<IReadOnlyList<SpectraPeak>> PeaksSets
 		=> storage.Values

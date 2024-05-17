@@ -16,7 +16,8 @@ public static class SpectraExtensions
 	{
 		var spectraCountPerX = new Dictionary<float, int>();
 		var spectraYSumForX = new Dictionary<float, float>();
-		foreach (var spectra in spectras)
+		var spectraEnumerable = spectras as Spectra[] ?? spectras.ToArray();
+		foreach (var spectra in spectraEnumerable)
 		{
 			var points = spectra.Points;
 			for (var i = 0; i < points.Count; i++)
@@ -35,8 +36,8 @@ public static class SpectraExtensions
 			.Select(x => spectraYSumForX[x] / spectraCountPerX[x])
 			.ToList();
 		var newPoints = new SpectraPoints(resultX, resultY);
-		
-		var result = spectras.First().Copy();
+
+		var result = spectraEnumerable.First().Copy();
 		result.Name = "average";
 		result.ChangePoints(newPoints);
 		return result;

@@ -4,7 +4,7 @@ using Domain.SpectraData;
 
 namespace MathStatistics;
 
-public static class MathRegressionAnalysis
+internal static class MathRegressionAnalysis
 {
 	public static Func<float, float> GetLinearRegression(SpectraPoints points)
 	{
