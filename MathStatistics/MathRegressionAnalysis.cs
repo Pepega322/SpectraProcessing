@@ -1,8 +1,10 @@
 ﻿using System.Numerics;
+using Domain;
+using Domain.SpectraData;
 
-namespace Domain.SpectraData.Processing;
+namespace MathStatistics;
 
-internal static class MathOperations
+public static class MathRegressionAnalysis
 {
 	public static Func<float, float> GetLinearRegression(SpectraPoints points)
 	{
@@ -26,7 +28,7 @@ internal static class MathOperations
 		return x => a * x + b;
 	}
 
-	public static int GetClosestIndex<T>(IReadOnlyList<T> arr, T element) where T : INumber<T>
+	public static int ClosestIndexBinarySearch<T>(IReadOnlyList<T> arr, T element) where T : INumber<T>
 	{
 		var left = 0;
 		var right = arr.Count - 1;

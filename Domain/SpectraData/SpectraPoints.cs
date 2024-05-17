@@ -1,6 +1,4 @@
-﻿using Domain.SpectraData.Processing;
-
-namespace Domain.SpectraData;
+﻿namespace Domain.SpectraData;
 
 public record SpectraPoints
 {

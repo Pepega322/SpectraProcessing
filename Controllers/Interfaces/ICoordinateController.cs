@@ -1,4 +1,4 @@
-﻿using Domain.SpectraData.Processing;
+﻿using Domain;
 
 namespace Controllers.Interfaces;
 

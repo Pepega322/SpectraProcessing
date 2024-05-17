@@ -1,5 +1,5 @@
 ﻿using Controllers.Interfaces;
-using Domain.SpectraData.Processing;
+using Domain;
 using ScottPlot.WinForms;
 
 namespace Application.Controllers;

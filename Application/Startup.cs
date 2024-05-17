@@ -7,7 +7,7 @@ using Domain.Graphics;
 using Domain.InputOutput;
 using Domain.SpectraData;
 using Domain.SpectraData.Parser;
-using Domain.SpectraData.Processing;
+using MathStatistics.SpectraProcessing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Scott.Formats;
@@ -61,7 +61,7 @@ public static class Startup
 		services.AddSingleton<ISpectraParser, SpectraParser>();
 		services.AddSingleton<IDataWriter, FileWriter>();
 		services.AddSingleton<IPlotBuilder<Spectra, SpectraPlot>, ScottSpectraPlotBuilder>();
-		services.AddSingleton<IPlotBuilder<PeakBorder, PeakBorderPlot>, ScottPeakBorderPlotBuilder>();
+		services.AddSingleton<IPlotBuilder<PeakBorders, PeakBorderPlot>, ScottPeakBorderPlotBuilder>();
 		services.AddSingleton<IPlotDrawer<SctPlot>, ScottPlotDrawer>();
 		return services;
 	}

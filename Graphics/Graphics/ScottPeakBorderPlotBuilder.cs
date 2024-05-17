@@ -1,18 +1,18 @@
 ﻿using Domain.Graphics;
-using Domain.SpectraData.Processing;
+using MathStatistics.SpectraProcessing;
 using Scott.Formats;
 using ScottPlot;
 using Plot = ScottPlot.Plot;
 
 namespace Scott.Graphics;
 
-public class ScottPeakBorderPlotBuilder(IPalette palette) : IPlotBuilder<PeakBorder, PeakBorderPlot>
+public class ScottPeakBorderPlotBuilder(IPalette palette) : IPlotBuilder<PeakBorders, PeakBorderPlot>
 {
 	private readonly Plot builder = new();
-	private readonly Dictionary<PeakBorder, PeakBorderPlot> plotted = [];
+	private readonly Dictionary<PeakBorders, PeakBorderPlot> plotted = [];
 	private int counter;
 
-	public PeakBorderPlot GetPlot(PeakBorder plottableData)
+	public PeakBorderPlot GetPlot(PeakBorders plottableData)
 	{
 		var color = palette.GetColor(counter);
 		Interlocked.Increment(ref counter);
@@ -23,8 +23,8 @@ public class ScottPeakBorderPlotBuilder(IPalette palette) : IPlotBuilder<PeakBor
 			return plot;
 		}
 
-		var left = builder.Add.VerticalLine(plottableData.Left, 1, color);
-		var right = builder.Add.VerticalLine(plottableData.Right, 1, color);
+		var left = builder.Add.VerticalLine(plottableData.XStart, 1, color);
+		var right = builder.Add.VerticalLine(plottableData.XEnd, 1, color);
 		return new PeakBorderPlot(plottableData, left, right);
 	}
 }

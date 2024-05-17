@@ -6,9 +6,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataSource", "DataSource\Da
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{57DDC053-45BA-4181-B1D1-278FF42E3230}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scott", "Scott\Scott.csproj", "{278E6DA8-FFA8-45DF-9519-078445577B38}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graphics", "Graphics\Graphics.csproj", "{278E6DA8-FFA8-45DF-9519-078445577B38}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{F42FBFE2-92F8-43E4-BB34-8FAEE891561D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathStatistics", "MathStatistics\MathStatistics.csproj", "{01323AF3-B14B-450B-A114-C303C381152E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,5 +38,9 @@ Global
 		{F42FBFE2-92F8-43E4-BB34-8FAEE891561D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F42FBFE2-92F8-43E4-BB34-8FAEE891561D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F42FBFE2-92F8-43E4-BB34-8FAEE891561D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01323AF3-B14B-450B-A114-C303C381152E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01323AF3-B14B-450B-A114-C303C381152E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01323AF3-B14B-450B-A114-C303C381152E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01323AF3-B14B-450B-A114-C303C381152E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

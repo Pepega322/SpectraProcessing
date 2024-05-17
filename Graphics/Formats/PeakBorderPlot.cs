@@ -1,12 +1,12 @@
-﻿using Domain.SpectraData.Processing;
+﻿using MathStatistics.SpectraProcessing;
 using ScottPlot;
 using ScottPlot.Plottables;
 
 namespace Scott.Formats;
 
-public class PeakBorderPlot(PeakBorder border, VerticalLine leftLine, VerticalLine rightLine) : SctPlot
+public class PeakBorderPlot(PeakBorders borders, VerticalLine leftLine, VerticalLine rightLine) : SctPlot
 {
-	public override string Name { get; protected set; } = border.ToString();
+	public override string Name { get; protected set; } = borders.ToString();
 
 	public override IEnumerable<IPlottable> GetPlottables()
 	{

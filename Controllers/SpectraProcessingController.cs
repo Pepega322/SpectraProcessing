@@ -2,33 +2,33 @@
 using Controllers.Interfaces;
 using Domain.Graphics;
 using Domain.SpectraData;
-using Domain.SpectraData.Processing;
 using Domain.Storage;
+using MathStatistics.SpectraProcessing;
 using Scott.Formats;
 
 namespace Controllers;
 
 public sealed class SpectraProcessingController(
 	IPlotDrawer<SctPlot> drawer,
-	IPlotBuilder<PeakBorder, PeakBorderPlot> plotBuilder
+	IPlotBuilder<PeakBorders, PeakBorderPlot> plotBuilder
 ) : ISpectraProcessingController
 {
-	public IEnumerable<PeakBorder> Borders => borders.Keys;
-	private readonly ConcurrentDictionary<PeakBorder, PeakBorderPlot> borders = [];
+	public IEnumerable<PeakBorders> Borders => borders.Keys;
+	private readonly ConcurrentDictionary<PeakBorders, PeakBorderPlot> borders = [];
 
-	public void AddBorder(PeakBorder border)
+	public void AddBorder(PeakBorders borders)
 	{
-		if (borders.ContainsKey(border)) return;
-		var plot = plotBuilder.GetPlot(border);
+		if (this.borders.ContainsKey(borders)) return;
+		var plot = plotBuilder.GetPlot(borders);
 		drawer.Draw(plot);
-		borders.TryAdd(border, plot);
+		this.borders.TryAdd(borders, plot);
 	}
 
-	public void RemoveBorder(PeakBorder border)
+	public void RemoveBorder(PeakBorders borders)
 	{
-		if (!borders.TryGetValue(border, out var plot)) return;
+		if (!this.borders.TryGetValue(borders, out var plot)) return;
 		drawer.Erase(plot);
-		borders.TryRemove(border, out _);
+		this.borders.TryRemove(borders, out _);
 	}
 
 	public void ClearBorders()
@@ -49,9 +49,9 @@ public sealed class SpectraProcessingController(
 		}
 	}
 
-	public async Task<PeakInfoSet> ProcessPeaksForSingleSpectra(Spectra spectra)
+	public async Task<SpectrasProcessingResult> ProcessPeaksForSingleSpectra(Spectra spectra)
 	{
-		var result = new PeakInfoSet();
+		var result = new SpectrasProcessingResult();
 		await Task.Run(() =>
 		{
 			Parallel.ForEach(borders.Keys, border =>
@@ -63,9 +63,9 @@ public sealed class SpectraProcessingController(
 		return result;
 	}
 
-	public async Task<PeakInfoSet> ProcessPeaksForSpectraSet(DataSet<Spectra> set)
+	public async Task<SpectrasProcessingResult> ProcessPeaksForSpectraSet(DataSet<Spectra> set)
 	{
-		var result = new PeakInfoSet();
+		var result = new SpectrasProcessingResult();
 		await Task.Run(() =>
 		{
 			Parallel.ForEach(set, spectra =>
@@ -118,6 +118,6 @@ public sealed class SpectraProcessingController(
 
 	public async Task<Spectra> GetAverageSpectra(IEnumerable<Spectra> set)
 	{
-		return await Task.Run(() => set.GetAverageSpectra(out _));
+		return await Task.Run(() => set.GetAverageSpectra());
 	}
 }

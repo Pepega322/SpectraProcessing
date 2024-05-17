@@ -1,18 +1,18 @@
 ﻿using Domain.SpectraData;
-using Domain.SpectraData.Processing;
 using Domain.Storage;
+using MathStatistics.SpectraProcessing;
 
 namespace Controllers.Interfaces;
 
 public interface ISpectraProcessingController
 {
-	IEnumerable<PeakBorder> Borders { get; }
-	void AddBorder(PeakBorder border);
-	void RemoveBorder(PeakBorder border);
+	IEnumerable<PeakBorders> Borders { get; }
+	void AddBorder(PeakBorders borders);
+	void RemoveBorder(PeakBorders borders);
 	void ClearBorders();
 	void RedrawBorders();
-	Task<PeakInfoSet> ProcessPeaksForSingleSpectra(Spectra spectra);
-	Task<PeakInfoSet> ProcessPeaksForSpectraSet(DataSet<Spectra> set);
+	Task<SpectrasProcessingResult> ProcessPeaksForSingleSpectra(Spectra spectra);
+	Task<SpectrasProcessingResult> ProcessPeaksForSpectraSet(DataSet<Spectra> set);
 	Task<Spectra> SubstractBaseline(Spectra spectra);
 	Task<Spectra[]> SubstractBaseline(IEnumerable<Spectra> set);
 	Task<Spectra> GetAverageSpectra(IEnumerable<Spectra> set);

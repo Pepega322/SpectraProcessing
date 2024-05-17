@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace Domain.SpectraData.Processing;
+namespace Domain;
 
 public struct Point<T>(T x, T y) where T : struct, INumber<T>
 {

@@ -1,8 +1,9 @@
 ﻿using Application.Controllers;
 using Controllers.Interfaces;
+using Domain;
 using Domain.SpectraData;
-using Domain.SpectraData.Processing;
 using Domain.Storage;
+using MathStatistics.SpectraProcessing;
 using Microsoft.Extensions.DependencyInjection;
 using Scott.Formats;
 
@@ -213,7 +214,7 @@ public partial class MainForm : Form
 		{
 			var start = await coordinateController.GetCoordinateByClick();
 			var end = await coordinateController.GetCoordinateByClick();
-			var border = new PeakBorder(start.X, end.X);
+			var border = new PeakBorders(start.X, end.X);
 			processingController.AddBorder(border);
 			plotView.Refresh();
 		};
