@@ -62,7 +62,7 @@ public static class SpectraExtensions
 			height = nextHeight;
 		}
 
-		return new SpectraPeak(s, realBorders, square, height);
+		return new SpectraPeak(s, realBorders, square, maxHeight);
 
 		float GetDeltaX(int index) => s.Points.X[index + 1] - s.Points.X[index];
 		float GetHeight(int index) => s.Points.Y[index] - baseline(s.Points.X[index]);
