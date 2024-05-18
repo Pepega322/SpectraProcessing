@@ -78,6 +78,8 @@ partial class MainForm {
         plotContextPlotDelete = new ToolStripMenuItem();
         plotContextPlotPeaksProcess = new ToolStripMenuItem();
         plotContextPlotSubstractBaseLine = new ToolStripMenuItem();
+        plotButtonImportPeaks = new ToolStripMenuItem();
+        plotButtonExportPeaks = new ToolStripMenuItem();
         tableLayoutPanelMain.SuspendLayout();
         mainMenuStrip.SuspendLayout();
         tableLayoutPanelMiddle.SuspendLayout();
@@ -309,7 +311,7 @@ partial class MainForm {
         // 
         plotNavigation.Dock = DockStyle.Fill;
         plotNavigation.ImageScalingSize = new Size(32, 32);
-        plotNavigation.Items.AddRange(new ToolStripItem[] { plotButtonAddPeak, plotButtonDeleteLastPeak, plotButtonClearPeaks });
+        plotNavigation.Items.AddRange(new ToolStripItem[] { plotButtonAddPeak, plotButtonDeleteLastPeak, plotButtonClearPeaks, plotButtonImportPeaks, plotButtonExportPeaks });
         plotNavigation.Location = new Point(0, 0);
         plotNavigation.Name = "plotNavigation";
         plotNavigation.Size = new Size(1032, 40);
@@ -491,7 +493,7 @@ partial class MainForm {
         plotSetMenu.ImageScalingSize = new Size(32, 32);
         plotSetMenu.Items.AddRange(new ToolStripItem[] { plotContextPlotSetHighlight, plotContextPlotSetDelete, plotContextPlotSetPeaksProcess, plotContextPlotSetSubstractBaseLine, plotContextPlotSetAverageSpectra });
         plotSetMenu.Name = "plotSetMenu";
-        plotSetMenu.Size = new Size(397, 238);
+        plotSetMenu.Size = new Size(397, 194);
         // 
         // plotContextPlotSetHighlight
         // 
@@ -547,6 +549,18 @@ partial class MainForm {
         plotContextPlotSubstractBaseLine.Name = "plotContextPlotSubstractBaseLine";
         plotContextPlotSubstractBaseLine.Size = new Size(281, 38);
         plotContextPlotSubstractBaseLine.Text = "Substract baseline";
+        // 
+        // plotButtonImportPeaks
+        // 
+        plotButtonImportPeaks.Name = "plotButtonImportPeaks";
+        plotButtonImportPeaks.Size = new Size(173, 36);
+        plotButtonImportPeaks.Text = "Import peaks";
+        // 
+        // plotButtonExportPeaks
+        // 
+        plotButtonExportPeaks.Name = "plotButtonExportPeaks";
+        plotButtonExportPeaks.Size = new Size(169, 36);
+        plotButtonExportPeaks.Text = "Export peaks";
         // 
         // MainForm
         // 
@@ -643,4 +657,6 @@ partial class MainForm {
     private ToolStripMenuItem plotContextPlotSetSubstractBaseLine;
     private ToolStripMenuItem plotContextPlotSetAverageSpectra;
     private ToolStripMenuItem plotContextPlotSubstractBaseLine;
+    private ToolStripMenuItem plotButtonImportPeaks;
+    private ToolStripMenuItem plotButtonExportPeaks;
 }

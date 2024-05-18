@@ -195,7 +195,9 @@ public partial class MainForm : Form
 
 	private void SetupSpectraProcessingController()
 	{
-		plotButtonClearPeaks.Click += async (_, _) => await Task.Run(processingController.ClearBorders);
+        //plotButtonImportPeaks.Click +=
+        //plotButtonExportPeaks.Click +=
+        plotButtonClearPeaks.Click += async (_, _) => await Task.Run(processingController.ClearBorders);
 		plotContextPlotSetSubstractBaseLine.Click += async (sender, _) =>
 		{
 			var set = TreeViewHelpers.GetContextSet<SpectraPlot>(sender);
