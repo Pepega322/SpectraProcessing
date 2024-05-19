@@ -3,6 +3,7 @@
 namespace MathStatistics;
 
 public record DispersionStatistics<T>(
+	string ParameterName,
 	int ValuesCount,
 	T AverageValue,
 	T StandardDeviation,

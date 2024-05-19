@@ -2,7 +2,7 @@
 
 internal static class MathDispersionAnalysis
 {
-	public static DispersionStatistics<float> GetDispersionStatistics(this ICollection<float> values)
+	public static DispersionStatistics<float> GetDispersionStatistics(this ICollection<float> values, string parameterName)
 	{
 		if (values.Count <= 1)
 			throw new IndexOutOfRangeException("Collection must contains at least two elements");
@@ -10,6 +10,7 @@ internal static class MathDispersionAnalysis
 		var standardDeviation = values.GetStandardDeviation(out var averageValue);
 		var confidenceInterval = GetConfidenceInterval(values.Count, standardDeviation);
 		return new DispersionStatistics<float>(
+			parameterName,
 			values.Count,
 			averageValue,
 			standardDeviation,
