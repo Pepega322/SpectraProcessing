@@ -6,27 +6,35 @@ namespace Controllers;
 
 public sealed class DirectoryDataWriterController(IDataWriter writer) : IDataWriterController
 {
-	public void DataWriteAs<TData>(TData data, string path)
+	public async Task DataWriteAs<TData>(TData data, string path)
 		where TData : IWriteableData
 	{
-		writer.WriteData(data, path);
+		await Task.Run(() => writer.WriteData(data, path));
 	}
 
-	public void SetOnlyWriteAs<TData>(DataSet<TData> set, string path, string extension)
+	public async Task SetOnlyWriteAs<TData>(DataSet<TData> set, string path, string extension)
 		where TData : IWriteableData
 	{
 		if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-		Parallel.ForEach(set, d => DataWriteAs(d, Path.Combine(path, $"{d.Name}{extension}")));
+		var tasks = set.
+			Select(data => DataWriteAs(
+				data, 
+				Path.Combine(path, $"{data.Name}{extension}")))
+			.ToList();
+		await Task.WhenAll(tasks);
 	}
 
-	public void SetFullDepthWriteAs<TData>(DataSet<TData> root, string path, string extension)
+	public async Task SetFullDepthWriteAs<TData>(DataSet<TData> root, string path, string extension)
 		where TData : IWriteableData
 	{
 		var track = LinkSetAndOutputFolder(root, path);
-		foreach (var set in track.Keys)
-		{
-			SetOnlyWriteAs(set, track[set], extension);
-		}
+		var tasks = track.Keys
+			.Select(set => Task.Run(() => SetOnlyWriteAs(
+				set,
+				track[set],
+				extension)))
+			.ToList();
+		await Task.WhenAll(tasks);
 	}
 
 	private static Dictionary<DataSet<TData>, string> LinkSetAndOutputFolder<TData>(DataSet<TData> set, string path)

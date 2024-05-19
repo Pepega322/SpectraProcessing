@@ -233,11 +233,13 @@ public partial class MainForm : Form
 		plotContextPlotSetPeaksProcess.Click += async (sender, _) =>
 		{
 			var plotSet = TreeViewHelpers.GetContextSet<SpectraPlot>(sender);
-			var fullname = dialogController.SelectFullNameInDialog(plotSet.Name, ".txt");
-			if (fullname is null) return;
+			var peaksFullname = dialogController.SelectFullNameInDialog(plotSet.Name, ".txt");
+			if (peaksFullname is null) return;
 			var spectraSet = new DataSet<Spectra>(plotSet.Name, plotSet.Select(plot => plot.Spectra));
 			var processed = await processingController.ProcessPeaksForSpectraSet(spectraSet);
-			dataWriterController.DataWriteAs(processed, fullname);
+			await dataWriterController.DataWriteAs(processed, peaksFullname);
+			var dispersionStatistics = processed.GetDispersionStatistics();
+			await dataWriterController.DataWriteAs(dispersionStatistics, peaksFullname.Trim('.') + dispersionStatistics.Extension);
 		};
 		plotContextPlotPeaksProcess.Click += async (sender, _) =>
 		{
@@ -245,7 +247,7 @@ public partial class MainForm : Form
 			var fullname = dialogController.SelectFullNameInDialog(plot.Name, ".txt");
 			if (fullname is null) return;
 			var processed = await processingController.ProcessPeaksForSingleSpectra(plot.Spectra);
-			dataWriterController.DataWriteAs(processed, fullname);
+			await dataWriterController.DataWriteAs(processed, fullname);
 		};
 		plotContextPlotSetAverageSpectra.Click += async (s, _) =>
 		{
