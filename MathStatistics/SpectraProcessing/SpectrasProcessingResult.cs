@@ -4,26 +4,26 @@ namespace MathStatistics.SpectraProcessing;
 
 public class SpectrasProcessingResult : IWriteableData
 {
-	private readonly SpectraSetPeaks peaks = new();
+	private readonly SpectraSetPeaks setPeaks = new();
 
 	public string Name { get; set; } = string.Empty;
 	public string? Extension => "peaks";
 
 	public void Add(SpectraPeak peak)
 	{
-		peaks.Add(peak);
+		setPeaks.Add(peak);
 	}
 
-	public SpectraProcessingDispersionStatistics GetMetrology() => new SpectraProcessingDispersionStatistics(peaks);
+	public SpectraProcessingDispersionStatistics GetDispersionStatistics() => new SpectraProcessingDispersionStatistics(setPeaks);
 
 	public IEnumerable<string> ToContents()
 	{
 		const string peakInfoHeader = "XStart; XEnd; Spectra; Square; Height;";
 
 		yield return peakInfoHeader;
-		foreach (var borderSet in peaks.PeaksSets)
+		foreach (var (_, peaks) in setPeaks)
 		{
-			foreach (var peak in borderSet.OrderByDescending(p => p.SpectraName))
+			foreach (var peak in peaks.OrderByDescending(p => p.SpectraName))
 				yield return PeakFormat(peak);
 		}
 

@@ -1,36 +1,44 @@
-﻿using Domain.InputOutput;
+﻿using System.Collections.Immutable;
+using Domain.InputOutput;
 
 namespace MathStatistics.SpectraProcessing;
 
 public class SpectraProcessingDispersionStatistics : IWriteableData
 {
-	private readonly SpectraSetPeaks peaks;
+	private readonly Dictionary<PeakBorders, DispersionStatistics<float>[]> statistics;
 
 	public string? Name { get; set; } = string.Empty;
 	public string? Extension => "dispersion";
 
-	internal SpectraProcessingDispersionStatistics(SpectraSetPeaks peaks)
+	internal SpectraProcessingDispersionStatistics(SpectraSetPeaks setPeaks)
 	{
-		this.peaks = peaks;
+		statistics = setPeaks.ToDictionary(
+			e => e.Borders,
+			e => GetStatistics(e.Peaks)
+		);
+
+		return;
+
+		DispersionStatistics<float>[] GetStatistics(IImmutableList<SpectraPeak> peaks)
+		{
+			var square = peaks.Select(p => p.Square).ToArray().GetDispersionStatistics("Square");
+			var height = peaks.Select(p => p.Height).ToArray().GetDispersionStatistics("Height");
+			return [square, height];
+		}
 	}
 
 	public IEnumerable<string> ToContents()
 	{
-		const string statisticsInfoHeader = "Parameter; xStart; xEnd; ValuesCount; AverageValue; StandardDeviation; ConfidenceInterval;";
+		const string statisticsInfoHeader = "xStart; xEnd; Parameter; ValuesCount; AverageValue; StandardDeviation; ConfidenceInterval;";
 
 		yield return statisticsInfoHeader;
-		foreach (var borderSet in peaks.PeaksSets)
-		{
-			var borders = borderSet.First().Borders;
-			var square = borderSet.Select(p => p.Square).ToArray().GetDispersionStatistics();
-			yield return StatisticsFormat("Square", borders, square);
-			var height = borderSet.Select(p => p.Height).ToArray().GetDispersionStatistics();
-			yield return StatisticsFormat("Height", borders, height);
-		}
+		foreach (var (borders, parametersStat) in statistics)
+			foreach (var paramStat in parametersStat)
+				yield return StatisticsFormat(borders, paramStat);
 
 		yield break;
 
-		string StatisticsFormat(string parameter, PeakBorders borders, DispersionStatistics<float> s)
-			=> $"{parameter}; {borders.XStart}; {borders.XEnd}; {s.ValuesCount}; {s.AverageValue: 0.000}; {s.StandardDeviation: 0.000}; {s.ConfidenceInterval: 0.000};";
+		string StatisticsFormat(PeakBorders borders, DispersionStatistics<float> s)
+			=> $"{borders.XStart}; {borders.XEnd}; {s.ParameterName}; {s.ValuesCount}; {s.AverageValue: 0.000}; {s.StandardDeviation: 0.000}; {s.ConfidenceInterval: 0.000};";
 	}
 }
