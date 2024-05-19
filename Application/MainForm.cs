@@ -3,6 +3,7 @@ using Controllers.Interfaces;
 using Domain;
 using Domain.SpectraData;
 using Domain.Storage;
+using MathStatistics.InputOutput;
 using MathStatistics.SpectraProcessing;
 using Microsoft.Extensions.DependencyInjection;
 using Scott.Formats;
@@ -121,7 +122,7 @@ public partial class MainForm : Form
 		rootButtonRefresh.Click += (_, _) => dataSourceController.RefreshView();
 		rootButtonSelect.Click += (_, _) =>
 		{
-			var path = dialogController.SelectPathInDialog();
+			var path = dialogController.GetFolderPath();
 			if (path is null) return;
 			dataSourceController.ChangeFolder(path);
 		};
@@ -150,7 +151,7 @@ public partial class MainForm : Form
 		dataContextDataSave.Click += async (sender, _) =>
 		{
 			var data = TreeViewHelpers.GetContextData<Spectra>(sender);
-			var fullname = dialogController.SelectFullNameInDialog(data.Name, ".esp");
+			var fullname = dialogController.GetSaveFileFullName(data.Name, ".esp");
 			if (fullname is null) return;
 			await Task.Run(() => dataWriterController.DataWriteAs(data, fullname));
 		};
@@ -162,7 +163,7 @@ public partial class MainForm : Form
 		};
 		dataContextDataSetSaveAs.Click += async (sender, _) =>
 		{
-			var path = dialogController.SelectPathInDialog();
+			var path = dialogController.GetFolderPath();
 			if (path is null) return;
 			var set = TreeViewHelpers.GetContextSet<Spectra>(sender);
 			var outputPath = Path.Combine(path, $"{set.Name} (converted)");
@@ -170,7 +171,7 @@ public partial class MainForm : Form
 		};
 		dataContextDataSetAndSubsetsSaveAs.Click += async (sender, _) =>
 		{
-			var path = dialogController.SelectPathInDialog();
+			var path = dialogController.GetFolderPath();
 			if (path is null) return;
 			var set = TreeViewHelpers.GetContextSet<Spectra>(sender);
 			var outputPath = Path.Combine(path, $"{set.Name} (converted full depth)");
@@ -195,9 +196,25 @@ public partial class MainForm : Form
 
 	private void SetupSpectraProcessingController()
 	{
-        //plotButtonImportPeaks.Click +=
-        //plotButtonExportPeaks.Click +=
-        plotButtonClearPeaks.Click += async (_, _) => await Task.Run(processingController.ClearBorders);
+		plotButtonImportPeaks.Click += async (_, _) =>
+		{
+			var fullName = dialogController.GetReadFileFullName();
+			if (fullName is null) return;
+			await processingController.ImportBorders(fullName);
+			plotView.Refresh();
+		};
+		plotButtonExportPeaks.Click += async (_, _) =>
+		{
+			var borderSet = new PeakBordersSet(processingController.Borders.ToArray());
+			var fullName = dialogController.GetSaveFileFullName("bordersSet", "borders");
+			if (fullName is null) return;
+			await dataWriterController.DataWriteAs(borderSet, fullName);
+		};
+		plotButtonClearPeaks.Click += async (_, _) =>
+		{
+			await Task.Run(processingController.ClearBorders);
+			plotView.Refresh();
+		};
 		plotContextPlotSetSubstractBaseLine.Click += async (sender, _) =>
 		{
 			var set = TreeViewHelpers.GetContextSet<SpectraPlot>(sender);
@@ -233,7 +250,7 @@ public partial class MainForm : Form
 		plotContextPlotSetPeaksProcess.Click += async (sender, _) =>
 		{
 			var plotSet = TreeViewHelpers.GetContextSet<SpectraPlot>(sender);
-			var peaksFullname = dialogController.SelectFullNameInDialog(plotSet.Name, ".txt");
+			var peaksFullname = dialogController.GetSaveFileFullName(plotSet.Name, ".txt");
 			if (peaksFullname is null) return;
 			var spectraSet = new DataSet<Spectra>(plotSet.Name, plotSet.Select(plot => plot.Spectra));
 			var processed = await processingController.ProcessPeaksForSpectraSet(spectraSet);
@@ -244,7 +261,7 @@ public partial class MainForm : Form
 		plotContextPlotPeaksProcess.Click += async (sender, _) =>
 		{
 			var plot = TreeViewHelpers.GetContextData<SpectraPlot>(sender);
-			var fullname = dialogController.SelectFullNameInDialog(plot.Name, ".txt");
+			var fullname = dialogController.GetSaveFileFullName(plot.Name, ".txt");
 			if (fullname is null) return;
 			var processed = await processingController.ProcessPeaksForSingleSpectra(plot.Spectra);
 			await dataWriterController.DataWriteAs(processed, fullname);

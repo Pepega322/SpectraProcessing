@@ -2,6 +2,7 @@
 
 public interface IDialogController
 {
-	string? SelectPathInDialog();
-	string? SelectFullNameInDialog(string defaultName, string defaultExtension);
+	string? GetFolderPath();
+	string? GetSaveFileFullName(string defaultName, string defaultExtension);
+	string? GetReadFileFullName();
 }
