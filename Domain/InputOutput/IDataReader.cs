@@ -2,5 +2,5 @@
 
 public interface IDataReader<out TData>
 {
-	TData? Get(string path);
+	TData Get(string path);
 }
