@@ -11,6 +11,7 @@ public interface ISpectraProcessingController
 	void RemoveBorder(PeakBorders borders);
 	void ClearBorders();
 	void RedrawBorders();
+	Task ImportBorders(string fullname);
 	Task<SpectrasProcessingResult> ProcessPeaksForSingleSpectra(Spectra spectra);
 	Task<SpectrasProcessingResult> ProcessPeaksForSpectraSet(DataSet<Spectra> set);
 	Task<Spectra> SubstractBaseline(Spectra spectra);

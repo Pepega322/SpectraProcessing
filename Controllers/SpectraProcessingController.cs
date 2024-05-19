@@ -1,8 +1,10 @@
 ﻿using System.Collections.Concurrent;
 using Controllers.Interfaces;
 using Domain.Graphics;
+using Domain.InputOutput;
 using Domain.SpectraData;
 using Domain.Storage;
+using MathStatistics.InputOutput;
 using MathStatistics.SpectraProcessing;
 using Scott.Formats;
 
@@ -10,7 +12,8 @@ namespace Controllers;
 
 public sealed class SpectraProcessingController(
 	IPlotDrawer<SctPlot> drawer,
-	IPlotBuilder<PeakBorders, PeakBorderPlot> plotBuilder
+	IPlotBuilder<PeakBorders, PeakBorderPlot> plotBuilder,
+	IDataReader<PeakBordersSet> bordersReader
 ) : ISpectraProcessingController
 {
 	public IEnumerable<PeakBorders> Borders => borders.Keys;
@@ -47,6 +50,13 @@ public sealed class SpectraProcessingController(
 		{
 			drawer.Erase(plot);
 		}
+	}
+
+	public async Task ImportBorders(string fullname)
+	{
+		var bordersSet = await Task.Run(() => bordersReader.Get(fullname));
+		foreach (var b in bordersSet.Borders)
+			AddBorder(b);
 	}
 
 	public async Task<SpectrasProcessingResult> ProcessPeaksForSingleSpectra(Spectra spectra)
@@ -100,21 +110,6 @@ public sealed class SpectraProcessingController(
 		});
 		return substractedSet.ToArray();
 	}
-
-	// public DataSet<Spectra> SubstractBaselineForSpectraSetFullDepth(DataSet<Spectra> set)
-	// {
-	// 	var refToCopy = set.CopyBranchStructureThreadSafe($"{set.Name} b-");
-	// 	foreach (var subset in refToCopy.Keys)
-	// 	{
-	// 		Parallel.ForEach(subset, spectra =>
-	// 		{
-	// 			var substracted = SubstractBaseline(spectra);
-	// 			refToCopy[set].AddThreadSafe(substracted);
-	// 		});
-	// 	}
-	//
-	// 	return refToCopy[set];
-	// }
 
 	public async Task<Spectra> GetAverageSpectra(IEnumerable<Spectra> set)
 	{
