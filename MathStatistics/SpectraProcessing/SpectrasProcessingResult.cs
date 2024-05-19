@@ -7,6 +7,7 @@ public class SpectrasProcessingResult : IWriteableData
 	private readonly SpectraSetPeaks peaks = new();
 
 	public string Name { get; set; } = string.Empty;
+	public string? Extension => "peaks";
 
 	public void Add(SpectraPeak peak)
 	{

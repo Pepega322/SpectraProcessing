@@ -6,7 +6,8 @@ public class SpectraProcessingDispersionStatistics : IWriteableData
 {
 	private readonly SpectraSetPeaks peaks;
 
-	public string Name { get; set; } = string.Empty;
+	public string? Name { get; set; } = string.Empty;
+	public string? Extension => "dispersion";
 
 	internal SpectraProcessingDispersionStatistics(SpectraSetPeaks peaks)
 	{
