@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace MathStatistics;
+﻿namespace MathStatistics;
 
 internal static class MathDispersionAnalysis
 {
