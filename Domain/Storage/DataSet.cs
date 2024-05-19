@@ -1,12 +1,13 @@
-﻿using System.Collections;
+﻿using System.Collections.Immutable;
 
 namespace Domain.Storage;
 
-public class DataSet<T> : IEnumerable<T>
+public class DataSet<T>
 {
 	public string Name { get; protected set; }
 	public int DataCount { get; private set; }
-	public IEnumerable<DataSet<T>> Subsets => subsets;
+	public IImmutableSet<DataSet<T>> Subsets => subsets.ToImmutableHashSet();
+	public IImmutableSet<T> Data => set.ToImmutableHashSet();
 	private readonly HashSet<T> set;
 	private readonly HashSet<DataSet<T>> subsets;
 	private DataSet<T>? Parent { get; set; }
@@ -83,8 +84,6 @@ public class DataSet<T> : IEnumerable<T>
 		return result;
 	}
 
-	public bool Contains(T data) => set.Contains(data);
-
 	public Dictionary<DataSet<T>, DataSet<T>> CopyBranchStructureThreadSafe(string rootName)
 	{
 		lock (this)
@@ -122,15 +121,5 @@ public class DataSet<T> : IEnumerable<T>
 	{
 		lock (this) DataCount += delta;
 		Parent?.IncreaseCount(delta);
-	}
-
-	public IEnumerator<T> GetEnumerator()
-	{
-		return ((IEnumerable<T>) set).GetEnumerator();
-	}
-
-	IEnumerator IEnumerable.GetEnumerator()
-	{
-		return ((IEnumerable) set).GetEnumerator();
 	}
 }

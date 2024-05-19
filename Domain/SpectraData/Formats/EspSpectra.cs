@@ -11,5 +11,5 @@ public sealed class EspSpectra : Spectra
 		Format = SpectraFormat.Esp;
 	}
 
-	public override Spectra Copy() => new EspSpectra(Name, Points, Info);
+	public override Spectra Copy(string name) => new EspSpectra(name, Points, Info);
 }

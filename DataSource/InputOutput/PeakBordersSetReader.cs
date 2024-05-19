@@ -7,15 +7,19 @@ namespace DataSource.InputOutput;
 
 public class PeakBordersSetReader : IDataReader<PeakBordersSet>
 {
-	private const char separator = ';';
+	private const string  extension = ".borders";
 	private const int firstLineIndex = 1;
+	private const char separator = ';';
 
-	public PeakBordersSet? Get(string fullName)
+	public PeakBordersSet Get(string fullName)
 	{
 		var file = new FileInfo(fullName);
 
 		if (!file.Exists)
 			throw new FileNotFoundException(fullName);
+
+		if (file.Extension != extension)
+			throw new FormatException($"file must have \"{extension}\"  extension");
 
 		ICollection<PeakBorders> borders;
 		try
@@ -27,7 +31,6 @@ public class PeakBordersSetReader : IDataReader<PeakBordersSet>
 					float.Parse(values[0]),
 					float.Parse(values[1])))
 				.ToArray();
-
 		}
 		catch (Exception e)
 		{
@@ -36,7 +39,7 @@ public class PeakBordersSetReader : IDataReader<PeakBordersSet>
 
 		return new PeakBordersSet(borders)
 		{
-			Name = new FileInfo(fullName).Name,
+			Name = file.Name,
 		};
 	}
 }

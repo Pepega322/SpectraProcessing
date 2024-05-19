@@ -5,8 +5,8 @@ namespace MathStatistics.InputOutput;
 
 public record PeakBordersSet(ICollection<PeakBorders> Borders) : IWriteableData
 {
-	public string? Name { get; set; } = string.Empty;
-	public string? Extension => "borders";
+	public string? Name { get; init; } = string.Empty;
+	public string Extension => "borders";
 
 	public IEnumerable<string> ToContents()
 	{

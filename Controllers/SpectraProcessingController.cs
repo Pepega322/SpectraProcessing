@@ -19,19 +19,19 @@ public sealed class SpectraProcessingController(
 	public IEnumerable<PeakBorders> Borders => borders.Keys;
 	private readonly ConcurrentDictionary<PeakBorders, PeakBorderPlot> borders = [];
 
-	public void AddBorder(PeakBorders borders)
+	public void AddBorder(PeakBorders peakBorders)
 	{
-		if (this.borders.ContainsKey(borders)) return;
-		var plot = plotBuilder.GetPlot(borders);
+		if (this.borders.ContainsKey(peakBorders)) return;
+		var plot = plotBuilder.GetPlot(peakBorders);
 		drawer.Draw(plot);
-		this.borders.TryAdd(borders, plot);
+		this.borders.TryAdd(peakBorders, plot);
 	}
 
-	public void RemoveBorder(PeakBorders borders)
+	public void RemoveBorder(PeakBorders peakBorders)
 	{
-		if (!this.borders.TryGetValue(borders, out var plot)) return;
+		if (!this.borders.TryGetValue(peakBorders, out var plot)) return;
 		drawer.Erase(plot);
-		this.borders.TryRemove(borders, out _);
+		this.borders.TryRemove(peakBorders, out _);
 	}
 
 	public void ClearBorders()
@@ -49,6 +49,7 @@ public sealed class SpectraProcessingController(
 		foreach (var plot in borders.Values)
 		{
 			drawer.Erase(plot);
+			drawer.Draw(plot);
 		}
 	}
 
@@ -75,10 +76,13 @@ public sealed class SpectraProcessingController(
 
 	public async Task<SpectrasProcessingResult> ProcessPeaksForSpectraSet(DataSet<Spectra> set)
 	{
-		var result = new SpectrasProcessingResult();
+		var result = new SpectrasProcessingResult
+		{
+			Name = set.Name,
+		};
 		await Task.Run(() =>
 		{
-			Parallel.ForEach(set, spectra =>
+			Parallel.ForEach(set.Data, spectra =>
 			{
 				foreach (var border in Borders)
 				{
@@ -92,9 +96,7 @@ public sealed class SpectraProcessingController(
 
 	public async Task<Spectra> SubstractBaseline(Spectra spectra)
 	{
-		var substracted = await Task.Run(spectra.SubstractBaseLine);
-		substracted.Name = $"{spectra.Name} b-";
-		return substracted;
+		return await Task.Run(spectra.SubstractBaseLine);
 	}
 
 	public async Task<Spectra[]> SubstractBaseline(IEnumerable<Spectra> set)
@@ -113,6 +115,6 @@ public sealed class SpectraProcessingController(
 
 	public async Task<Spectra> GetAverageSpectra(IEnumerable<Spectra> set)
 	{
-		return await Task.Run(() => set.GetAverageSpectra());
+		return await Task.Run(set.GetAverageSpectra);
 	}
 }

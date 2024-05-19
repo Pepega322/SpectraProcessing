@@ -16,7 +16,7 @@ public sealed class DirectoryDataWriterController(IDataWriter writer) : IDataWri
 		where TData : IWriteableData
 	{
 		if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-		var tasks = set.
+		var tasks = set.Data.
 			Select(data => DataWriteAs(
 				data, 
 				Path.Combine(path, $"{data.Name}{extension}")))

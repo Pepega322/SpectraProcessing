@@ -7,7 +7,7 @@ public class SpectrasProcessingResult : IWriteableData
 	private readonly SpectraSetPeaks setPeaks = new();
 
 	public string Name { get; set; } = string.Empty;
-	public string? Extension => "peaks";
+	public string Extension => "peaks";
 
 	public void Add(SpectraPeak peak)
 	{
@@ -18,7 +18,7 @@ public class SpectrasProcessingResult : IWriteableData
 
 	public IEnumerable<string> ToContents()
 	{
-		const string peakInfoHeader = "XStart; XEnd; Spectra; Square; Height;";
+		const string peakInfoHeader = "XStart;XEnd;Spectra;Square;Height;";
 
 		yield return peakInfoHeader;
 		foreach (var (_, peaks) in setPeaks)
@@ -29,6 +29,6 @@ public class SpectrasProcessingResult : IWriteableData
 
 		yield break;
 
-		string PeakFormat(SpectraPeak p) => $"{p.Borders.XStart: 0.000}; {p.Borders.XEnd: 0.000}; {p.SpectraName}; {p.Square: 0.000}; {p.Height: 0.000};";
+		string PeakFormat(SpectraPeak p) => $"{p.Borders.XStart: 0.000};{p.Borders.XEnd: 0.000};{p.SpectraName};{p.Square: 0.000};{p.Height: 0.000};";
 	}
 }

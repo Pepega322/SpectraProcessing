@@ -14,7 +14,7 @@ public class SpectraParser : ISpectraParser
 		{
 			SpectraFormat.Asp => ParseAsp(name, contents),
 			SpectraFormat.Esp => ParseEsp(name, contents),
-			_                 => throw new NotImplementedException(),
+			_                 => throw new NotSupportedException(),
 		};
 	}
 

@@ -63,7 +63,7 @@ internal static class TreeViewHelpers
 				node.Nodes.Add(subnode);
 			}
 
-			foreach (var data in set.OrderByDescending(data => data.Name))
+			foreach (var data in set.Data.OrderByDescending(data => data.Name))
 			{
 				var subnode = new TreeNode()
 				{
@@ -85,7 +85,7 @@ internal static class TreeViewHelpers
 				Tag = set,
 				Checked = false
 			};
-			foreach (var plot in set.OrderByDescending(p => p.Name))
+			foreach (var plot in set.Data.OrderByDescending(p => p.Name))
 			{
 				var subnode = new TreeNode
 				{

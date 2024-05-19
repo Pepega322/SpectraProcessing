@@ -31,7 +31,7 @@ public class PlotController(
 		await Task.Run(() =>
 		{
 			var plots = new ConcurrentBag<SpectraPlot>();
-			Parallel.ForEach(set, data =>
+			Parallel.ForEach(set.Data, data =>
 			{
 				var plt = plotBuilder.GetPlot(data);
 				plots.Add(plt);
@@ -64,12 +64,11 @@ public class PlotController(
 
 	public async Task ContextDataAddToClearPlotToDefault(Spectra spectra)
 	{
+		OnPlotClear?.Invoke();
 		await Task.Run(() =>
 		{
-			plotStorageController.Clear();
 			var plot = plotBuilder.GetPlot(spectra);
 			plotStorageController.AddDataToDefaultSet(plot);
-			graphicsController.ClearArea();
 			graphicsController.DrawData(plot);
 		});
 		form.Refresh();

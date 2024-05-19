@@ -218,7 +218,7 @@ public partial class MainForm : Form
 		plotContextPlotSetSubstractBaseLine.Click += async (sender, _) =>
 		{
 			var set = TreeViewHelpers.GetContextSet<SpectraPlot>(sender);
-			var spectra = set.Select(s => s.Spectra).ToArray();
+			var spectra = set.Data.Select(s => s.Spectra).ToArray();
 			var substracted = await processingController.SubstractBaseline(spectra);
 			var substractedSet = new DataSet<Spectra>($"{set.Name} b-", substracted);
 			dataStorageController.AddDataSet(substractedSet);
@@ -241,22 +241,19 @@ public partial class MainForm : Form
 		{
 			var last = processingController.Borders.LastOrDefault();
 			if (last != default)
-			{
 				await Task.Run(() => processingController.RemoveBorder(last));
-			}
-
 			plotView.Refresh();
 		};
 		plotContextPlotSetPeaksProcess.Click += async (sender, _) =>
 		{
 			var plotSet = TreeViewHelpers.GetContextSet<SpectraPlot>(sender);
-			var peaksFullname = dialogController.GetSaveFileFullName(plotSet.Name, ".txt");
-			if (peaksFullname is null) return;
-			var spectraSet = new DataSet<Spectra>(plotSet.Name, plotSet.Select(plot => plot.Spectra));
+			var spectraSet = new DataSet<Spectra>(plotSet.Name, plotSet.Data.Select(plot => plot.Spectra));
 			var processed = await processingController.ProcessPeaksForSpectraSet(spectraSet);
+			var peaksFullname = dialogController.GetSaveFileFullName(plotSet.Name, processed.Extension);
+			if (peaksFullname is null) return;
 			await dataWriterController.DataWriteAs(processed, peaksFullname);
 			var dispersionStatistics = processed.GetDispersionStatistics();
-			await dataWriterController.DataWriteAs(dispersionStatistics, peaksFullname.Trim('.') + dispersionStatistics.Extension);
+			await dataWriterController.DataWriteAs(dispersionStatistics,  $"{peaksFullname}.{dispersionStatistics.Extension}");
 		};
 		plotContextPlotPeaksProcess.Click += async (sender, _) =>
 		{
@@ -269,9 +266,8 @@ public partial class MainForm : Form
 		plotContextPlotSetAverageSpectra.Click += async (s, _) =>
 		{
 			var set = TreeViewHelpers.GetContextSet<SpectraPlot>(s);
-			var spectra = set.Select(plot => plot.Spectra).ToArray();
+			var spectra = set.Data.Select(plot => plot.Spectra).ToArray();
 			var average = await processingController.GetAverageSpectra(spectra);
-			average.Name = $"{set.Name} (average)";
 			dataStorageController.AddDataToDefaultSet(average);
 		};
 	}

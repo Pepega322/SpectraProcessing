@@ -7,8 +7,8 @@ namespace Controllers.Interfaces;
 public interface ISpectraProcessingController
 {
 	IEnumerable<PeakBorders> Borders { get; }
-	void AddBorder(PeakBorders borders);
-	void RemoveBorder(PeakBorders borders);
+	void AddBorder(PeakBorders peakBorders);
+	void RemoveBorder(PeakBorders peakBorders);
 	void ClearBorders();
 	void RedrawBorders();
 	Task ImportBorders(string fullname);

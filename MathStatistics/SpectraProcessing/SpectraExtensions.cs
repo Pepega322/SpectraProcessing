@@ -8,7 +8,7 @@ public static class SpectraExtensions
 	{
 		var baseline = MathRegressionAnalysis.GetLinearRegression(s.Points);
 		var newPoints = s.Points.Transform(TransformationRule);
-		return s.ChangePoints(newPoints);
+		return s.Copy($"{s.Name} b-").ChangePoints(newPoints);
 		float TransformationRule(float x, float y) => y - baseline(x);
 	}
 
@@ -37,8 +37,7 @@ public static class SpectraExtensions
 			.ToList();
 		var newPoints = new SpectraPoints(resultX, resultY);
 
-		var result = spectraEnumerable.First().Copy();
-		result.Name = "average";
+		var result = spectraEnumerable.First().Copy("average");
 		result.ChangePoints(newPoints);
 		return result;
 	}
