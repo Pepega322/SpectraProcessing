@@ -22,8 +22,8 @@ public class SpectraProcessingDispersionStatistics : IWriteableData
 		DispersionStatistics<float>[] GetStatistics(IImmutableList<SpectraPeak> peaks)
 		{
 			var square = peaks.Select(p => p.Square).ToArray().GetDispersionStatistics("Square");
-			var height = peaks.Select(p => p.Height).ToArray().GetDispersionStatistics("Height");
-			return [square, height];
+			// var height = peaks.Select(p => p.Height).ToArray().GetDispersionStatistics("Height");
+			return [square];
 		}
 	}
 
@@ -32,9 +32,13 @@ public class SpectraProcessingDispersionStatistics : IWriteableData
 		const string statisticsInfoHeader = "xStart;xEnd;Parameter;ValuesCount;AverageValue;StandardDeviation;RelativeDeviation;ConfidenceInterval;";
 
 		yield return statisticsInfoHeader;
-		foreach (var (borders, parametersStat) in statistics)
+		foreach (var (borders, parametersStat) in statistics
+			         .OrderBy(pair => pair.Key.XStart)
+			         .ThenBy(pair => pair.Key.XEnd))
+		{
 			foreach (var paramStat in parametersStat)
 				yield return StatisticsFormat(borders, paramStat);
+		}
 
 		yield break;
 
