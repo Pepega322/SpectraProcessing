@@ -8,7 +8,9 @@ public static class SpectraExtensions
 	{
 		var baseline = MathRegressionAnalysis.GetLinearRegression(s.Points);
 		var newPoints = s.Points.Transform(TransformationRule);
-		return s.Copy($"{s.Name} b-").ChangePoints(newPoints);
+		var res = s.ChangePoints(newPoints);
+		res.Name = $"{s.Name} b-";
+		return res;
 		float TransformationRule(float x, float y) => y - baseline(x);
 	}
 
@@ -36,10 +38,7 @@ public static class SpectraExtensions
 			.Select(x => spectraYSumForX[x] / spectraCountPerX[x])
 			.ToList();
 		var newPoints = new SpectraPoints(resultX, resultY);
-
-		var result = spectraEnumerable.First().Copy("average");
-		result.ChangePoints(newPoints);
-		return result;
+		return spectraEnumerable.First().ChangePoints(newPoints);
 	}
 
 	public static SpectraPeak ProcessPeak(this Spectra s, PeakBorders borders)

@@ -6,19 +6,12 @@ namespace Domain.SpectraData;
 
 public abstract class Spectra(string name, SpectraPoints points) : IWriteableData, IPlottableData
 {
-	public string Name { get; init; } = name;
+	public string Name { get; set; } = name;
 	public string Extension => Format.ToString().ToLower();
 	protected SpectraFormat Format { get; init; }
-	public SpectraPoints Points { get; private set; } = points;
+	public SpectraPoints Points { get; init; } = points;
 
-	public abstract Spectra Copy(string newName);
-
-	public Spectra ChangePoints(SpectraPoints points)
-	{
-		var changed = Copy(Name);
-		changed.Points = points;
-		return changed;
-	}
+	public abstract Spectra ChangePoints(SpectraPoints points);
 
 	public virtual IEnumerable<string> ToContents() => Points.ToContents();
 
@@ -28,7 +21,7 @@ public abstract class Spectra(string name, SpectraPoints points) : IWriteableDat
 			Points.Count == spectra.Points.Count;
 	}
 
-	public override int GetHashCode() => HashCode.Combine(Name, Format);
+	public override int GetHashCode() => Points.GetHashCode();
 
 	public override string ToString() => $"{Name} {Format} {Points.Count}";
 }

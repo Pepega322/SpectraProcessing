@@ -266,8 +266,9 @@ public partial class MainForm : Form
 		plotContextPlotSetAverageSpectra.Click += async (s, _) =>
 		{
 			var set = TreeViewHelpers.GetContextSet<SpectraPlot>(s);
-			var spectra = set.Data.Select(plot => plot.Spectra).ToArray();
-			var average = await processingController.GetAverageSpectra(spectra);
+			var spectras = set.Data.Select(plot => plot.Spectra).ToArray();
+			var average = await processingController.GetAverageSpectra(spectras);
+			average.Name = $"{set.Name} (average)";
 			dataStorageController.AddDataToDefaultSet(average);
 		};
 	}

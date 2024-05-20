@@ -11,5 +11,5 @@ public sealed class AspSpectra : Spectra
 		Format = SpectraFormat.Asp;
 	}
 
-	public override Spectra Copy(string name) => new AspSpectra(name, Points, Info);
+	public override Spectra ChangePoints(SpectraPoints points) => new AspSpectra(Name, points, Info);
 }

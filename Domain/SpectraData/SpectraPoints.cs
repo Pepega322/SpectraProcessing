@@ -6,9 +6,10 @@ public record SpectraPoints
 	public IReadOnlyList<float> Y { get; init; }
 	public int Count => X.Count;
 
-	public Point<float> this[int index] => index < 0 || index >= X.Count
-		? throw new ArgumentOutOfRangeException(nameof(index))
-		: new Point<float>(X[index], Y[index]);
+	public Point<float> this[int index]
+		=> index < 0 || index >= X.Count
+			? throw new ArgumentOutOfRangeException(nameof(index))
+			: new Point<float>(X[index], Y[index]);
 
 	public SpectraPoints(IList<float> x, IList<float> y)
 	{
@@ -30,5 +31,10 @@ public record SpectraPoints
 	{
 		for (var i = 0; i < Count; i++)
 			yield return $"{X[i]} {Y[i]}";
+	}
+
+	public override int GetHashCode()
+	{
+		return HashCode.Combine(X, Y, Count);
 	}
 }
