@@ -17,21 +17,21 @@ public sealed class SpectraProcessingController(
 ) : ISpectraProcessingController
 {
 	public IEnumerable<PeakBorders> Borders => borders.Keys;
-	private readonly ConcurrentDictionary<PeakBorders, PeakBorderPlot> borders = [];
+	private readonly Dictionary<PeakBorders, PeakBorderPlot> borders = [];
 
 	public void AddBorder(PeakBorders peakBorders)
 	{
-		if (this.borders.ContainsKey(peakBorders)) return;
+		if (borders.ContainsKey(peakBorders)) return;
 		var plot = plotBuilder.GetPlot(peakBorders);
 		drawer.Draw(plot);
-		this.borders.TryAdd(peakBorders, plot);
+		borders.TryAdd(peakBorders, plot);
 	}
 
 	public void RemoveBorder(PeakBorders peakBorders)
 	{
-		if (!this.borders.TryGetValue(peakBorders, out var plot)) return;
+		if (!borders.TryGetValue(peakBorders, out var plot)) return;
 		drawer.Erase(plot);
-		this.borders.TryRemove(peakBorders, out _);
+		borders.Remove(peakBorders);
 	}
 
 	public void ClearBorders()
