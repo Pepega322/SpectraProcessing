@@ -61,7 +61,7 @@ public static class Startup
 		services.AddSingleton<IDataReader<Spectra>, SpectraFileReader>();
 		services.AddSingleton<ISpectraParser, SpectraParser>();
 		services.AddSingleton<IDataReader<PeakBordersSet>, PeakBordersSetReader>();
-		services.AddSingleton<IDataWriter, FileWriter>();
+		services.AddSingleton<IDataWriter, FileWriter>(_ => new FileWriter(FileMode.Create));
 		services.AddSingleton<IPlotBuilder<Spectra, SpectraPlot>, ScottSpectraPlotBuilder>();
 		services.AddSingleton<IPlotBuilder<PeakBorders, PeakBorderPlot>, ScottPeakBorderPlotBuilder>();
 		services.AddSingleton<IPlotDrawer<SctPlot>, ScottPlotDrawer>();
