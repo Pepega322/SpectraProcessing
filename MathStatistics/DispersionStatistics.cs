@@ -7,5 +7,6 @@ public record DispersionStatistics<T>(
 	int ValuesCount,
 	T AverageValue,
 	T StandardDeviation,
+	T RelativeDeviation,
 	T ConfidenceInterval
 ) where T : struct, INumber<T>;

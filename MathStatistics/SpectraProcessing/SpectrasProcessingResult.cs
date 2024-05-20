@@ -29,6 +29,6 @@ public class SpectrasProcessingResult : IWriteableData
 
 		yield break;
 
-		string PeakFormat(SpectraPeak p) => $"{p.Borders.XStart: 0.000};{p.Borders.XEnd: 0.000};{p.SpectraName};{p.Square: 0.000};{p.Height: 0.000};";
+		string PeakFormat(SpectraPeak p) => $"{p.Borders.XStart:0.000};{p.Borders.XEnd:0.000};{p.SpectraName};{p.Square:0.000};{p.Height:0.000};";
 	}
 }

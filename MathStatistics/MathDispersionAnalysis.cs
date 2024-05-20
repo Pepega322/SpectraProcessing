@@ -8,12 +8,14 @@ internal static class MathDispersionAnalysis
 			throw new IndexOutOfRangeException("Collection must contains at least two elements");
 
 		var standardDeviation = values.GetStandardDeviation(out var averageValue);
+		var relativeDeviation = standardDeviation / averageValue * 100;
 		var confidenceInterval = GetConfidenceInterval(values.Count, standardDeviation);
 		return new DispersionStatistics<float>(
 			parameterName,
 			values.Count,
 			averageValue,
 			standardDeviation,
+			relativeDeviation,
 			confidenceInterval);
 	}
 

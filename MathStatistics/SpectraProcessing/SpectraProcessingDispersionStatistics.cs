@@ -29,7 +29,7 @@ public class SpectraProcessingDispersionStatistics : IWriteableData
 
 	public IEnumerable<string> ToContents()
 	{
-		const string statisticsInfoHeader = "xStart;xEnd;Parameter;ValuesCount;AverageValue;StandardDeviation;ConfidenceInterval;";
+		const string statisticsInfoHeader = "xStart;xEnd;Parameter;ValuesCount;AverageValue;StandardDeviation;RelativeDeviation;ConfidenceInterval;";
 
 		yield return statisticsInfoHeader;
 		foreach (var (borders, parametersStat) in statistics)
@@ -39,6 +39,6 @@ public class SpectraProcessingDispersionStatistics : IWriteableData
 		yield break;
 
 		string StatisticsFormat(PeakBorders borders, DispersionStatistics<float> s)
-			=> $"{borders.XStart};{borders.XEnd};{s.ParameterName};{s.ValuesCount};{s.AverageValue: 0.000};{s.StandardDeviation: 0.000};{s.ConfidenceInterval: 0.000};";
+			=> $"{borders.XStart};{borders.XEnd};{s.ParameterName};{s.ValuesCount};{s.AverageValue:0.000};{s.StandardDeviation:0.000};{s.RelativeDeviation:0.0};{s.ConfidenceInterval:0.000};";
 	}
 }
