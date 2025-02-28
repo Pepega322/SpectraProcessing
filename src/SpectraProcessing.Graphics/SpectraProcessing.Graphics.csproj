@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="ScottPlot"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SpectraProcessing.Domain\SpectraProcessing.Domain.csproj"/>
+    <ProjectReference Include="..\SpectraProcessing.MathStatistics\SpectraProcessing.MathStatistics.csproj"/>
+  </ItemGroup>
+
+</Project>
