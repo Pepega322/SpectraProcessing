@@ -10,12 +10,12 @@ public class FileWriter(FileMode mode) : IDataWriter
         Access = FileAccess.Write,
     };
 
-    public void WriteData(IWriteableData data, string fullName)
+    public async Task WriteData(IWriteableData data, string fullName)
     {
-        using var writer = new StreamWriter(fullName, options);
-        foreach (var line in data.ToContents())
-        {
-            writer.WriteLine(line);
-        }
+        await using var writer = new StreamWriter(fullName, options);
+
+        var text = string.Join(Environment.NewLine, data.ToContents());
+
+        await writer.WriteAsync(text);
     }
 }

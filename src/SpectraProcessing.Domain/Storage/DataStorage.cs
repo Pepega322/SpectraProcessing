@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 
 namespace SpectraProcessing.Domain.Storage;
 
-public class DataStorage<T> : IEnumerable<DataSet<T>>
+public class DataStorage<T> : IReadOnlyCollection<DataSet<T>>
 {
     private readonly string defaultKey;
     private readonly ConcurrentDictionary<string, DataSet<T>> storage;
@@ -19,7 +19,11 @@ public class DataStorage<T> : IEnumerable<DataSet<T>>
 
     public void Add(string key, DataSet<T> set)
     {
-        if (storage.TryAdd(key, set)) return;
+        if (storage.TryAdd(key, set))
+        {
+            return;
+        }
+
         key = GetNewSetKey(key);
         storage.TryAdd(key, set);
     }
@@ -52,11 +56,17 @@ public class DataStorage<T> : IEnumerable<DataSet<T>>
         while (true)
         {
             var newSetKey = $"{setKey} ({i})";
+
             if (!storage.ContainsKey(newSetKey))
+            {
                 return newSetKey;
+            }
+
             i++;
         }
     }
+
+    public int Count => storage.Count;
 
     public IEnumerator<DataSet<T>> GetEnumerator() => storage.Values.GetEnumerator();
 

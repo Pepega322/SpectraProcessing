@@ -21,26 +21,38 @@ public class CoordinateController(FormsPlot form) : ICoordinateController
 
     public event Action? OnChange;
 
-    public async Task<Point<float>> GetCoordinateByClick()
+    public Task<Point<float>> GetCoordinateByClick()
     {
-        var task = new Task<Point<float>>(() => Coordinates);
-        void handler(object? o, MouseEventArgs a) => task.Start();
-        form.MouseDown += handler;
-        var result = await task;
-        form.MouseDown -= handler;
-        return result;
+        var cts = new TaskCompletionSource<Point<float>>();
+
+        form.MouseDown += Handler;
+
+        return cts.Task;
+
+        void Handler(object? o, MouseEventArgs a)
+        {
+            form.MouseDown -= Handler;
+            cts.TrySetResult(Coordinates);
+        }
     }
 
-    public async Task<Point<float>> GetCoordinateByKeyDown()
+    public Task<Point<float>> GetCoordinateByKeyDown()
     {
-        var task = new Task<Point<float>>(() => Coordinates);
-        void handler(object? _, KeyEventArgs e)
+        var cts = new TaskCompletionSource<Point<float>>();
+
+        form.KeyDown += Handler;
+
+        return cts.Task;
+
+        void Handler(object? _, KeyEventArgs e)
         {
-            if (e.KeyData == Keys.Z) task.Start();
+            if (e.KeyData is not Keys.Z)
+            {
+                return;
+            }
+
+            form.KeyDown -= Handler;
+            cts.TrySetResult(Coordinates);
         }
-        form.KeyDown += handler;
-        var result = await task;
-        form.KeyDown -= handler;
-        return result;
     }
 }

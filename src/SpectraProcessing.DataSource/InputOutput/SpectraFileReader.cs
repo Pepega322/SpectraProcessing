@@ -8,7 +8,7 @@ namespace SpectraProcessing.DataSource.InputOutput;
 
 public class SpectraFileReader(ISpectraParser parser) : IDataReader<Spectra>
 {
-    public Spectra Get(string fullName)
+    public async Task<Spectra> Get(string fullName)
     {
         var file = new FileInfo(fullName);
 
@@ -18,17 +18,15 @@ public class SpectraFileReader(ISpectraParser parser) : IDataReader<Spectra>
         if (!Enum.TryParse(file.Extension.TrimStart('.'), true, out SpectraFormat format))
             throw new UndefinedFileException(fullName);
 
-        Spectra data;
+        var lines = await File.ReadAllLinesAsync(file.FullName);
 
         try
         {
-            data = parser.Parse(format, file.Name, File.ReadAllLines(file.FullName));
+            return parser.Parse(format, file.Name, lines);
         }
         catch (Exception e)
         {
             throw new CorruptedFileException($"{fullName}{Environment.NewLine}{e.Message}");
         }
-
-        return data;
     }
 }

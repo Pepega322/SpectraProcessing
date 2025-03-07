@@ -90,7 +90,7 @@ public class DataSet<T>
         {
             var refToCopy = new Dictionary<DataSet<T>, DataSet<T>>
             {
-                {this, new DataSet<T>(rootName)}
+                {this, new DataSet<T>(rootName)},
             };
             var queue = new Queue<DataSet<T>>();
             queue.Enqueue(this);

@@ -16,12 +16,16 @@ public sealed class SpectraProcessingController(
     IDataReader<PeakBordersSet> bordersReader
 ) : ISpectraProcessingController
 {
-    public IEnumerable<PeakBorders> Borders => borders.Keys;
+    public IReadOnlyCollection<PeakBorders> Borders => borders.Keys;
     private readonly Dictionary<PeakBorders, PeakBorderPlot> borders = [];
 
     public void AddBorder(PeakBorders peakBorders)
     {
-        if (borders.ContainsKey(peakBorders)) return;
+        if (borders.ContainsKey(peakBorders))
+        {
+            return;
+        }
+
         var plot = plotBuilder.GetPlot(peakBorders);
         drawer.Draw(plot);
         borders.TryAdd(peakBorders, plot);
@@ -29,7 +33,11 @@ public sealed class SpectraProcessingController(
 
     public void RemoveBorder(PeakBorders peakBorders)
     {
-        if (!borders.TryGetValue(peakBorders, out var plot)) return;
+        if (!borders.TryGetValue(peakBorders, out var plot))
+        {
+            return;
+        }
+
         drawer.Erase(plot);
         borders.Remove(peakBorders);
     }
@@ -62,15 +70,18 @@ public sealed class SpectraProcessingController(
 
     public async Task<SpectrasProcessingResult> ProcessPeaksForSingleSpectra(Spectra spectra)
     {
-        var result = new SpectrasProcessingResult();
-        await Task.Run(() =>
-        {
-            Parallel.ForEach(borders.Keys, border =>
+        var result = new SpectrasProcessingResult { Name = spectra.Name };
+        await Task.Run(
+            () =>
             {
-                var info = spectra.ProcessPeak(border);
-                result.Add(info);
+                Parallel.ForEach(
+                    borders.Keys,
+                    border =>
+                    {
+                        var info = spectra.ProcessPeak(border);
+                        result.Add(info);
+                    });
             });
-        });
         return result;
     }
 
@@ -80,41 +91,49 @@ public sealed class SpectraProcessingController(
         {
             Name = set.Name,
         };
-        await Task.Run(() =>
-        {
-            Parallel.ForEach(set.Data, spectra =>
+
+        await Task.Run(
+            () =>
             {
-                foreach (var border in Borders)
-                {
-                    var info = spectra.ProcessPeak(border);
-                    result.Add(info);
-                }
+                Parallel.ForEach(
+                    set.Data,
+                    spectra =>
+                    {
+                        foreach (var border in Borders)
+                        {
+                            var info = spectra.ProcessPeak(border);
+                            result.Add(info);
+                        }
+                    });
             });
-        });
+
         return result;
     }
 
-    public async Task<Spectra> SubstractBaseline(Spectra spectra)
+    public Task<Spectra> SubstractBaseline(Spectra spectra)
     {
-        return await Task.Run(spectra.SubstractBaseLine);
+        return Task.Run(spectra.SubstractBaseLine);
     }
 
-    public async Task<Spectra[]> SubstractBaseline(IEnumerable<Spectra> set)
+    public async Task<IReadOnlyCollection<Spectra>> SubstractBaseline(IEnumerable<Spectra> set)
     {
         var substractedSet = new ConcurrentBag<Spectra>();
-        await Task.Run(() =>
-        {
-            Parallel.ForEach(set, spectra =>
+        await Task.Run(
+            () =>
             {
-                var substracted = spectra.SubstractBaseLine();
-                substractedSet.Add(substracted);
+                Parallel.ForEach(
+                    set,
+                    spectra =>
+                    {
+                        var substracted = spectra.SubstractBaseLine();
+                        substractedSet.Add(substracted);
+                    });
             });
-        });
         return [.. substractedSet];
     }
 
-    public async Task<Spectra> GetAverageSpectra(IEnumerable<Spectra> set)
+    public Task<Spectra> GetAverageSpectra(IReadOnlyCollection<Spectra> set)
     {
-        return await Task.Run(set.GetAverageSpectra);
+        return Task.Run(set.GetAverageSpectra);
     }
 }

@@ -9,7 +9,7 @@ public sealed class DataStorageController<TData>(IOptions<DataStorageSettings> s
 {
     private readonly DataStorage<TData> storage = new(settings.Value.DefaultDataSetName);
     public event Action? OnChange;
-    public IEnumerable<DataSet<TData>> StorageData => storage;
+    public IReadOnlyCollection<DataSet<TData>> StorageData => storage;
 
     public bool AddDataToDefaultSet(TData data)
     {

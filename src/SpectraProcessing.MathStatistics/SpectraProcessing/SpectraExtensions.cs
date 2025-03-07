@@ -14,7 +14,7 @@ public static class SpectraExtensions
         float TransformationRule(float x, float y) => y - baseline(x);
     }
 
-    public static Spectra GetAverageSpectra(this IEnumerable<Spectra> spectras)
+    public static Spectra GetAverageSpectra(this IReadOnlyCollection<Spectra> spectras)
     {
         var spectraCountPerX = new Dictionary<float, int>();
         var spectraYSumForX = new Dictionary<float, float>();
@@ -53,14 +53,30 @@ public static class SpectraExtensions
         var height = GetHeight(leftIndex);
         for (var index = leftIndex; index < rightIndex; index++)
         {
-            if (height > maxHeight) maxHeight = height;
+            if (height > maxHeight)
+            {
+                maxHeight = height;
+            }
+
             var nextHeight = GetHeight(index + 1);
+
             var dS = MathRegressionAnalysis.GetQuadrangleSquare(height, nextHeight, GetDeltaX(index));
-            if (dS > 0) square += dS;
+
+            if (dS > 0)
+            {
+                square += dS;
+            }
+
             height = nextHeight;
         }
 
-        return new SpectraPeak(s, realBorders, square, maxHeight);
+        return new SpectraPeak
+        {
+            SpectraName = s.Name,
+            Borders = realBorders,
+            Square = square,
+            Height = maxHeight,
+        };
 
         float GetDeltaX(int index) => s.Points.X[index + 1] - s.Points.X[index];
         float GetHeight(int index) => s.Points.Y[index] - baseline(s.Points.X[index]);

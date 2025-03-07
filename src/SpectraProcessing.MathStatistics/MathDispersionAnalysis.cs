@@ -2,7 +2,7 @@ namespace SpectraProcessing.MathStatistics;
 
 internal static class MathDispersionAnalysis
 {
-    public static DispersionStatistics<float> GetDispersionStatistics(this ICollection<float> values, string parameterName)
+    public static DispersionStatistics<float> GetDispersionStatistics(this IReadOnlyCollection<float> values, string parameterName)
     {
         if (values.Count <= 1)
             throw new IndexOutOfRangeException("Collection must contains at least two elements");
@@ -10,6 +10,7 @@ internal static class MathDispersionAnalysis
         var standardDeviation = values.GetStandardDeviation(out var averageValue);
         var relativeDeviation = standardDeviation / averageValue * 100;
         var confidenceInterval = GetConfidenceInterval(values.Count, standardDeviation);
+
         return new DispersionStatistics<float>(
             parameterName,
             values.Count,
@@ -19,7 +20,7 @@ internal static class MathDispersionAnalysis
             confidenceInterval);
     }
 
-    private static float GetStandardDeviation(this ICollection<float> values, out float averageValue)
+    private static float GetStandardDeviation(this IReadOnlyCollection<float> values, out float averageValue)
     {
         var average = values.Sum() / values.Count;
         var standardDeviationSquare = values.Sum(v => (v - average) * (v - average)) / (values.Count - 1);
@@ -34,6 +35,7 @@ internal static class MathDispersionAnalysis
     {
         if (valuesCount <= 1)
             throw new IndexOutOfRangeException("Values count must be greater than 1");
+
         return valuesCount switch
         {
             2 => 12.7f,
@@ -45,7 +47,7 @@ internal static class MathDispersionAnalysis
             8 => 2.36f,
             9 => 2.31f,
             10 => 2.26f,
-            _ => 1.96f
+            _ => 1.96f,
         };
     }
 }

@@ -63,7 +63,7 @@ public partial class MainForm : Form
         plotButtonResize.Click += (_, _) => plotController.PlotAreaResize();
         dataStorageTree.NodeMouseDoubleClick += async (_, e) =>
         {
-            if (e.Button is MouseButtons.Left && e.Node.Tag is Spectra spectra)
+            if (e.Button is MouseButtons.Left && e.Node?.Tag is Spectra spectra)
                 await plotController.DataAddToPlotAreaToDefault(spectra);
         };
         dataContextDataPlot.Click += async (sender, _) =>
@@ -123,12 +123,16 @@ public partial class MainForm : Form
         rootButtonSelect.Click += (_, _) =>
         {
             var path = dialogController.GetFolderPath();
-            if (path is null) return;
+            if (path is null)
+            {
+                return;
+            }
+
             dataSourceController.ChangeFolder(path);
         };
         rootTree.NodeMouseDoubleClick += (_, e) =>
         {
-            if (e.Node.Tag is DirectoryInfo newRoot)
+            if (e.Node?.Tag is DirectoryInfo newRoot)
                 dataSourceController.ChangeFolder(newRoot.FullName);
         };
         rootButtonRead.Click += async (_, _) =>
@@ -152,7 +156,11 @@ public partial class MainForm : Form
         {
             var data = TreeViewHelpers.GetContextData<Spectra>(sender);
             var fullname = dialogController.GetSaveFileFullName(data.Name, ".esp");
-            if (fullname is null) return;
+            if (fullname is null)
+            {
+                return;
+            }
+
             await Task.Run(() => dataWriterController.DataWriteAs(data, fullname));
         };
         dataContextDataDelete.Click += (sender, _) =>
@@ -164,7 +172,11 @@ public partial class MainForm : Form
         dataContextDataSetSaveAs.Click += async (sender, _) =>
         {
             var path = dialogController.GetFolderPath();
-            if (path is null) return;
+            if (path is null)
+            {
+                return;
+            }
+
             var set = TreeViewHelpers.GetContextSet<Spectra>(sender);
             var outputPath = Path.Combine(path, $"{set.Name} (converted)");
             await Task.Run(() => dataWriterController.SetOnlyWriteAs(set, outputPath, ".esp"));
@@ -172,7 +184,11 @@ public partial class MainForm : Form
         dataContextDataSetAndSubsetsSaveAs.Click += async (sender, _) =>
         {
             var path = dialogController.GetFolderPath();
-            if (path is null) return;
+            if (path is null)
+            {
+                return;
+            }
+
             var set = TreeViewHelpers.GetContextSet<Spectra>(sender);
             var outputPath = Path.Combine(path, $"{set.Name} (converted full depth)");
             await Task.Run(() => dataWriterController.SetFullDepthWriteAs(set, outputPath, ".esp"));
@@ -199,15 +215,27 @@ public partial class MainForm : Form
         plotButtonImportPeaks.Click += async (_, _) =>
         {
             var fullName = dialogController.GetReadFileFullName();
-            if (fullName is null) return;
+            if (fullName is null)
+            {
+                return;
+            }
+
             await processingController.ImportBorders(fullName);
             plotView.Refresh();
         };
         plotButtonExportPeaks.Click += async (_, _) =>
         {
-            var borderSet = new PeakBordersSet(processingController.Borders.ToArray());
+            var borderSet = new PeakBordersSet
+            {
+                Name = "",
+                Borders = processingController.Borders.ToArray(),
+            };
             var fullName = dialogController.GetSaveFileFullName("bordersSet", "borders");
-            if (fullName is null) return;
+            if (fullName is null)
+            {
+                return;
+            }
+
             await dataWriterController.DataWriteAs(borderSet, fullName);
         };
         plotButtonClearPeaks.Click += async (_, _) =>
@@ -240,7 +268,7 @@ public partial class MainForm : Form
         plotButtonDeleteLastPeak.Click += async (_, _) =>
         {
             var last = processingController.Borders.LastOrDefault();
-            if (last != default)
+            if (last is not null)
                 await Task.Run(() => processingController.RemoveBorder(last));
             plotView.Refresh();
         };
@@ -250,16 +278,26 @@ public partial class MainForm : Form
             var spectraSet = new DataSet<Spectra>(plotSet.Name, plotSet.Data.Select(plot => plot.Spectra));
             var processed = await processingController.ProcessPeaksForSpectraSet(spectraSet);
             var peaksFullname = dialogController.GetSaveFileFullName(plotSet.Name, processed.Extension);
-            if (peaksFullname is null) return;
+            if (peaksFullname is null)
+            {
+                return;
+            }
+
             await dataWriterController.DataWriteAs(processed, peaksFullname);
             var dispersionStatistics = processed.GetDispersionStatistics();
-            await dataWriterController.DataWriteAs(dispersionStatistics, $"{peaksFullname}.{dispersionStatistics.Extension}");
+            await dataWriterController.DataWriteAs(
+                dispersionStatistics,
+                $"{peaksFullname}.{dispersionStatistics.Extension}");
         };
         plotContextPlotPeaksProcess.Click += async (sender, _) =>
         {
             var plot = TreeViewHelpers.GetContextData<SpectraPlot>(sender);
             var fullname = dialogController.GetSaveFileFullName(plot.Name, ".txt");
-            if (fullname is null) return;
+            if (fullname is null)
+            {
+                return;
+            }
+
             var processed = await processingController.ProcessPeaksForSingleSpectra(plot.Spectra);
             await dataWriterController.DataWriteAs(processed, fullname);
         };
@@ -283,25 +321,25 @@ public partial class MainForm : Form
 
     private void PlotSetDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e)
     {
-        if (e.Button is MouseButtons.Right && e.Node.Tag is DataSet<SpectraPlot>)
+        if (e.Button is MouseButtons.Right && e.Node?.Tag is DataSet<SpectraPlot>)
             e.Node.ContextMenuStrip = plotSetMenu;
     }
 
     private void PlotDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e)
     {
-        if (e.Button is MouseButtons.Right && e.Node.Tag is SpectraPlot)
+        if (e.Button is MouseButtons.Right && e.Node?.Tag is SpectraPlot)
             e.Node.ContextMenuStrip = plotMenu;
     }
 
     private void DataSetDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e)
     {
-        if (e.Button is MouseButtons.Right && e.Node.Tag is DataSet<Spectra>)
+        if (e.Button is MouseButtons.Right && e.Node?.Tag is DataSet<Spectra>)
             e.Node.ContextMenuStrip = dataSetMenu;
     }
 
     private void DataDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e)
     {
-        if (e.Button is MouseButtons.Right && e.Node.Tag is Spectra)
+        if (e.Button is MouseButtons.Right && e.Node?.Tag is Spectra)
             e.Node.ContextMenuStrip = dataMenu;
     }
 

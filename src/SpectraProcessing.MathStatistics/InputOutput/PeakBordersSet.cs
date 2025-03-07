@@ -3,9 +3,10 @@ using SpectraProcessing.MathStatistics.SpectraProcessing;
 
 namespace SpectraProcessing.MathStatistics.InputOutput;
 
-public record PeakBordersSet(ICollection<PeakBorders> Borders) : IWriteableData
+public record PeakBordersSet : IWriteableData
 {
-    public string? Name { get; init; } = string.Empty;
+    public required string Name { get; init; }
+    public required IReadOnlyCollection<PeakBorders> Borders { get; init; }
     public string Extension => "borders";
 
     public IEnumerable<string> ToContents()

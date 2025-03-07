@@ -48,7 +48,7 @@ public sealed class ScottSpectraGraphicsController(IPlotDrawer<SctPlot> drawer) 
 
     public void HighlightData(SpectraPlot plot)
     {
-        if (highlightedData != null)
+        if (highlightedData is not null)
             SetHighlighting(highlightedData, false);
 
         if (Equals(highlightedData, plot)) highlightedData = null;
@@ -61,7 +61,7 @@ public sealed class ScottSpectraGraphicsController(IPlotDrawer<SctPlot> drawer) 
 
     public void HighlightDataSet(DataSet<SpectraPlot> set)
     {
-        if (highlightedSet != null)
+        if (highlightedSet is not null)
             Parallel.ForEach(highlightedSet.Data, data => SetHighlighting(data, false));
 
         if (Equals(highlightedSet, set)) highlightedSet = null;

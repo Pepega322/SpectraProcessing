@@ -2,10 +2,13 @@ using SpectraProcessing.Domain.SpectraData;
 
 namespace SpectraProcessing.MathStatistics.SpectraProcessing;
 
-public class SpectraPeak(Spectra spectra, PeakBorders borders, float square, float height)
+public record SpectraPeak
 {
-    public string SpectraName => spectra.Name;
-    public readonly PeakBorders Borders = borders;
-    public readonly float Square = square;
-    public readonly float Height = height;
+    public required string SpectraName { get; init; }
+
+    public required PeakBorders Borders { get; init; }
+
+    public required float Square { get; init; }
+
+    public required float Height { get; init; }
 }

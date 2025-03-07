@@ -47,6 +47,8 @@ internal static class TreeViewHelpers
             yield return node;
         }
 
+        yield break;
+
         static void ConnectDataSubnodes(TreeNode node)
         {
             if (node.Tag is not DataSet<Spectra> set)
@@ -83,7 +85,7 @@ internal static class TreeViewHelpers
             {
                 Text = set.Name,
                 Tag = set,
-                Checked = false
+                Checked = false,
             };
             foreach (var plot in set.Data.OrderByDescending(p => p.Name))
             {
@@ -91,7 +93,7 @@ internal static class TreeViewHelpers
                 {
                     Text = plot.Name,
                     Tag = plot,
-                    Checked = plot.GetPlottables().First().IsVisible
+                    Checked = plot.GetPlottables().First().IsVisible,
                 };
                 if (subnode.Checked) setNode.Checked = true;
                 setNode.Nodes.Add(subnode);
@@ -129,7 +131,7 @@ internal static class TreeViewHelpers
     public static DataSet<TData> GetContextParentSet<TData>(object? sender)
     {
         var node = GetContextTreeNode(sender);
-        return node.Parent.Tag as DataSet<TData> ?? throw new InvalidCastException();
+        return node.Parent?.Tag as DataSet<TData> ?? throw new InvalidCastException();
     }
 
     public static DataSet<TData> GetContextSet<TData>(object? sender)
@@ -150,6 +152,6 @@ internal static class TreeViewHelpers
         }
 
         var treeView = contextMenu.Tag as TreeView ?? throw new InvalidCastException();
-        return treeView.SelectedNode;
+        return treeView.SelectedNode!;
     }
 }

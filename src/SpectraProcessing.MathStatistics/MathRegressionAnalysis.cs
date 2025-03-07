@@ -41,7 +41,11 @@ internal static class MathRegressionAnalysis
             else left = middle + 1;
         }
 
-        if (left == 0) return 0;
+        if (left == 0)
+        {
+            return 0;
+        }
+
         var dLeft = element - arr[left - 1];
         var dRight = arr[left] - element;
         return dLeft <= dRight ? left - 1 : left;

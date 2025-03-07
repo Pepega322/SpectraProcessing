@@ -7,15 +7,14 @@ public class SpectraProcessingDispersionStatistics : IWriteableData
 {
     private readonly Dictionary<PeakBorders, DispersionStatistics<float>[]> statistics;
 
-    public string? Name { get; set; } = string.Empty;
+    public required string Name { get; init; }
     public string Extension => "dispersion";
 
     internal SpectraProcessingDispersionStatistics(SpectraSetPeaks setPeaks)
     {
         statistics = setPeaks.ToDictionary(
             e => e.Borders,
-            e => GetStatistics(e.Peaks)
-        );
+            e => GetStatistics(e.Peaks));
 
         return;
 
@@ -29,7 +28,8 @@ public class SpectraProcessingDispersionStatistics : IWriteableData
 
     public IEnumerable<string> ToContents()
     {
-        const string statisticsInfoHeader = "xStart;xEnd;Parameter;ValuesCount;AverageValue;StandardDeviation;RelativeDeviation;ConfidenceInterval;";
+        const string statisticsInfoHeader =
+            "xStart;xEnd;Parameter;ValuesCount;AverageValue;StandardDeviation;RelativeDeviation;ConfidenceInterval;";
 
         yield return statisticsInfoHeader;
         foreach (var (borders, parametersStat) in statistics

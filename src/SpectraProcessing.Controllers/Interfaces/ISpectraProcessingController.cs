@@ -6,7 +6,7 @@ namespace SpectraProcessing.Controllers.Interfaces;
 
 public interface ISpectraProcessingController
 {
-    IEnumerable<PeakBorders> Borders { get; }
+    IReadOnlyCollection<PeakBorders> Borders { get; }
     void AddBorder(PeakBorders peakBorders);
     void RemoveBorder(PeakBorders peakBorders);
     void ClearBorders();
@@ -15,6 +15,6 @@ public interface ISpectraProcessingController
     Task<SpectrasProcessingResult> ProcessPeaksForSingleSpectra(Spectra spectra);
     Task<SpectrasProcessingResult> ProcessPeaksForSpectraSet(DataSet<Spectra> set);
     Task<Spectra> SubstractBaseline(Spectra spectra);
-    Task<Spectra[]> SubstractBaseline(IEnumerable<Spectra> set);
-    Task<Spectra> GetAverageSpectra(IEnumerable<Spectra> set);
+    Task<IReadOnlyCollection<Spectra>> SubstractBaseline(IEnumerable<Spectra> set);
+    Task<Spectra> GetAverageSpectra(IReadOnlyCollection<Spectra> set);
 }

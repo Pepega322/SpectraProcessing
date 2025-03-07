@@ -1,6 +1,6 @@
 namespace SpectraProcessing.Domain.InputOutput;
 
-public interface IDataReader<out TData>
+public interface IDataReader<TData>
 {
-    TData Get(string path);
+    Task<TData> Get(string path);
 }

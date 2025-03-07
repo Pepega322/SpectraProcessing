@@ -14,8 +14,12 @@ public class ScottPlotDrawer(PlotArea plotArea) : IPlotDrawer<SctPlot>
     {
         lock (plotted)
         {
-            if (!plotted.Add(plt)) return;
+            if (!plotted.Add(plt))
+            {
+                return;
+            }
         }
+
         AddToArea(plt);
     }
 
@@ -23,9 +27,14 @@ public class ScottPlotDrawer(PlotArea plotArea) : IPlotDrawer<SctPlot>
     {
         lock (plotted)
         {
-            if (!plotted.Contains(plt)) return;
+            if (!plotted.Contains(plt))
+            {
+                return;
+            }
+
             plotted.Remove(plt);
         }
+
         RemoveFromArea(plt);
     }
 

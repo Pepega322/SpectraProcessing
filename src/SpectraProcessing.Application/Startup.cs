@@ -50,8 +50,8 @@ public static class Startup
     {
         services.AddSingleton<FormsPlot>(_ => formsPlot);
         services.AddSingleton<Plot>(_ => formsPlot.Plot);
-        services.AddTransient<IPalette>(_ => new ScottPlot.Palettes.Category20());
         services.AddSingleton<CoordinateController>();
+        services.AddTransient<IPalette>(_ => new ScottPlot.Palettes.Category20());
 
         return services;
     }
@@ -65,6 +65,7 @@ public static class Startup
         services.AddSingleton<IPlotBuilder<Spectra, SpectraPlot>, ScottSpectraPlotBuilder>();
         services.AddSingleton<IPlotBuilder<PeakBorders, PeakBorderPlot>, ScottPeakBorderPlotBuilder>();
         services.AddSingleton<IPlotDrawer<SctPlot>, ScottPlotDrawer>();
+
         return services;
     }
 
@@ -79,6 +80,7 @@ public static class Startup
         services.AddSingleton<ISpectraProcessingController, SpectraProcessingController>();
         services.AddSingleton<ICoordinateController, CoordinateController>();
         services.AddSingleton<IPlotController, PlotController>();
+
         return services;
     }
 }
