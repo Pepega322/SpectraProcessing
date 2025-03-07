@@ -13,8 +13,6 @@ using SpectraProcessing.Domain.SpectraData;
 using SpectraProcessing.Domain.SpectraData.Parser;
 using SpectraProcessing.Graphics.Formats;
 using SpectraProcessing.Graphics.Graphics;
-using SpectraProcessing.MathStatistics.InputOutput;
-using SpectraProcessing.MathStatistics.SpectraProcessing;
 using Plot = ScottPlot.Plot;
 
 namespace SpectraProcessing.Application;
@@ -61,10 +59,10 @@ public static class Startup
     {
         services.AddSingleton<IDataReader<Spectra>, SpectraFileReader>();
         services.AddSingleton<ISpectraParser, SpectraParser>();
-        services.AddSingleton<IDataReader<PeakBordersSet>, PeakBordersSetReader>();
+        // services.AddSingleton<IDataReader<PeakBordersSet>, PeakBordersSetReader>();
         services.AddSingleton<IDataWriter, FileWriter>(_ => new FileWriter(FileMode.Create));
         services.AddSingleton<IPlotBuilder<Spectra, SpectraPlot>, ScottSpectraPlotBuilder>();
-        services.AddSingleton<IPlotBuilder<PeakBorders, PeakBorderPlot>, ScottPeakBorderPlotBuilder>();
+        // services.AddSingleton<IPlotBuilder<PeakInfo, PeakBorderPlot>, ScottPeakBorderPlotBuilder>();
         services.AddSingleton<IPlotDrawer<SctPlot>, ScottPlotDrawer>();
 
         return services;

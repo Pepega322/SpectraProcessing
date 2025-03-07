@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using ScottPlot.WinForms;
+using SpectraProcessing.Controllers;
 using SpectraProcessing.Controllers.Interfaces;
 using SpectraProcessing.Domain.Graphics;
 using SpectraProcessing.Domain.SpectraData;
@@ -23,7 +24,7 @@ public class PlotController(
     {
         plotStorageController.Clear();
         graphicsController.ClearArea();
-        spectraProcessingController.RedrawBorders();
+        // spectraProcessingController.RedrawBorders();
     };
 
     public async Task ContextDataSetAddToPlotArea(DataSet<Spectra> set)

@@ -4,4 +4,8 @@
     <ProjectReference Include="..\SpectraProcessing.Domain\SpectraProcessing.Domain.csproj"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="InputOutput\" />
+  </ItemGroup>
+
 </Project>

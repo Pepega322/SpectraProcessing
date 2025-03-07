@@ -1,7 +1,5 @@
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using SpectraProcessing.Controllers.Interfaces;
-using SpectraProcessing.Controllers.Settings;
 using SpectraProcessing.Domain.InputOutput;
 using SpectraProcessing.Domain.Storage;
 

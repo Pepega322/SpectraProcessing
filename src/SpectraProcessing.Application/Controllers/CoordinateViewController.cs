@@ -14,7 +14,7 @@ public class CoordinateController(FormsPlot form) : ICoordinateController
         set
         {
             var c = form.Plot.GetCoordinates(value.X, value.Y);
-            coordinates = new Point<float>((float)c.X, (float)c.Y);
+            coordinates = new Point<float>((float) c.X, (float) c.Y);
             OnChange?.Invoke();
         }
     }

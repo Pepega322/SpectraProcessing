@@ -41,44 +41,44 @@ public static class SpectraExtensions
         return spectraEnumerable.First().ChangePoints(newPoints);
     }
 
-    public static SpectraPeak ProcessPeak(this Spectra s, PeakBorders borders)
-    {
-        var leftIndex = MathRegressionAnalysis.ClosestIndexBinarySearch(s.Points.X, borders.XStart);
-        var rightIndex = MathRegressionAnalysis.ClosestIndexBinarySearch(s.Points.X, borders.XEnd);
-        var realBorders = new PeakBorders(s.Points[leftIndex].X, s.Points[rightIndex].X);
-        var baseline = MathRegressionAnalysis.GetLinearRegression(s.Points[leftIndex], s.Points[rightIndex]);
-
-        var square = 0f;
-        var maxHeight = 0f;
-        var height = GetHeight(leftIndex);
-        for (var index = leftIndex; index < rightIndex; index++)
-        {
-            if (height > maxHeight)
-            {
-                maxHeight = height;
-            }
-
-            var nextHeight = GetHeight(index + 1);
-
-            var dS = MathRegressionAnalysis.GetQuadrangleSquare(height, nextHeight, GetDeltaX(index));
-
-            if (dS > 0)
-            {
-                square += dS;
-            }
-
-            height = nextHeight;
-        }
-
-        return new SpectraPeak
-        {
-            SpectraName = s.Name,
-            Borders = realBorders,
-            Square = square,
-            Height = maxHeight,
-        };
-
-        float GetDeltaX(int index) => s.Points.X[index + 1] - s.Points.X[index];
-        float GetHeight(int index) => s.Points.Y[index] - baseline(s.Points.X[index]);
-    }
+    // public static SpectraPeak ProcessPeak(this Spectra s, PeakInfo info)
+    // {
+    //     var leftIndex = MathRegressionAnalysis.ClosestIndexBinarySearch(s.Points.X, info.XStart);
+    //     var rightIndex = MathRegressionAnalysis.ClosestIndexBinarySearch(s.Points.X, info.XEnd);
+    //     // var realBorders = new PeakInfo(s.Points[leftIndex].X, s.Points[rightIndex].X);
+    //     var baseline = MathRegressionAnalysis.GetLinearRegression(s.Points[leftIndex], s.Points[rightIndex]);
+    //
+    //     var square = 0f;
+    //     var maxHeight = 0f;
+    //     var height = GetHeight(leftIndex);
+    //     for (var index = leftIndex; index < rightIndex; index++)
+    //     {
+    //         if (height > maxHeight)
+    //         {
+    //             maxHeight = height;
+    //         }
+    //
+    //         var nextHeight = GetHeight(index + 1);
+    //
+    //         var dS = MathRegressionAnalysis.GetQuadrangleSquare(height, nextHeight, GetDeltaX(index));
+    //
+    //         if (dS > 0)
+    //         {
+    //             square += dS;
+    //         }
+    //
+    //         height = nextHeight;
+    //     }
+    //
+    //     return new SpectraPeak
+    //     {
+    //         SpectraName = s.Name,
+    //         Info = realBorders,
+    //         Square = square,
+    //         Height = maxHeight,
+    //     };
+    //
+    //     float GetDeltaX(int index) => s.Points.X[index + 1] - s.Points.X[index];
+    //     float GetHeight(int index) => s.Points.Y[index] - baseline(s.Points.X[index]);
+    // }
 }

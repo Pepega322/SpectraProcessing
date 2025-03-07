@@ -1,23 +1,71 @@
 using Microsoft.Extensions.DependencyInjection;
-using ScottPlot.WinForms;
 using SpectraProcessing.Application.Controllers;
 using SpectraProcessing.Controllers.Interfaces;
 using SpectraProcessing.Domain;
 using SpectraProcessing.Domain.SpectraData;
 using SpectraProcessing.Domain.Storage;
 using SpectraProcessing.Graphics.Formats;
-using SpectraProcessing.MathStatistics.InputOutput;
-using SpectraProcessing.MathStatistics.SpectraProcessing;
 
 namespace SpectraProcessing.Application;
 
 public partial class MainForm : Form
 {
+    // readonly double[] Xs = Generate.RandomAscending(10);
+    // readonly double[] Ys = Generate.RandomSample(10);
+    // readonly ScottPlot.Plottables.Scatter Scatter;
+    // int? IndexBeingDragged = null;
+    //
+    // public MainForm()
+    // {
+    //     InitializeComponent();
+    //
+    //     Scatter = plotView.Plot.Add.Scatter(Xs, Ys);
+    //     Scatter.LineWidth = 2;
+    //     Scatter.MarkerSize = 10;
+    //     Scatter.Smooth = true;
+    //
+    //     plotView.MouseMove += FormsPlot1_MouseMove;
+    //     plotView.MouseDown += FormsPlot1_MouseDown;
+    //     plotView.MouseUp += FormsPlot1_MouseUp;
+    // }
+    //
+    // private void FormsPlot1_MouseDown(object? sender, MouseEventArgs e)
+    // {
+    //     Pixel mousePixel = new(e.Location.X, e.Location.Y);
+    //     Coordinates mouseLocation = plotView.Plot.GetCoordinates(mousePixel);
+    //     DataPoint nearest = Scatter.Data.GetNearest(mouseLocation, plotView.Plot.LastRender);
+    //     IndexBeingDragged = nearest.IsReal ? nearest.Index : null;
+    //
+    //     if (IndexBeingDragged.HasValue)
+    //         plotView.UserInputProcessor.Disable();
+    // }
+    //
+    // private void FormsPlot1_MouseUp(object? sender, MouseEventArgs e)
+    // {
+    //     IndexBeingDragged = null;
+    //     plotView.UserInputProcessor.Enable();
+    //     plotView.Refresh();
+    // }
+    //
+    // private void FormsPlot1_MouseMove(object? sender, MouseEventArgs e)
+    // {
+    //     Pixel mousePixel = new(e.Location.X, e.Location.Y);
+    //     Coordinates mouseLocation = plotView.Plot.GetCoordinates(mousePixel);
+    //     DataPoint nearest = Scatter.Data.GetNearest(mouseLocation, plotView.Plot.LastRender);
+    //     plotView.Cursor = nearest.IsReal ? Cursors.Hand : Cursors.Arrow;
+    //
+    //     if (IndexBeingDragged.HasValue)
+    //     {
+    //         Xs[IndexBeingDragged.Value] = mouseLocation.X;
+    //         Ys[IndexBeingDragged.Value] = mouseLocation.Y;
+    //         plotView.Refresh();
+    //     }
+    // }
+
     private readonly IDialogController dialogController;
     private readonly ICoordinateController coordinateController;
     private readonly IDataSourceController<Spectra> dataSourceController;
     private readonly IDataWriterController dataWriterController;
-    private readonly ISpectraProcessingController processingController;
     private readonly IDataStorageController<Spectra> dataStorageController;
     private readonly IPlotController plotController;
 
@@ -26,13 +74,13 @@ public partial class MainForm : Form
         InitializeComponent();
         var provider = Startup.GetServiceProvider(plotView);
 
+
         plotController = provider.GetRequiredService<IPlotController>();
         dialogController = provider.GetRequiredService<IDialogController>();
         dataStorageController = provider.GetRequiredService<IDataStorageController<Spectra>>();
         dataSourceController = provider.GetRequiredService<IDataSourceController<Spectra>>();
         dataWriterController = provider.GetRequiredService<IDataWriterController>();
         coordinateController = provider.GetRequiredService<ICoordinateController>();
-        processingController = provider.GetRequiredService<ISpectraProcessingController>();
 
         SetupDataReaderController();
         SetupDataStorageController();
