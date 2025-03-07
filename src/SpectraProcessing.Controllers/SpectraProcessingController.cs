@@ -63,7 +63,7 @@ public sealed class SpectraProcessingController(
 
     public async Task ImportBorders(string fullname)
     {
-        var bordersSet = await Task.Run(() => bordersReader.Get(fullname));
+        var bordersSet = await Task.Run(() => bordersReader.ReadData(fullname));
         foreach (var b in bordersSet.Borders)
             AddBorder(b);
     }

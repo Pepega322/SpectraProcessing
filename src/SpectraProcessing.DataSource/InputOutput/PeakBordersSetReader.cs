@@ -11,7 +11,7 @@ public class PeakBordersSetReader : IDataReader<PeakBordersSet>
     private const int firstLineIndex = 1;
     private const char separator = ';';
 
-    public async Task<PeakBordersSet> Get(string fullName)
+    public async Task<PeakBordersSet> ReadData(string fullName)
     {
         var file = new FileInfo(fullName);
 

@@ -6,9 +6,9 @@ public interface IDataStorageController<TData>
 {
     event Action? OnChange;
     IReadOnlyCollection<DataSet<TData>> StorageData { get; }
-    bool AddDataToDefaultSet(TData data);
+    void AddDataToDefaultSet(TData data);
     void AddDataSet(DataSet<TData> set);
-    bool DeleteData(DataSet<TData> dataOwner, TData data);
+    void DeleteData(DataSet<TData> dataOwner, TData data);
     void DeleteDataSet(DataSet<TData> set);
     void Clear();
 }

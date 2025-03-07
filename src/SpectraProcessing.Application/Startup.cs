@@ -21,10 +21,10 @@ namespace SpectraProcessing.Application;
 
 public static class Startup
 {
-    public static IServiceProvider GetServiceProvider(FormsPlot formsPlot)
+    public static IServiceProvider GetServiceProvider(FormsPlot plot)
     {
         return CreateConfigurationBuilder()
-            .ConfigureServices(formsPlot)
+            .ConfigureServices(plot)
             .BuildServiceProvider();
     }
 
@@ -36,20 +36,21 @@ public static class Startup
         return builder.Build();
     }
 
-    private static IServiceCollection ConfigureServices(this IConfigurationRoot configuration, FormsPlot formsPlot)
+    private static IServiceCollection ConfigureServices(this IConfigurationRoot configuration, FormsPlot plot)
     {
         return new ServiceCollection()
+            .AddLogging()
             .Configure<DataReaderControllerSettings>(configuration.GetSection(nameof(DataReaderControllerSettings)))
             .Configure<DataStorageSettings>(configuration.GetSection(nameof(DataStorageSettings)))
-            .AddFormVariables(formsPlot)
+            .AddFormVariables(plot)
             .AddDomainComponents()
             .AddControllers();
     }
 
-    private static IServiceCollection AddFormVariables(this IServiceCollection services, FormsPlot formsPlot)
+    private static IServiceCollection AddFormVariables(this IServiceCollection services, FormsPlot plot)
     {
-        services.AddSingleton<FormsPlot>(_ => formsPlot);
-        services.AddSingleton<Plot>(_ => formsPlot.Plot);
+        services.AddSingleton<FormsPlot>(_ => plot);
+        services.AddSingleton<Plot>(_ => plot.Plot);
         services.AddSingleton<CoordinateController>();
         services.AddTransient<IPalette>(_ => new ScottPlot.Palettes.Category20());
 

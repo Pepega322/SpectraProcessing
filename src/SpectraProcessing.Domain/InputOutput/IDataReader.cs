@@ -2,5 +2,5 @@ namespace SpectraProcessing.Domain.InputOutput;
 
 public interface IDataReader<TData>
 {
-    Task<TData> Get(string path);
+    Task<TData> ReadData(string path);
 }

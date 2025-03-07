@@ -8,7 +8,7 @@ namespace SpectraProcessing.DataSource.InputOutput;
 
 public class SpectraFileReader(ISpectraParser parser) : IDataReader<Spectra>
 {
-    public async Task<Spectra> Get(string fullName)
+    public async Task<Spectra> ReadData(string fullName)
     {
         var file = new FileInfo(fullName);
 

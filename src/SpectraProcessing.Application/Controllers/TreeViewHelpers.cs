@@ -15,29 +15,6 @@ internal static class TreeViewHelpers
         tree.EndUpdate();
     }
 
-    public static IEnumerable<TreeNode> GetFileNodes<TData>(this IDataSourceController<TData> dataSourceController)
-    {
-        foreach (var dir in dataSourceController.Root.GetDirectories().OrderByDescending(d => d.Name))
-        {
-            yield return new TreeNode
-            {
-                Text = dir.Name,
-                Tag = dir,
-                ImageIndex = 0,
-            };
-        }
-
-        foreach (var file in dataSourceController.Root.GetFiles().OrderByDescending(f => f.Name))
-        {
-            yield return new TreeNode
-            {
-                Text = file.Name,
-                Tag = file,
-                ImageIndex = 1,
-            };
-        }
-    }
-
     public static IEnumerable<TreeNode> GetDataNodes<TData>(this IDataStorageController<TData> dataStorageController)
     {
         foreach (var set in dataStorageController.StorageData)
