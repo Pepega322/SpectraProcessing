@@ -70,7 +70,7 @@ internal static class TreeViewHelpers
                 {
                     Text = plot.Name,
                     Tag = plot,
-                    Checked = plot.GetPlottables().First().IsVisible,
+                    Checked = plot.Plottables.First().IsVisible,
                 };
                 if (subnode.Checked) setNode.Checked = true;
                 setNode.Nodes.Add(subnode);

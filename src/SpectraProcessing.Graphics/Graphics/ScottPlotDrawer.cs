@@ -53,7 +53,7 @@ public class ScottPlotDrawer(PlotArea plotArea) : IPlotDrawer<SctPlot>
 
     public void SetVisibility(SctPlot plot, bool isVisible)
     {
-        foreach (var p in plot.GetPlottables())
+        foreach (var p in plot.Plottables)
         {
             p.IsVisible = isVisible;
         }
@@ -84,7 +84,7 @@ public class ScottPlotDrawer(PlotArea plotArea) : IPlotDrawer<SctPlot>
     {
         lock (plotArea)
         {
-            foreach (var plt in plot.GetPlottables())
+            foreach (var plt in plot.Plottables)
             {
                 plotArea.Add.Plottable(plt);
             }
@@ -95,7 +95,7 @@ public class ScottPlotDrawer(PlotArea plotArea) : IPlotDrawer<SctPlot>
     {
         lock (plotArea)
         {
-            foreach (var plt in plot.GetPlottables())
+            foreach (var plt in plot.Plottables)
             {
                 plotArea.Remove(plt);
             }

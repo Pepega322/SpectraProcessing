@@ -6,8 +6,10 @@ namespace SpectraProcessing.Graphics.Formats;
 public abstract class SctPlot : Plot
 {
     public abstract string Name { get; protected set; }
-    public Color PreviousColor;
-    public abstract IEnumerable<IPlottable> GetPlottables();
+
+    public abstract Color PreviousColor { get; protected set; }
+
+    public abstract IReadOnlyCollection<IPlottable> Plottables { get; }
 
     public abstract void ChangeColor(Color color);
 }

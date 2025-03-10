@@ -8,10 +8,7 @@ public class AspSpectraPlot(AspSpectra spectra, Signal plot) : SpectraPlot(spect
 {
     public override string Name { get; protected set; } = spectra.Name;
 
-    public override IEnumerable<IPlottable> GetPlottables()
-    {
-        yield return plot;
-    }
+    public override IReadOnlyCollection<IPlottable> Plottables => [plot];
 
     public override void ChangeColor(Color color)
     {

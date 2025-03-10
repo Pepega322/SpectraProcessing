@@ -8,10 +8,7 @@ public class EspSpectraPlot(EspSpectra spectra, SignalXY plot) : SpectraPlot(spe
 {
     public override string Name { get; protected set; } = spectra.Name;
 
-    public override IEnumerable<IPlottable> GetPlottables()
-    {
-        yield return plot;
-    }
+    public override IReadOnlyCollection<IPlottable> Plottables => [plot];
 
     public override void ChangeColor(Color color)
     {
