@@ -1,3 +1,4 @@
+using ScottPlot;
 using SpectraProcessing.Controllers.Interfaces;
 using SpectraProcessing.Domain.Graphics;
 using SpectraProcessing.Domain.Storage;
@@ -7,6 +8,8 @@ namespace SpectraProcessing.Controllers;
 
 public sealed class ScottSpectraGraphicsController(IPlotDrawer<SctPlot> drawer) : IGraphicsController<SpectraPlot>
 {
+    private static readonly Color HighlightColor = Colors.Black;
+
     private SpectraPlot? highlightedData;
     private DataSet<SpectraPlot>? highlightedSet;
 
@@ -38,7 +41,14 @@ public sealed class ScottSpectraGraphicsController(IPlotDrawer<SctPlot> drawer) 
 
     public void ChangeDataVisibility(SpectraPlot plot, bool isVisible)
     {
-        drawer.SetVisibility(plot, isVisible);
+        if (isVisible)
+        {
+            drawer.Draw(plot);
+        }
+        else
+        {
+            drawer.Erase(plot);
+        }
     }
 
     public void ChangeDataSetVisibility(DataSet<SpectraPlot> set, bool isVisible)
@@ -49,9 +59,14 @@ public sealed class ScottSpectraGraphicsController(IPlotDrawer<SctPlot> drawer) 
     public void HighlightData(SpectraPlot plot)
     {
         if (highlightedData is not null)
+        {
             SetHighlighting(highlightedData, false);
+        }
 
-        if (Equals(highlightedData, plot)) highlightedData = null;
+        if (Equals(highlightedData, plot))
+        {
+            highlightedData = null;
+        }
         else
         {
             highlightedData = plot;
@@ -62,9 +77,14 @@ public sealed class ScottSpectraGraphicsController(IPlotDrawer<SctPlot> drawer) 
     public void HighlightDataSet(DataSet<SpectraPlot> set)
     {
         if (highlightedSet is not null)
+        {
             Parallel.ForEach(highlightedSet.Data, data => SetHighlighting(data, false));
+        }
 
-        if (Equals(highlightedSet, set)) highlightedSet = null;
+        if (Equals(highlightedSet, set))
+        {
+            highlightedSet = null;
+        }
         else
         {
             highlightedSet = set;
@@ -86,6 +106,15 @@ public sealed class ScottSpectraGraphicsController(IPlotDrawer<SctPlot> drawer) 
 
     private void SetHighlighting(SpectraPlot plot, bool isHighlighted)
     {
-        drawer.SetHighlight(plot, isHighlighted);
+        if (isHighlighted)
+        {
+            drawer.Erase(plot);
+            plot.ChangeColor(HighlightColor);
+            drawer.Draw(plot);
+        }
+        else
+        {
+            plot.ChangeColor(plot.PreviousColor);
+        }
     }
 }

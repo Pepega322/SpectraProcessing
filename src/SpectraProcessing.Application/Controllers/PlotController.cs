@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using ScottPlot.WinForms;
 using SpectraProcessing.Controllers;
 using SpectraProcessing.Controllers.Interfaces;
 using SpectraProcessing.Domain.Graphics;
@@ -10,16 +9,12 @@ using SpectraProcessing.Graphics.Formats;
 namespace SpectraProcessing.Application.Controllers;
 
 public class PlotController(
-    FormsPlot form,
     IDataStorageController<SpectraPlot> plotStorageController,
     IPlotBuilder<Spectra, SpectraPlot> plotBuilder,
     IGraphicsController<SpectraPlot> graphicsController,
     ISpectraProcessingController spectraProcessingController
 ) : IPlotController
 {
-    public event Action? OnChange;
-    public IEnumerable<DataSet<SpectraPlot>> Plots => plotStorageController.StorageData;
-
     private event Action? OnPlotClear = () =>
     {
         plotStorageController.Clear();
@@ -27,22 +22,31 @@ public class PlotController(
         // spectraProcessingController.RedrawBorders();
     };
 
+    public event Action? OnPlotAreaChanged;
+
+    public event Action? OnPlotStorageChanged;
+
+    public IReadOnlyCollection<DataSet<SpectraPlot>> Plots => plotStorageController.StorageData;
+
     public async Task ContextDataSetAddToPlotArea(DataSet<Spectra> set)
     {
-        await Task.Run(() =>
-        {
-            var plots = new ConcurrentBag<SpectraPlot>();
-            Parallel.ForEach(set.Data, data =>
+        var plots = new ConcurrentBag<SpectraPlot>();
+
+        await Parallel.ForEachAsync(
+            set.Data,
+            (data, _) =>
             {
-                var plt = plotBuilder.GetPlot(data);
-                plots.Add(plt);
+                plots.Add(plotBuilder.GetPlot(data));
+                return ValueTask.CompletedTask;
             });
-            var plotSet = new DataSet<SpectraPlot>(set.Name, plots);
-            plotStorageController.AddDataSet(plotSet);
-            graphicsController.DrawDataSet(plotSet);
-        });
-        form.Refresh();
-        OnChange?.Invoke();
+
+        var plotSet = new DataSet<SpectraPlot>(set.Name, plots);
+
+        plotStorageController.AddDataSet(plotSet);
+        graphicsController.DrawDataSet(plotSet);
+
+        OnPlotAreaChanged?.Invoke();
+        OnPlotStorageChanged?.Invoke();
     }
 
     public async Task ContextDataAddToClearPlotArea(DataSet<Spectra> set)
@@ -51,88 +55,79 @@ public class PlotController(
         await ContextDataSetAddToPlotArea(set);
     }
 
-    public async Task DataAddToPlotAreaToDefault(Spectra spectra)
+    public Task DataAddToPlotAreaToDefault(Spectra spectra)
     {
-        await Task.Run(() =>
-        {
-            var plot = plotBuilder.GetPlot(spectra);
-            plotStorageController.AddDataToDefaultSet(plot);
-            graphicsController.DrawData(plot);
-        });
-        form.Refresh();
-        OnChange?.Invoke();
+        var plot = plotBuilder.GetPlot(spectra);
+        plotStorageController.AddDataToDefaultSet(plot);
+        graphicsController.DrawData(plot);
+        OnPlotAreaChanged?.Invoke();
+        OnPlotStorageChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
-    public async Task ContextDataAddToClearPlotToDefault(Spectra spectra)
+    public Task ContextDataAddToClearPlotToDefault(Spectra spectra)
     {
         OnPlotClear?.Invoke();
-        await Task.Run(() =>
-        {
-            var plot = plotBuilder.GetPlot(spectra);
-            plotStorageController.AddDataToDefaultSet(plot);
-            graphicsController.DrawData(plot);
-        });
-        form.Refresh();
-        OnChange?.Invoke();
+        return DataAddToPlotAreaToDefault(spectra);
     }
 
-    public async Task ChangePlotSetVisibility(DataSet<SpectraPlot> set, bool isVisible)
+    public Task ChangePlotSetVisibility(DataSet<SpectraPlot> set, bool isVisible)
     {
-        await Task.Run(() => graphicsController.ChangeDataSetVisibility(set, isVisible));
-        form.Refresh();
-        OnChange?.Invoke();
+        graphicsController.ChangeDataSetVisibility(set, isVisible);
+        OnPlotAreaChanged?.Invoke();
+        OnPlotStorageChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
-    public async Task ChangePlotVisibility(SpectraPlot plot, bool isVisible)
+    public Task ChangePlotVisibility(SpectraPlot plot, bool isVisible)
     {
-        await Task.Run(() => graphicsController.ChangeDataVisibility(plot, isVisible));
-        form.Refresh();
+        graphicsController.ChangeDataVisibility(plot, isVisible);
+        OnPlotAreaChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
-    public async Task ContextPlotSetHighlight(DataSet<SpectraPlot> set)
+    public Task ContextPlotSetHighlight(DataSet<SpectraPlot> set)
     {
-        await Task.Run(() => graphicsController.HighlightDataSet(set));
-        form.Refresh();
+        graphicsController.HighlightDataSet(set);
+        OnPlotAreaChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
-    public async Task PlotHighlight(SpectraPlot plot)
+    public Task PlotHighlight(SpectraPlot plot)
     {
-        await Task.Run(() => graphicsController.HighlightData(plot));
-        form.Refresh();
+        graphicsController.HighlightData(plot);
+        OnPlotAreaChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
-    public async Task ContextPlotSetDelete(DataSet<SpectraPlot> set)
+    public Task ContextPlotSetDelete(DataSet<SpectraPlot> set)
     {
-        await Task.Run(() =>
-        {
-            plotStorageController.DeleteDataSet(set);
-            graphicsController.EraseDataSet(set);
-        });
-        form.Refresh();
-        OnChange?.Invoke();
+        plotStorageController.DeleteDataSet(set);
+        graphicsController.EraseDataSet(set);
+        OnPlotAreaChanged?.Invoke();
+        OnPlotStorageChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
-    public async Task ContextPlotDelete(DataSet<SpectraPlot> ownerSet, SpectraPlot plot)
+    public Task ContextPlotDelete(DataSet<SpectraPlot> ownerSet, SpectraPlot plot)
     {
-        await Task.Run(() =>
-        {
-            plotStorageController.DeleteData(ownerSet, plot);
-            graphicsController.EraseData(plot);
-        });
-        form.Refresh();
-        OnChange?.Invoke();
+        plotStorageController.DeleteData(ownerSet, plot);
+        graphicsController.EraseData(plot);
+        OnPlotAreaChanged?.Invoke();
+        OnPlotStorageChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
     public void PlotAreaClear()
     {
         OnPlotClear?.Invoke();
-        OnChange?.Invoke();
-        form.Refresh();
+        OnPlotStorageChanged?.Invoke();
+        OnPlotAreaChanged?.Invoke();
     }
 
     public void PlotAreaResize()
     {
         graphicsController.ResizeArea();
-        form.Refresh();
+        OnPlotAreaChanged?.Invoke();
     }
 }

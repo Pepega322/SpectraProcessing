@@ -233,8 +233,10 @@ public partial class MainForm : Form
     {
         resizeToolStripMenuItem.Click += (_, _) => plotController.PlotAreaResize();
 
-        plotController.OnChange +=
+        plotController.OnPlotStorageChanged +=
             async () => await plotStorageTreeView.BuildTreeAsync(plotController.GetPlotNodes);
+
+        plotController.OnPlotAreaChanged += () => plotView.Refresh();
 
         plotContextMenuClear.Click += (_, _) => plotController.PlotAreaClear();
 

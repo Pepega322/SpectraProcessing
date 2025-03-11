@@ -1,14 +1,12 @@
-using ScottPlot;
 using SpectraProcessing.Domain.Graphics;
 using SpectraProcessing.Graphics.Formats;
 using PlotArea = ScottPlot.Plot;
 
 namespace SpectraProcessing.Graphics.Graphics;
 
-public class ScottPlotDrawer(PlotArea plotArea) : IPlotDrawer<SctPlot>
+public class ScottPlotDrawer(PlotArea plotForm) : IPlotDrawer<SctPlot>
 {
-    private static readonly Color HighlightColor = Colors.Black;
-    private readonly HashSet<SctPlot> plotted = [];
+    private readonly ISet<SctPlot> plotted = new HashSet<SctPlot>();
 
     public void Draw(SctPlot plt)
     {
@@ -38,66 +36,46 @@ public class ScottPlotDrawer(PlotArea plotArea) : IPlotDrawer<SctPlot>
         RemoveFromArea(plt);
     }
 
-    public void SetHighlight(SctPlot plt, bool isHighlighted)
-    {
-        if (isHighlighted)
-        {
-            PushOnTop(plt);
-            plt.ChangeColor(HighlightColor);
-        }
-        else
-        {
-            plt.ChangeColor(plt.PreviousColor);
-        }
-    }
-
-    public void SetVisibility(SctPlot plot, bool isVisible)
-    {
-        foreach (var p in plot.Plottables)
-        {
-            p.IsVisible = isVisible;
-        }
-    }
-
     public void Resize()
     {
-        lock (plotArea)
+        lock (plotForm)
         {
-            plotArea.Axes.AutoScaleX();
-            plotArea.Axes.AutoScaleY();
+            plotForm.Axes.AutoScaleX();
+            plotForm.Axes.AutoScaleY();
         }
     }
 
     public void Clear()
     {
-        lock (plotted) plotted.Clear();
-        lock (plotArea) plotArea.Clear();
-    }
+        lock (plotted)
+        {
+            plotted.Clear();
+        }
 
-    private void PushOnTop(SctPlot plt)
-    {
-        RemoveFromArea(plt);
-        AddToArea(plt);
+        lock (plotForm)
+        {
+            plotForm.Clear();
+        }
     }
 
     private void AddToArea(SctPlot plot)
     {
-        lock (plotArea)
+        lock (plotForm)
         {
             foreach (var plt in plot.Plottables)
             {
-                plotArea.Add.Plottable(plt);
+                plotForm.Add.Plottable(plt);
             }
         }
     }
 
     private void RemoveFromArea(SctPlot plot)
     {
-        lock (plotArea)
+        lock (plotForm)
         {
             foreach (var plt in plot.Plottables)
             {
-                plotArea.Remove(plt);
+                plotForm.Remove(plt);
             }
         }
     }

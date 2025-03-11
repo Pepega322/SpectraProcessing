@@ -6,8 +6,9 @@ namespace SpectraProcessing.Controllers.Interfaces;
 
 public interface IPlotController
 {
-    event Action? OnChange;
-    IEnumerable<DataSet<SpectraPlot>> Plots { get; }
+    event Action? OnPlotAreaChanged;
+    event Action? OnPlotStorageChanged;
+    IReadOnlyCollection<DataSet<SpectraPlot>> Plots { get; }
     Task ContextDataSetAddToPlotArea(DataSet<Spectra> set);
     Task ContextDataAddToClearPlotArea(DataSet<Spectra> set);
     Task DataAddToPlotAreaToDefault(Spectra spectra);
