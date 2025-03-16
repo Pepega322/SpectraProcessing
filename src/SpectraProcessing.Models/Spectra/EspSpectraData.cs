@@ -21,6 +21,7 @@ public sealed class EspSpectraData(
     public sealed record EspInfo
     {
         public string ExpCfg { get; init; }
+
         public string ProcCfg { get; init; }
 
         public EspInfo(string[] contents)

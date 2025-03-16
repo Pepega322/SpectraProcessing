@@ -113,7 +113,7 @@ public partial class MainForm : Form
 
             var set = await dataSourceController.ReadFolderAsync(path);
 
-            dataStorageController.AddDataSet(set);
+            await dataStorageController.AddDataSet(set);
         };
 
         readFolderRecursiveToolStripMenuItem.Click += async (_, _) =>
@@ -127,7 +127,7 @@ public partial class MainForm : Form
 
             var set = await dataSourceController.ReadFolderFullDepthAsync(path);
 
-            dataStorageController.AddDataSet(set);
+            await dataStorageController.AddDataSet(set);
         };
     }
 
@@ -149,14 +149,14 @@ public partial class MainForm : Form
                 return;
             }
 
-            await Task.Run(() => dataWriterController.DataWriteAs(data, fullname));
+            await dataWriterController.DataWriteAs(data, fullname);
         };
 
-        dataContextMenuDelete.Click += (sender, _) =>
+        dataContextMenuDelete.Click += async (sender, _) =>
         {
             var ownerSet = TreeViewHelpers.GetContextParentSet<SpectraData>(sender);
             var spectra = TreeViewHelpers.GetContextData<SpectraData>(sender);
-            dataStorageController.DeleteData(ownerSet, spectra);
+            await dataStorageController.DeleteData(ownerSet, spectra);
         };
 
         dataSetContextMenuClear.Click += (_, _) => dataStorageController.Clear();
@@ -193,10 +193,10 @@ public partial class MainForm : Form
             await dataWriterController.SetFullDepthWriteAs(set, outputPath, ".esp");
         };
 
-        dataSetContextMenuDelete.Click += (sender, _) =>
+        dataSetContextMenuDelete.Click += async (sender, _) =>
         {
             var set = TreeViewHelpers.GetContextSet<SpectraData>(sender);
-            dataStorageController.DeleteDataSet(set);
+            await dataStorageController.DeleteDataSet(set);
         };
 
         //Plotting
@@ -229,14 +229,14 @@ public partial class MainForm : Form
 
     private void SetupPlotController()
     {
-        resizeToolStripMenuItem.Click += (_, _) => plotController.PlotAreaResize();
+        resizeToolStripMenuItem.Click += async (_, _) => await plotController.PlotAreaResize();
 
         plotController.OnPlotStorageChanged +=
             async () => await plotStorageTreeView.BuildTreeAsync(plotController.GetPlotNodes);
 
         plotController.OnPlotAreaChanged += () => plotView.Refresh();
 
-        plotContextMenuClear.Click += (_, _) => plotController.PlotAreaClear();
+        plotContextMenuClear.Click += async (_, _) => await plotController.PlotAreaClear();
 
         plotContextMenuDelete.Click += async (sender, _) =>
         {
@@ -245,11 +245,16 @@ public partial class MainForm : Form
             await plotController.ContextPlotDelete(ownerSet, plot);
         };
 
-        plotStorageTreeView.AfterCheck += (_, e) =>
+        plotStorageTreeView.AfterCheck += async (_, e) =>
         {
-            if (e is { Node.Tag: SpectraDataPlot plot })
+            switch (e.Node?.Tag)
             {
-                plotController.ChangePlotVisibility(plot, e.Node.Checked).Wait();
+                case SpectraDataPlot plot:
+                    await plotController.ChangePlotVisibility(plot, e.Node.Checked);
+                    break;
+                case DataSet<SpectraDataPlot> set:
+                    await plotController.ChangePlotSetVisibility(set, e.Node.Checked);
+                    break;
             }
         };
 
@@ -276,14 +281,6 @@ public partial class MainForm : Form
             var set = TreeViewHelpers.GetContextSet<SpectraDataPlot>(sender);
 
             await plotController.ContextPlotSetHighlight(set);
-        };
-
-        plotStorageTreeView.AfterCheck += (_, e) =>
-        {
-            if (e is { Node.Tag: DataSet<SpectraDataPlot> set })
-            {
-                plotController.ChangePlotSetVisibility(set, e.Node.Checked).Wait();
-            }
         };
     }
 

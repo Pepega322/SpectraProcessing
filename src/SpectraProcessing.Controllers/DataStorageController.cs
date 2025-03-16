@@ -13,35 +13,45 @@ public sealed class DataStorageController<TData>(IOptions<DataStorageSettings> s
 
     public IReadOnlyCollection<DataSet<TData>> StorageData => storage;
 
-    public void AddDataToDefaultSet(TData data)
+    public Task AddDataToDefaultSet(TData data)
     {
         if (storage.DefaultSet.AddThreadSafe(data))
         {
             OnChange?.Invoke();
         }
+
+        return Task.CompletedTask;
     }
 
-    public void AddDataSet(DataSet<TData> set)
+    public Task AddDataSet(DataSet<TData> set)
     {
         storage.Add(set.Name, set);
+
         OnChange?.Invoke();
+
+        return Task.CompletedTask;
     }
 
-    public void Clear()
+    public Task Clear()
     {
         storage.ClearThreadSafe();
+
         OnChange?.Invoke();
+
+        return Task.CompletedTask;
     }
 
-    public void DeleteData(DataSet<TData> dataOwner, TData data)
+    public Task DeleteData(DataSet<TData> dataOwner, TData data)
     {
         if (dataOwner.RemoveThreadSafe(data))
         {
             OnChange?.Invoke();
         }
+
+        return Task.CompletedTask;
     }
 
-    public void DeleteDataSet(DataSet<TData> set)
+    public Task DeleteDataSet(DataSet<TData> set)
     {
         if (storage.ContainsKey(set.Name) && storage[set.Name] == set)
         {
@@ -53,5 +63,7 @@ public sealed class DataStorageController<TData>(IOptions<DataStorageSettings> s
         }
 
         OnChange?.Invoke();
+
+        return Task.CompletedTask;
     }
 }

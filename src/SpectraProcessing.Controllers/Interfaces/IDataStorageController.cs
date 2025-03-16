@@ -5,10 +5,16 @@ namespace SpectraProcessing.Controllers.Interfaces;
 public interface IDataStorageController<TData>
 {
     event Action? OnChange;
+
     IReadOnlyCollection<DataSet<TData>> StorageData { get; }
-    void AddDataToDefaultSet(TData data);
-    void AddDataSet(DataSet<TData> set);
-    void DeleteData(DataSet<TData> dataOwner, TData data);
-    void DeleteDataSet(DataSet<TData> set);
-    void Clear();
+
+    Task AddDataToDefaultSet(TData data);
+
+    Task AddDataSet(DataSet<TData> set);
+
+    Task DeleteData(DataSet<TData> dataOwner, TData data);
+
+    Task DeleteDataSet(DataSet<TData> set);
+
+    Task Clear();
 }

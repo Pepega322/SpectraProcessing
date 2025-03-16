@@ -8,23 +8,32 @@ internal static class TreeViewHelpers
 {
     public static async Task BuildTreeAsync(this TreeView tree, Func<IEnumerable<TreeNode>> nodeSource)
     {
+        var nodes = await Task.Run(() => nodeSource().ToArray());
         tree.Nodes.Clear();
         tree.BeginUpdate();
-        var nodes = await Task.Run(() => nodeSource().ToArray());
         tree.Nodes.AddRange(nodes);
         tree.EndUpdate();
     }
 
-    public static IEnumerable<TreeNode> GetDataNodes<TData>(this IDataStorageController<TData> dataStorageController)
+    public static IReadOnlyCollection<TreeNode> GetDataNodes<TData>(
+        this IDataStorageController<TData> dataStorageController)
     {
+        var nodes = new List<TreeNode>();
+
         foreach (var set in dataStorageController.StorageData)
         {
-            var node = new TreeNode { Text = set.Name, Tag = set };
+            var node = new TreeNode
+            {
+                Text = set.Name,
+                Tag = set,
+            };
+
             ConnectDataSubnodes(node);
-            yield return node;
+
+            nodes.Add(node);
         }
 
-        yield break;
+        return nodes;
 
         static void ConnectDataSubnodes(TreeNode node)
         {
@@ -33,7 +42,8 @@ internal static class TreeViewHelpers
                 throw new Exception(nameof(ConnectDataSubnodes));
             }
 
-            foreach (var child in set.Subsets.OrderByDescending(child => child.Name))
+            foreach (var child in set.Subsets
+                         .OrderByDescending(child => child.Name))
             {
                 var subnode = new TreeNode
                 {
@@ -46,51 +56,50 @@ internal static class TreeViewHelpers
                 node.Nodes.Add(subnode);
             }
 
-            foreach (var data in set.Data.OrderByDescending(data => data.Name))
-            {
-                var subnode = new TreeNode()
-                {
-                    Text = data.Name,
-                    Tag = data,
-                };
+            var subnodes = set.Data
+                .OrderByDescending(data => data.Name)
+                .Select(
+                    data => new TreeNode
+                    {
+                        Text = data.Name,
+                        Tag = data,
+                    })
+                .ToArray();
 
-                node.Nodes.Add(subnode);
-            }
+            node.Nodes.AddRange(subnodes);
         }
     }
 
-    public static IEnumerable<TreeNode> GetPlotNodes(this IPlotController plotController)
+    public static IReadOnlyCollection<TreeNode> GetPlotNodes(this IPlotController plotController)
     {
-        foreach (var set in plotController.Plots)
+        return plotController.Plots
+            .Where(s => s.Data.Any())
+            .Select(ToTreeNode)
+            .ToArray();
+
+        TreeNode ToTreeNode(DataSet<SpectraDataPlot> set)
         {
+            var subNodes = set.Data
+                .OrderByDescending(p => p.Name)
+                .Select(
+                    plot => new TreeNode
+                    {
+                        Text = plot.Name,
+                        Tag = plot,
+                        Checked = plotController.IsPlotVisible(plot).Result,
+                    })
+                .ToArray();
+
             var setNode = new TreeNode
             {
                 Text = set.Name,
                 Tag = set,
-                Checked = false,
+                Checked = subNodes.Any(x => x.Checked),
             };
 
-            foreach (var plot in set.Data.OrderByDescending(p => p.Name))
-            {
-                var subnode = new TreeNode
-                {
-                    Text = plot.Name,
-                    Tag = plot,
-                    Checked = plot.Plottable.IsVisible,
-                };
+            setNode.Nodes.AddRange(subNodes);
 
-                if (subnode.Checked)
-                {
-                    setNode.Checked = true;
-                }
-
-                setNode.Nodes.Add(subnode);
-            }
-
-            if (setNode.Nodes.Count > 0)
-            {
-                yield return setNode;
-            }
+            return setNode;
         }
     }
 

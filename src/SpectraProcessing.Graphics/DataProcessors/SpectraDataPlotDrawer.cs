@@ -8,6 +8,14 @@ public class SpectraDataPlotDrawer(PlotArea plotForm) : IDataPlotDrawer<SpectraD
 {
     private readonly ISet<SpectraDataPlot> plotted = new HashSet<SpectraDataPlot>();
 
+    public Task<bool> IsDrew(SpectraDataPlot plot)
+    {
+        lock (plotted)
+        {
+            return Task.FromResult(plotted.Contains(plot));
+        }
+    }
+
     public Task Draw(SpectraDataPlot plt)
     {
         lock (plotted)
@@ -30,12 +38,10 @@ public class SpectraDataPlotDrawer(PlotArea plotForm) : IDataPlotDrawer<SpectraD
     {
         lock (plotted)
         {
-            if (!plotted.Contains(plt))
+            if (!plotted.Remove(plt))
             {
                 return Task.CompletedTask;
             }
-
-            plotted.Remove(plt);
         }
 
         lock (plotForm)

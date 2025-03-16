@@ -73,7 +73,7 @@ public static class Startup
         services.AddSingleton<IDataWriterController, DirectoryDataWriterController>();
         services.AddSingleton<IDataStorageController<SpectraData>, DataStorageController<SpectraData>>();
         services.AddSingleton<IDataStorageController<SpectraDataPlot>, DataStorageController<SpectraDataPlot>>();
-        services.AddSingleton<IGraphicsController<SpectraDataPlot>, ScottSpectraGraphicsController>();
+        services.AddSingleton<IGraphicsController<SpectraDataPlot>, SpectraDataGraphicsController>();
         services.AddSingleton<ISpectraProcessingController, SpectraProcessingController>();
         services.AddSingleton<ICoordinateController, CoordinateController>();
         services.AddSingleton<IPlotController, PlotController>();
