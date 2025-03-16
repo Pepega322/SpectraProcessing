@@ -34,6 +34,8 @@ partial class MainForm
         tableLayoutPanel3 = new TableLayoutPanel();
         tableLayoutPanel4 = new TableLayoutPanel();
         mouseCoordinatesBox = new TextBox();
+        menuStrip2 = new MenuStrip();
+        resizeToolStripMenuItem = new ToolStripMenuItem();
         plotView = new ScottPlot.WinForms.FormsPlot();
         tableLayoutPanel5 = new TableLayoutPanel();
         dataStorageTreeView = new TreeView();
@@ -67,19 +69,17 @@ partial class MainForm
         plotSetContextMenuProcessPeaks = new ToolStripMenuItem();
         plotSetContextMenuGetAverage = new ToolStripMenuItem();
         plotSetContextMenuClear = new ToolStripMenuItem();
-        menuStrip2 = new MenuStrip();
-        resizeToolStripMenuItem = new ToolStripMenuItem();
         tableLayoutPanel1.SuspendLayout();
         tableLayoutPanel2.SuspendLayout();
         tableLayoutPanel3.SuspendLayout();
         tableLayoutPanel4.SuspendLayout();
+        menuStrip2.SuspendLayout();
         tableLayoutPanel5.SuspendLayout();
         menuStrip1.SuspendLayout();
         dataContextMenu.SuspendLayout();
         dataSetContextMenu.SuspendLayout();
         plotContextMenu.SuspendLayout();
         plotSetContextMenu.SuspendLayout();
-        menuStrip2.SuspendLayout();
         SuspendLayout();
         // 
         // tableLayoutPanel1
@@ -151,6 +151,23 @@ partial class MainForm
         mouseCoordinatesBox.Size = new Size(369, 39);
         mouseCoordinatesBox.TabIndex = 0;
         // 
+        // menuStrip2
+        // 
+        menuStrip2.Dock = DockStyle.Fill;
+        menuStrip2.ImageScalingSize = new Size(32, 32);
+        menuStrip2.Items.AddRange(new ToolStripItem[] { resizeToolStripMenuItem });
+        menuStrip2.Location = new Point(0, 0);
+        menuStrip2.Name = "menuStrip2";
+        menuStrip2.Size = new Size(1123, 40);
+        menuStrip2.TabIndex = 1;
+        menuStrip2.Text = "menuStrip2";
+        // 
+        // resizeToolStripMenuItem
+        // 
+        resizeToolStripMenuItem.Name = "resizeToolStripMenuItem";
+        resizeToolStripMenuItem.Size = new Size(100, 36);
+        resizeToolStripMenuItem.Text = "Resize";
+        // 
         // plotView
         // 
         plotView.DisplayScale = 2F;
@@ -185,6 +202,7 @@ partial class MainForm
         // 
         // plotStorageTreeView
         // 
+        plotStorageTreeView.CheckBoxes = true;
         plotStorageTreeView.Dock = DockStyle.Fill;
         plotStorageTreeView.Location = new Point(3, 3);
         plotStorageTreeView.Name = "plotStorageTreeView";
@@ -375,23 +393,6 @@ partial class MainForm
         plotSetContextMenuClear.Size = new Size(299, 38);
         plotSetContextMenuClear.Text = "Clear";
         // 
-        // menuStrip2
-        // 
-        menuStrip2.Dock = DockStyle.Fill;
-        menuStrip2.ImageScalingSize = new Size(32, 32);
-        menuStrip2.Items.AddRange(new ToolStripItem[] { resizeToolStripMenuItem });
-        menuStrip2.Location = new Point(0, 0);
-        menuStrip2.Name = "menuStrip2";
-        menuStrip2.Size = new Size(1123, 40);
-        menuStrip2.TabIndex = 1;
-        menuStrip2.Text = "menuStrip2";
-        // 
-        // resizeToolStripMenuItem
-        // 
-        resizeToolStripMenuItem.Name = "resizeToolStripMenuItem";
-        resizeToolStripMenuItem.Size = new Size(100, 36);
-        resizeToolStripMenuItem.Text = "Resize";
-        // 
         // MainForm
         // 
         AutoScaleDimensions = new SizeF(13F, 32F);
@@ -407,6 +408,8 @@ partial class MainForm
         tableLayoutPanel3.ResumeLayout(false);
         tableLayoutPanel4.ResumeLayout(false);
         tableLayoutPanel4.PerformLayout();
+        menuStrip2.ResumeLayout(false);
+        menuStrip2.PerformLayout();
         tableLayoutPanel5.ResumeLayout(false);
         menuStrip1.ResumeLayout(false);
         menuStrip1.PerformLayout();
@@ -414,8 +417,6 @@ partial class MainForm
         dataSetContextMenu.ResumeLayout(false);
         plotContextMenu.ResumeLayout(false);
         plotSetContextMenu.ResumeLayout(false);
-        menuStrip2.ResumeLayout(false);
-        menuStrip2.PerformLayout();
         ResumeLayout(false);
     }
 

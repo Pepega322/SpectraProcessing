@@ -1,24 +1,26 @@
-using SpectraProcessing.Domain.SpectraData;
+using SpectraProcessing.Models.Collections;
+using SpectraProcessing.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.MathStatistics.SpectraProcessing;
 
 public static class SpectraExtensions
 {
-    public static Spectra SubstractBaseLine(this Spectra s)
+    public static SpectraData SubstractBaseLine(this SpectraData s)
     {
         var baseline = MathRegressionAnalysis.GetLinearRegression(s.Points);
         var newPoints = s.Points.Transform(TransformationRule);
         var res = s.ChangePoints(newPoints);
         res.Name = $"{s.Name} b-";
         return res;
+
         float TransformationRule(float x, float y) => y - baseline(x);
     }
 
-    public static Spectra GetAverageSpectra(this IReadOnlyCollection<Spectra> spectras)
+    public static SpectraData GetAverageSpectra(this IReadOnlyCollection<SpectraData> spectras)
     {
         var spectraCountPerX = new Dictionary<float, int>();
         var spectraYSumForX = new Dictionary<float, float>();
-        var spectraEnumerable = spectras as Spectra[] ?? [.. spectras];
+        var spectraEnumerable = spectras as SpectraData[] ?? [.. spectras];
         foreach (var spectra in spectraEnumerable)
         {
             var points = spectra.Points;

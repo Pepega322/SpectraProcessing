@@ -1,10 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using SpectraProcessing.Application.Controllers;
 using SpectraProcessing.Controllers.Interfaces;
-using SpectraProcessing.Domain;
-using SpectraProcessing.Domain.SpectraData;
-using SpectraProcessing.Domain.Storage;
-using SpectraProcessing.Graphics.Formats;
+using SpectraProcessing.Models.Collections;
+using SpectraProcessing.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Application;
 
@@ -64,9 +62,9 @@ public partial class MainForm : Form
 
     private readonly IDialogController dialogController;
     private readonly ICoordinateController coordinateController;
-    private readonly IDataSourceController<Spectra> dataSourceController;
+    private readonly IDataSourceController<SpectraData> dataSourceController;
     private readonly IDataWriterController dataWriterController;
-    private readonly IDataStorageController<Spectra> dataStorageController;
+    private readonly IDataStorageController<SpectraData> dataStorageController;
     private readonly IPlotController plotController;
 
     public MainForm()
@@ -77,8 +75,8 @@ public partial class MainForm : Form
 
         plotController = provider.GetRequiredService<IPlotController>();
         dialogController = provider.GetRequiredService<IDialogController>();
-        dataStorageController = provider.GetRequiredService<IDataStorageController<Spectra>>();
-        dataSourceController = provider.GetRequiredService<IDataSourceController<Spectra>>();
+        dataStorageController = provider.GetRequiredService<IDataStorageController<SpectraData>>();
+        dataSourceController = provider.GetRequiredService<IDataSourceController<SpectraData>>();
         dataWriterController = provider.GetRequiredService<IDataWriterController>();
         coordinateController = provider.GetRequiredService<ICoordinateController>();
 
@@ -142,7 +140,7 @@ public partial class MainForm : Form
 
         dataContextMenuSaveAsEsp.Click += async (sender, _) =>
         {
-            var data = TreeViewHelpers.GetContextData<Spectra>(sender);
+            var data = TreeViewHelpers.GetContextData<SpectraData>(sender);
 
             var fullname = dialogController.GetSaveFileFullName(data.Name, ".esp");
 
@@ -156,8 +154,8 @@ public partial class MainForm : Form
 
         dataContextMenuDelete.Click += (sender, _) =>
         {
-            var ownerSet = TreeViewHelpers.GetContextParentSet<Spectra>(sender);
-            var spectra = TreeViewHelpers.GetContextData<Spectra>(sender);
+            var ownerSet = TreeViewHelpers.GetContextParentSet<SpectraData>(sender);
+            var spectra = TreeViewHelpers.GetContextData<SpectraData>(sender);
             dataStorageController.DeleteData(ownerSet, spectra);
         };
 
@@ -172,7 +170,7 @@ public partial class MainForm : Form
                 return;
             }
 
-            var set = TreeViewHelpers.GetContextSet<Spectra>(sender);
+            var set = TreeViewHelpers.GetContextSet<SpectraData>(sender);
 
             var outputPath = Path.Combine(path, $"{set.Name} (converted)");
 
@@ -188,7 +186,7 @@ public partial class MainForm : Form
                 return;
             }
 
-            var set = TreeViewHelpers.GetContextSet<Spectra>(sender);
+            var set = TreeViewHelpers.GetContextSet<SpectraData>(sender);
 
             var outputPath = Path.Combine(path, $"{set.Name} (converted full depth)");
 
@@ -197,32 +195,32 @@ public partial class MainForm : Form
 
         dataSetContextMenuDelete.Click += (sender, _) =>
         {
-            var set = TreeViewHelpers.GetContextSet<Spectra>(sender);
+            var set = TreeViewHelpers.GetContextSet<SpectraData>(sender);
             dataStorageController.DeleteDataSet(set);
         };
 
         //Plotting
         dataContextMenuPlot.Click += async (sender, _) =>
         {
-            var spectra = TreeViewHelpers.GetContextData<Spectra>(sender);
+            var spectra = TreeViewHelpers.GetContextData<SpectraData>(sender);
             await plotController.ContextDataAddToClearPlotToDefault(spectra);
         };
 
         dataSetContextMenuPlot.Click += async (s, _) =>
         {
-            var set = TreeViewHelpers.GetContextSet<Spectra>(s);
+            var set = TreeViewHelpers.GetContextSet<SpectraData>(s);
             await plotController.ContextDataAddToClearPlotArea(set);
         };
 
         dataSetContextMenuAddToPlot.Click += async (s, _) =>
         {
-            var set = TreeViewHelpers.GetContextSet<Spectra>(s);
+            var set = TreeViewHelpers.GetContextSet<SpectraData>(s);
             await plotController.ContextDataSetAddToPlotArea(set);
         };
 
         dataStorageTreeView.NodeMouseDoubleClick += async (_, e) =>
         {
-            if (e is { Button: MouseButtons.Left, Node.Tag: Spectra spectra })
+            if (e is { Button: MouseButtons.Left, Node.Tag: SpectraData spectra })
             {
                 await plotController.DataAddToPlotAreaToDefault(spectra);
             }
@@ -242,14 +240,14 @@ public partial class MainForm : Form
 
         plotContextMenuDelete.Click += async (sender, _) =>
         {
-            var ownerSet = TreeViewHelpers.GetContextParentSet<SpectraPlot>(sender);
-            var plot = TreeViewHelpers.GetContextData<SpectraPlot>(sender);
+            var ownerSet = TreeViewHelpers.GetContextParentSet<SpectraDataPlot>(sender);
+            var plot = TreeViewHelpers.GetContextData<SpectraDataPlot>(sender);
             await plotController.ContextPlotDelete(ownerSet, plot);
         };
 
         plotStorageTreeView.AfterCheck += (_, e) =>
         {
-            if (e is { Node.Tag: SpectraPlot plot })
+            if (e is { Node.Tag: SpectraDataPlot plot })
             {
                 plotController.ChangePlotVisibility(plot, e.Node.Checked).Wait();
             }
@@ -257,7 +255,7 @@ public partial class MainForm : Form
 
         plotSetContextMenuDelete.Click += async (sender, _) =>
         {
-            var set = TreeViewHelpers.GetContextSet<SpectraPlot>(sender);
+            var set = TreeViewHelpers.GetContextSet<SpectraDataPlot>(sender);
             await plotController.ContextPlotSetDelete(set);
         };
 
@@ -265,7 +263,7 @@ public partial class MainForm : Form
         {
             var node = TreeViewHelpers.GetClickTreeNode(sender);
 
-            if (node is { Tag: SpectraPlot plot, Checked: true })
+            if (node is { Tag: SpectraDataPlot plot, Checked: true })
             {
                 await plotController.PlotHighlight(plot);
             }
@@ -275,14 +273,14 @@ public partial class MainForm : Form
 
         plotSetContextMenuHighlight.Click += async (sender, _) =>
         {
-            var set = TreeViewHelpers.GetContextSet<SpectraPlot>(sender);
+            var set = TreeViewHelpers.GetContextSet<SpectraDataPlot>(sender);
 
             await plotController.ContextPlotSetHighlight(set);
         };
 
         plotStorageTreeView.AfterCheck += (_, e) =>
         {
-            if (e is { Node.Tag: DataSet<SpectraPlot> set })
+            if (e is { Node.Tag: DataSet<SpectraDataPlot> set })
             {
                 plotController.ChangePlotSetVisibility(set, e.Node.Checked).Wait();
             }
@@ -413,7 +411,7 @@ public partial class MainForm : Form
 
     private void PlotSetDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e)
     {
-        if (e is { Button: MouseButtons.Right, Node.Tag: DataSet<SpectraPlot> })
+        if (e is { Button: MouseButtons.Right, Node.Tag: DataSet<SpectraDataPlot> })
         {
             e.Node.ContextMenuStrip = plotSetContextMenu;
         }
@@ -421,7 +419,7 @@ public partial class MainForm : Form
 
     private void PlotDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e)
     {
-        if (e is { Button: MouseButtons.Right, Node.Tag: SpectraPlot })
+        if (e is { Button: MouseButtons.Right, Node.Tag: SpectraDataPlot })
         {
             e.Node.ContextMenuStrip = plotContextMenu;
         }
@@ -429,7 +427,7 @@ public partial class MainForm : Form
 
     private void DataSetDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e)
     {
-        if (e is { Button: MouseButtons.Right, Node.Tag: DataSet<Spectra> })
+        if (e is { Button: MouseButtons.Right, Node.Tag: DataSet<SpectraData> })
         {
             e.Node.ContextMenuStrip = dataSetContextMenu;
         }
@@ -437,7 +435,7 @@ public partial class MainForm : Form
 
     private void DataDrawContextMenu(object? sender, TreeNodeMouseClickEventArgs e)
     {
-        if (e is { Button: MouseButtons.Right, Node.Tag: Spectra })
+        if (e is { Button: MouseButtons.Right, Node.Tag: SpectraData })
         {
             e.Node.ContextMenuStrip = dataContextMenu;
         }

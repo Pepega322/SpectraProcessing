@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace SpectraProcessing.Domain.Storage;
+namespace SpectraProcessing.Models.Collections;
 
 public class DataSet<T>
 {

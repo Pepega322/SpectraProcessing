@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace SpectraProcessing.Domain;
+namespace SpectraProcessing.Models.Collections;
 
 public readonly struct Point<T>(T x, T y) where T : struct, INumber<T>
 {

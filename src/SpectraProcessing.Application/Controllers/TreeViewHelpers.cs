@@ -1,6 +1,6 @@
 using SpectraProcessing.Controllers.Interfaces;
-using SpectraProcessing.Domain.SpectraData;
-using SpectraProcessing.Domain.Storage;
+using SpectraProcessing.Models.Collections;
+using SpectraProcessing.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Application.Controllers;
 
@@ -28,8 +28,10 @@ internal static class TreeViewHelpers
 
         static void ConnectDataSubnodes(TreeNode node)
         {
-            if (node.Tag is not DataSet<Spectra> set)
+            if (node.Tag is not DataSet<SpectraData> set)
+            {
                 throw new Exception(nameof(ConnectDataSubnodes));
+            }
 
             foreach (var child in set.Subsets.OrderByDescending(child => child.Name))
             {
@@ -38,7 +40,9 @@ internal static class TreeViewHelpers
                     Text = child.Name,
                     Tag = child,
                 };
+
                 ConnectDataSubnodes(subnode);
+
                 node.Nodes.Add(subnode);
             }
 
@@ -49,6 +53,7 @@ internal static class TreeViewHelpers
                     Text = data.Name,
                     Tag = data,
                 };
+
                 node.Nodes.Add(subnode);
             }
         }
@@ -64,20 +69,28 @@ internal static class TreeViewHelpers
                 Tag = set,
                 Checked = false,
             };
+
             foreach (var plot in set.Data.OrderByDescending(p => p.Name))
             {
                 var subnode = new TreeNode
                 {
                     Text = plot.Name,
                     Tag = plot,
-                    Checked = plot.Plottables.First().IsVisible,
+                    Checked = plot.Plottable.IsVisible,
                 };
-                if (subnode.Checked) setNode.Checked = true;
+
+                if (subnode.Checked)
+                {
+                    setNode.Checked = true;
+                }
+
                 setNode.Nodes.Add(subnode);
             }
 
             if (setNode.Nodes.Count > 0)
+            {
                 yield return setNode;
+            }
         }
     }
 
@@ -120,15 +133,20 @@ internal static class TreeViewHelpers
     private static TreeNode GetContextTreeNode(object? sender)
     {
         var item = sender as ToolStripDropDownItem ?? throw new InvalidCastException();
+
         var contextMenu = item.Owner as ContextMenuStrip;
+
         while (contextMenu == null)
         {
             var t = item.Owner as ToolStripDropDownMenu ?? throw new InvalidCastException();
+
             contextMenu = t.OwnerItem?.Owner as ContextMenuStrip ?? throw new InvalidCastException();
+
             item = t.OwnerItem as ToolStripDropDownItem ?? throw new InvalidCastException();
         }
 
         var treeView = contextMenu.Tag as TreeView ?? throw new InvalidCastException();
+
         return treeView.SelectedNode!;
     }
 }

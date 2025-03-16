@@ -1,24 +1,24 @@
 using ScottPlot;
 using SpectraProcessing.Controllers.Interfaces;
-using SpectraProcessing.Domain.Graphics;
-using SpectraProcessing.Domain.Storage;
-using SpectraProcessing.Graphics.Formats;
+using SpectraProcessing.Domain.DataProcessors;
+using SpectraProcessing.Models.Collections;
+using SpectraProcessing.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Controllers;
 
-public sealed class ScottSpectraGraphicsController(IPlotDrawer<SctPlot> drawer) : IGraphicsController<SpectraPlot>
+public sealed class ScottSpectraGraphicsController(IDataPlotDrawer<SpectraDataPlot> drawer) : IGraphicsController<SpectraDataPlot>
 {
     private static readonly Color HighlightColor = Colors.Black;
 
-    private SpectraPlot? highlightedData;
-    private DataSet<SpectraPlot>? highlightedSet;
+    private SpectraDataPlot? highlightedData;
+    private DataSet<SpectraDataPlot>? highlightedSet;
 
-    public void DrawData(SpectraPlot plot)
+    public void DrawData(SpectraDataPlot dataPlot)
     {
-        drawer.Draw(plot);
+        drawer.Draw(dataPlot);
     }
 
-    public void DrawDataSet(DataSet<SpectraPlot> set)
+    public void DrawDataSet(DataSet<SpectraDataPlot> set)
     {
         foreach (var plot in set.Data)
         {
@@ -26,12 +26,12 @@ public sealed class ScottSpectraGraphicsController(IPlotDrawer<SctPlot> drawer) 
         }
     }
 
-    public void EraseData(SpectraPlot plot)
+    public void EraseData(SpectraDataPlot dataPlot)
     {
-        drawer.Erase(plot);
+        drawer.Erase(dataPlot);
     }
 
-    public void EraseDataSet(DataSet<SpectraPlot> set)
+    public void EraseDataSet(DataSet<SpectraDataPlot> set)
     {
         foreach (var plot in set.Data)
         {
@@ -39,42 +39,42 @@ public sealed class ScottSpectraGraphicsController(IPlotDrawer<SctPlot> drawer) 
         }
     }
 
-    public void ChangeDataVisibility(SpectraPlot plot, bool isVisible)
+    public void ChangeDataVisibility(SpectraDataPlot dataPlot, bool isVisible)
     {
         if (isVisible)
         {
-            drawer.Draw(plot);
+            drawer.Draw(dataPlot);
         }
         else
         {
-            drawer.Erase(plot);
+            drawer.Erase(dataPlot);
         }
     }
 
-    public void ChangeDataSetVisibility(DataSet<SpectraPlot> set, bool isVisible)
+    public void ChangeDataSetVisibility(DataSet<SpectraDataPlot> set, bool isVisible)
     {
         Parallel.ForEach(set.Data, plot => ChangeDataVisibility(plot, isVisible));
     }
 
-    public void HighlightData(SpectraPlot plot)
+    public void HighlightData(SpectraDataPlot dataPlot)
     {
         if (highlightedData is not null)
         {
             SetHighlighting(highlightedData, false);
         }
 
-        if (Equals(highlightedData, plot))
+        if (Equals(highlightedData, dataPlot))
         {
             highlightedData = null;
         }
         else
         {
-            highlightedData = plot;
-            SetHighlighting(plot, true);
+            highlightedData = dataPlot;
+            SetHighlighting(dataPlot, true);
         }
     }
 
-    public void HighlightDataSet(DataSet<SpectraPlot> set)
+    public void HighlightDataSet(DataSet<SpectraDataPlot> set)
     {
         if (highlightedSet is not null)
         {
@@ -104,17 +104,17 @@ public sealed class ScottSpectraGraphicsController(IPlotDrawer<SctPlot> drawer) 
         drawer.Resize();
     }
 
-    private void SetHighlighting(SpectraPlot plot, bool isHighlighted)
+    private void SetHighlighting(SpectraDataPlot dataPlot, bool isHighlighted)
     {
         if (isHighlighted)
         {
-            drawer.Erase(plot);
-            plot.ChangeColor(HighlightColor);
-            drawer.Draw(plot);
+            drawer.Erase(dataPlot);
+            dataPlot.ChangeColor(HighlightColor);
+            drawer.Draw(dataPlot);
         }
         else
         {
-            plot.ChangeColor(plot.PreviousColor);
+            dataPlot.ChangeColor(dataPlot.PreviousColor);
         }
     }
 }

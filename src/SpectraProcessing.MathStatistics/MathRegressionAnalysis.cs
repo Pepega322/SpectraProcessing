@@ -1,6 +1,5 @@
 using System.Numerics;
-using SpectraProcessing.Domain;
-using SpectraProcessing.Domain.SpectraData;
+using SpectraProcessing.Models.Collections;
 
 namespace SpectraProcessing.MathStatistics;
 
@@ -13,18 +12,25 @@ internal static class MathRegressionAnalysis
         var ySum = points.Y.Sum();
         var xySum = 0f;
         for (var i = 0; i < points.Count; i++)
+        {
             xySum += points.X[i] * points.Y[i];
+        }
 
         var z = points.Count * x2Sum - xSum * xSum;
+
         var a = (points.Count * xySum - xSum * ySum) / z;
+
         var b = (ySum * x2Sum - xSum * xySum) / z;
+
         return x => a * x + b;
     }
 
     public static Func<T, T> GetLinearRegression<T>(Point<T> p1, Point<T> p2) where T : struct, INumber<T>
     {
         var a = (p2.Y - p1.Y) / (p2.X - p1.X);
+
         var b = p1.Y - a * p1.X;
+
         return x => a * x + b;
     }
 
@@ -36,9 +42,15 @@ internal static class MathRegressionAnalysis
         while (left < right)
         {
             var middle = (left + right) / 2;
+
             if (element <= arr[middle])
+            {
                 right = middle;
-            else left = middle + 1;
+            }
+            else
+            {
+                left = middle + 1;
+            }
         }
 
         if (left == 0)

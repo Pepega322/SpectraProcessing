@@ -1,6 +1,7 @@
 using SpectraProcessing.Controllers.Interfaces;
+using SpectraProcessing.Domain.DataTypes;
 using SpectraProcessing.Domain.InputOutput;
-using SpectraProcessing.Domain.Storage;
+using SpectraProcessing.Models.Collections;
 
 namespace SpectraProcessing.Controllers;
 

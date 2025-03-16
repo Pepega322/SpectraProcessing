@@ -1,3 +1,4 @@
+using SpectraProcessing.Domain.DataTypes;
 using SpectraProcessing.Domain.InputOutput;
 
 namespace SpectraProcessing.DataSource.InputOutput;

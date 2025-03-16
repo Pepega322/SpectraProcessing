@@ -1,4 +1,4 @@
-namespace SpectraProcessing.Domain.InputOutput;
+namespace SpectraProcessing.Domain.DataTypes;
 
 public interface IWriteableData
 {

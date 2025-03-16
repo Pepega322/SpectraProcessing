@@ -1,17 +1,15 @@
 using System.Collections.Concurrent;
-using SpectraProcessing.Controllers;
 using SpectraProcessing.Controllers.Interfaces;
-using SpectraProcessing.Domain.Graphics;
-using SpectraProcessing.Domain.SpectraData;
-using SpectraProcessing.Domain.Storage;
-using SpectraProcessing.Graphics.Formats;
+using SpectraProcessing.Domain.DataProcessors;
+using SpectraProcessing.Models.Collections;
+using SpectraProcessing.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Application.Controllers;
 
 public class PlotController(
-    IDataStorageController<SpectraPlot> plotStorageController,
-    IPlotBuilder<Spectra, SpectraPlot> plotBuilder,
-    IGraphicsController<SpectraPlot> graphicsController,
+    IDataStorageController<SpectraDataPlot> plotStorageController,
+    IDataPlotBuilder<SpectraData, SpectraDataPlot> dataPlotBuilder,
+    IGraphicsController<SpectraDataPlot> graphicsController,
     ISpectraProcessingController spectraProcessingController
 ) : IPlotController
 {
@@ -26,21 +24,13 @@ public class PlotController(
 
     public event Action? OnPlotStorageChanged;
 
-    public IReadOnlyCollection<DataSet<SpectraPlot>> Plots => plotStorageController.StorageData;
+    public IReadOnlyCollection<DataSet<SpectraDataPlot>> Plots => plotStorageController.StorageData;
 
-    public async Task ContextDataSetAddToPlotArea(DataSet<Spectra> set)
+    public async Task ContextDataSetAddToPlotArea(DataSet<SpectraData> set)
     {
-        var plots = new ConcurrentBag<SpectraPlot>();
+        var plots = await Task.WhenAll(set.Data.Select(dataPlotBuilder.GetPlot));
 
-        await Parallel.ForEachAsync(
-            set.Data,
-            (data, _) =>
-            {
-                plots.Add(plotBuilder.GetPlot(data));
-                return ValueTask.CompletedTask;
-            });
-
-        var plotSet = new DataSet<SpectraPlot>(set.Name, plots);
+        var plotSet = new DataSet<SpectraDataPlot>(set.Name, plots);
 
         plotStorageController.AddDataSet(plotSet);
         graphicsController.DrawDataSet(plotSet);
@@ -49,29 +39,31 @@ public class PlotController(
         OnPlotStorageChanged?.Invoke();
     }
 
-    public async Task ContextDataAddToClearPlotArea(DataSet<Spectra> set)
+    public async Task ContextDataAddToClearPlotArea(DataSet<SpectraData> set)
     {
         OnPlotClear?.Invoke();
         await ContextDataSetAddToPlotArea(set);
     }
 
-    public Task DataAddToPlotAreaToDefault(Spectra spectra)
+    public async Task DataAddToPlotAreaToDefault(SpectraData spectraData)
     {
-        var plot = plotBuilder.GetPlot(spectra);
+        var plot = await dataPlotBuilder.GetPlot(spectraData);
+
         plotStorageController.AddDataToDefaultSet(plot);
+
         graphicsController.DrawData(plot);
+
         OnPlotAreaChanged?.Invoke();
         OnPlotStorageChanged?.Invoke();
-        return Task.CompletedTask;
     }
 
-    public Task ContextDataAddToClearPlotToDefault(Spectra spectra)
+    public Task ContextDataAddToClearPlotToDefault(SpectraData spectraData)
     {
         OnPlotClear?.Invoke();
-        return DataAddToPlotAreaToDefault(spectra);
+        return DataAddToPlotAreaToDefault(spectraData);
     }
 
-    public Task ChangePlotSetVisibility(DataSet<SpectraPlot> set, bool isVisible)
+    public Task ChangePlotSetVisibility(DataSet<SpectraDataPlot> set, bool isVisible)
     {
         graphicsController.ChangeDataSetVisibility(set, isVisible);
         OnPlotAreaChanged?.Invoke();
@@ -79,28 +71,28 @@ public class PlotController(
         return Task.CompletedTask;
     }
 
-    public Task ChangePlotVisibility(SpectraPlot plot, bool isVisible)
+    public Task ChangePlotVisibility(SpectraDataPlot dataPlot, bool isVisible)
     {
-        graphicsController.ChangeDataVisibility(plot, isVisible);
+        graphicsController.ChangeDataVisibility(dataPlot, isVisible);
         OnPlotAreaChanged?.Invoke();
         return Task.CompletedTask;
     }
 
-    public Task ContextPlotSetHighlight(DataSet<SpectraPlot> set)
+    public Task ContextPlotSetHighlight(DataSet<SpectraDataPlot> set)
     {
         graphicsController.HighlightDataSet(set);
         OnPlotAreaChanged?.Invoke();
         return Task.CompletedTask;
     }
 
-    public Task PlotHighlight(SpectraPlot plot)
+    public Task PlotHighlight(SpectraDataPlot dataPlot)
     {
-        graphicsController.HighlightData(plot);
+        graphicsController.HighlightData(dataPlot);
         OnPlotAreaChanged?.Invoke();
         return Task.CompletedTask;
     }
 
-    public Task ContextPlotSetDelete(DataSet<SpectraPlot> set)
+    public Task ContextPlotSetDelete(DataSet<SpectraDataPlot> set)
     {
         plotStorageController.DeleteDataSet(set);
         graphicsController.EraseDataSet(set);
@@ -109,10 +101,10 @@ public class PlotController(
         return Task.CompletedTask;
     }
 
-    public Task ContextPlotDelete(DataSet<SpectraPlot> ownerSet, SpectraPlot plot)
+    public Task ContextPlotDelete(DataSet<SpectraDataPlot> ownerSet, SpectraDataPlot dataPlot)
     {
-        plotStorageController.DeleteData(ownerSet, plot);
-        graphicsController.EraseData(plot);
+        plotStorageController.DeleteData(ownerSet, dataPlot);
+        graphicsController.EraseData(dataPlot);
         OnPlotAreaChanged?.Invoke();
         OnPlotStorageChanged?.Invoke();
         return Task.CompletedTask;

@@ -1,6 +1,5 @@
-using SpectraProcessing.Domain.SpectraData;
-using SpectraProcessing.Domain.Storage;
-using SpectraProcessing.Graphics.Formats;
+using SpectraProcessing.Models.Collections;
+using SpectraProcessing.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Controllers.Interfaces;
 
@@ -8,17 +7,17 @@ public interface IPlotController
 {
     event Action? OnPlotAreaChanged;
     event Action? OnPlotStorageChanged;
-    IReadOnlyCollection<DataSet<SpectraPlot>> Plots { get; }
-    Task ContextDataSetAddToPlotArea(DataSet<Spectra> set);
-    Task ContextDataAddToClearPlotArea(DataSet<Spectra> set);
-    Task DataAddToPlotAreaToDefault(Spectra spectra);
-    Task ContextDataAddToClearPlotToDefault(Spectra spectra);
-    Task ChangePlotSetVisibility(DataSet<SpectraPlot> set, bool isVisible);
-    Task ChangePlotVisibility(SpectraPlot plot, bool isVisible);
-    Task ContextPlotSetHighlight(DataSet<SpectraPlot> set);
-    Task PlotHighlight(SpectraPlot plot);
-    Task ContextPlotSetDelete(DataSet<SpectraPlot> set);
-    Task ContextPlotDelete(DataSet<SpectraPlot> ownerSet, SpectraPlot plot);
+    IReadOnlyCollection<DataSet<SpectraDataPlot>> Plots { get; }
+    Task ContextDataSetAddToPlotArea(DataSet<SpectraData> set);
+    Task ContextDataAddToClearPlotArea(DataSet<SpectraData> set);
+    Task DataAddToPlotAreaToDefault(SpectraData spectra);
+    Task ContextDataAddToClearPlotToDefault(SpectraData spectra);
+    Task ChangePlotSetVisibility(DataSet<SpectraDataPlot> set, bool isVisible);
+    Task ChangePlotVisibility(SpectraDataPlot dataPlot, bool isVisible);
+    Task ContextPlotSetHighlight(DataSet<SpectraDataPlot> set);
+    Task PlotHighlight(SpectraDataPlot dataPlot);
+    Task ContextPlotSetDelete(DataSet<SpectraDataPlot> set);
+    Task ContextPlotDelete(DataSet<SpectraDataPlot> ownerSet, SpectraDataPlot dataPlot);
     void PlotAreaClear();
     void PlotAreaResize();
 }

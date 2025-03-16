@@ -1,3 +1,5 @@
+using SpectraProcessing.Domain.DataTypes;
+
 namespace SpectraProcessing.Domain.InputOutput;
 
 public interface IDataWriter

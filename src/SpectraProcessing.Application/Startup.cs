@@ -7,12 +7,11 @@ using SpectraProcessing.Controllers;
 using SpectraProcessing.Controllers.Interfaces;
 using SpectraProcessing.Controllers.Settings;
 using SpectraProcessing.DataSource.InputOutput;
-using SpectraProcessing.Domain.Graphics;
+using SpectraProcessing.Domain.DataProcessors;
 using SpectraProcessing.Domain.InputOutput;
-using SpectraProcessing.Domain.SpectraData;
-using SpectraProcessing.Domain.SpectraData.Parser;
-using SpectraProcessing.Graphics.Formats;
-using SpectraProcessing.Graphics.Graphics;
+using SpectraProcessing.Graphics.DataProcessors;
+using SpectraProcessing.Models;
+using SpectraProcessing.Models.Spectra.Abstractions;
 using Plot = ScottPlot.Plot;
 
 namespace SpectraProcessing.Application;
@@ -57,13 +56,12 @@ public static class Startup
 
     private static IServiceCollection AddDomainComponents(this IServiceCollection services)
     {
-        services.AddSingleton<IDataReader<Spectra>, SpectraFileReader>();
-        services.AddSingleton<ISpectraParser, SpectraParser>();
+        services.AddSingleton<IDataReader<SpectraData>, SpectraFileReader>();
         // services.AddSingleton<IDataReader<PeakBordersSet>, PeakBordersSetReader>();
         services.AddSingleton<IDataWriter, FileWriter>(_ => new FileWriter(FileMode.Create));
-        services.AddSingleton<IPlotBuilder<Spectra, SpectraPlot>, ScottSpectraPlotBuilder>();
+        services.AddSingleton<IDataPlotBuilder<SpectraData, SpectraDataPlot>, SpectraDataPlotBuilder>();
         // services.AddSingleton<IPlotBuilder<PeakInfo, PeakBorderPlot>, ScottPeakBorderPlotBuilder>();
-        services.AddSingleton<IPlotDrawer<SctPlot>, ScottPlotDrawer>();
+        services.AddSingleton<IDataPlotDrawer<SpectraDataPlot>, SpectraDataPlotDrawer>();
 
         return services;
     }
@@ -71,11 +69,11 @@ public static class Startup
     private static IServiceCollection AddControllers(this IServiceCollection services)
     {
         services.AddSingleton<IDialogController, DialogController>();
-        services.AddSingleton<IDataSourceController<Spectra>, DirectoryDataSourceController<Spectra>>();
+        services.AddSingleton<IDataSourceController<SpectraData>, DirectoryDataSourceController<SpectraData>>();
         services.AddSingleton<IDataWriterController, DirectoryDataWriterController>();
-        services.AddSingleton<IDataStorageController<Spectra>, DataStorageController<Spectra>>();
-        services.AddSingleton<IDataStorageController<SpectraPlot>, DataStorageController<SpectraPlot>>();
-        services.AddSingleton<IGraphicsController<SpectraPlot>, ScottSpectraGraphicsController>();
+        services.AddSingleton<IDataStorageController<SpectraData>, DataStorageController<SpectraData>>();
+        services.AddSingleton<IDataStorageController<SpectraDataPlot>, DataStorageController<SpectraDataPlot>>();
+        services.AddSingleton<IGraphicsController<SpectraDataPlot>, ScottSpectraGraphicsController>();
         services.AddSingleton<ISpectraProcessingController, SpectraProcessingController>();
         services.AddSingleton<ICoordinateController, CoordinateController>();
         services.AddSingleton<IPlotController, PlotController>();

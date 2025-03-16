@@ -1,9 +1,9 @@
-using SpectraProcessing.Domain.Graphics;
-using SpectraProcessing.Domain.Storage;
+using SpectraProcessing.Domain.DataTypes;
+using SpectraProcessing.Models.Collections;
 
 namespace SpectraProcessing.Controllers.Interfaces;
 
-public interface IGraphicsController<TPlot> where TPlot : Plot
+public interface IGraphicsController<TPlot> where TPlot : IDataPlot
 {
     void DrawData(TPlot plot);
     void DrawDataSet(DataSet<TPlot> set);

@@ -1,6 +1,6 @@
 using ScottPlot.WinForms;
 using SpectraProcessing.Controllers.Interfaces;
-using SpectraProcessing.Domain;
+using SpectraProcessing.Models.Collections;
 
 namespace SpectraProcessing.Application.Controllers;
 

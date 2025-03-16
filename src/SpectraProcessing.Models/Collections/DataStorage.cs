@@ -1,13 +1,16 @@
 using System.Collections;
 using System.Collections.Concurrent;
 
-namespace SpectraProcessing.Domain.Storage;
+namespace SpectraProcessing.Models.Collections;
 
 public class DataStorage<T> : IReadOnlyCollection<DataSet<T>>
 {
     private readonly string defaultKey;
+
     private readonly ConcurrentDictionary<string, DataSet<T>> storage;
+
     public DataSet<T> DefaultSet => storage[defaultKey];
+
     public DataSet<T> this[string setKey] => storage[setKey];
 
     public DataStorage(string defaultKey)
@@ -35,18 +38,18 @@ public class DataStorage<T> : IReadOnlyCollection<DataSet<T>>
 
     public bool RemoveThreadSafe(string key)
     {
-        if (key != defaultKey)
+        if (key == defaultKey)
         {
-            return storage.TryRemove(key, out _);
+            storage[defaultKey] = new DataSet<T>(defaultKey);
         }
 
-        storage[defaultKey] = new DataSet<T>(defaultKey);
-        return true;
+        return storage.TryRemove(key, out _);
     }
 
     public void ClearThreadSafe()
     {
         storage.Clear();
+
         Add(defaultKey, new DataSet<T>(defaultKey));
     }
 

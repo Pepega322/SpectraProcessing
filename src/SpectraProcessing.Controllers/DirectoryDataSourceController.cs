@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using SpectraProcessing.Controllers.Interfaces;
 using SpectraProcessing.Domain.InputOutput;
-using SpectraProcessing.Domain.Storage;
+using SpectraProcessing.Models.Collections;
 
 namespace SpectraProcessing.Controllers;
 

@@ -1,4 +1,4 @@
-using SpectraProcessing.Domain;
+using SpectraProcessing.Models.Collections;
 
 namespace SpectraProcessing.Controllers.Interfaces;
 
