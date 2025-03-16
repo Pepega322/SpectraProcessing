@@ -36,6 +36,7 @@ partial class MainForm
         mouseCoordinatesBox = new TextBox();
         menuStrip2 = new MenuStrip();
         resizeToolStripMenuItem = new ToolStripMenuItem();
+        addPeaksToolStripMenuItem = new ToolStripMenuItem();
         plotView = new ScottPlot.WinForms.FormsPlot();
         tableLayoutPanel5 = new TableLayoutPanel();
         dataStorageTreeView = new TreeView();
@@ -155,7 +156,7 @@ partial class MainForm
         // 
         menuStrip2.Dock = DockStyle.Fill;
         menuStrip2.ImageScalingSize = new Size(32, 32);
-        menuStrip2.Items.AddRange(new ToolStripItem[] { resizeToolStripMenuItem });
+        menuStrip2.Items.AddRange(new ToolStripItem[] { resizeToolStripMenuItem, addPeaksToolStripMenuItem });
         menuStrip2.Location = new Point(0, 0);
         menuStrip2.Name = "menuStrip2";
         menuStrip2.Size = new Size(1123, 40);
@@ -167,6 +168,13 @@ partial class MainForm
         resizeToolStripMenuItem.Name = "resizeToolStripMenuItem";
         resizeToolStripMenuItem.Size = new Size(100, 36);
         resizeToolStripMenuItem.Text = "Resize";
+        // 
+        // addPeaksToolStripMenuItem
+        // 
+        addPeaksToolStripMenuItem.CheckOnClick = true;
+        addPeaksToolStripMenuItem.Name = "addPeaksToolStripMenuItem";
+        addPeaksToolStripMenuItem.Size = new Size(145, 36);
+        addPeaksToolStripMenuItem.Text = "Add peaks";
         // 
         // plotView
         // 
@@ -467,4 +475,5 @@ partial class MainForm
     private TreeView plotStorageTreeView;
     private MenuStrip menuStrip2;
     private ToolStripMenuItem resizeToolStripMenuItem;
+    private ToolStripMenuItem addPeaksToolStripMenuItem;
 }

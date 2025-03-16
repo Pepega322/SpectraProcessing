@@ -10,7 +10,7 @@ using SpectraProcessing.DataSource.InputOutput;
 using SpectraProcessing.Domain.DataProcessors;
 using SpectraProcessing.Domain.InputOutput;
 using SpectraProcessing.Graphics.DataProcessors;
-using SpectraProcessing.Models;
+using SpectraProcessing.Models.PeakEstimate;
 using SpectraProcessing.Models.Spectra.Abstractions;
 using Plot = ScottPlot.Plot;
 
@@ -36,19 +36,24 @@ public static class Startup
     private static IServiceCollection ConfigureServices(this IConfigurationRoot configuration, FormsPlot plot)
     {
         return new ServiceCollection()
-            .AddLogging()
-            .Configure<DataReaderControllerSettings>(configuration.GetSection(nameof(DataReaderControllerSettings)))
-            .Configure<DataStorageSettings>(configuration.GetSection(nameof(DataStorageSettings)))
+            .AddSettings(configuration)
             .AddFormVariables(plot)
             .AddDomainComponents()
-            .AddControllers();
+            .AddControllers()
+            .AddLogging();
+    }
+
+    private static IServiceCollection AddSettings(this IServiceCollection services, IConfigurationRoot configuration)
+    {
+        return services
+            .Configure<DataReaderControllerSettings>(configuration.GetSection(nameof(DataReaderControllerSettings)))
+            .Configure<DataStorageSettings>(configuration.GetSection(nameof(DataStorageSettings)));
     }
 
     private static IServiceCollection AddFormVariables(this IServiceCollection services, FormsPlot plot)
     {
         services.AddSingleton<FormsPlot>(_ => plot);
         services.AddSingleton<Plot>(_ => plot.Plot);
-        services.AddSingleton<CoordinateController>();
         services.AddTransient<IPalette>(_ => new ScottPlot.Palettes.Category20());
 
         return services;
@@ -56,27 +61,28 @@ public static class Startup
 
     private static IServiceCollection AddDomainComponents(this IServiceCollection services)
     {
-        services.AddSingleton<IDataReader<SpectraData>, SpectraFileReader>();
+        services.AddTransient<IDataWriter, FileWriter>(_ => new FileWriter(FileMode.Create));
+        services.AddTransient<IDataReader<SpectraData>, SpectraFileReader>();
         // services.AddSingleton<IDataReader<PeakBordersSet>, PeakBordersSetReader>();
-        services.AddSingleton<IDataWriter, FileWriter>(_ => new FileWriter(FileMode.Create));
-        services.AddSingleton<IDataPlotBuilder<SpectraData, SpectraDataPlot>, SpectraDataPlotBuilder>();
-        // services.AddSingleton<IPlotBuilder<PeakInfo, PeakBorderPlot>, ScottPeakBorderPlotBuilder>();
-        services.AddSingleton<IDataPlotDrawer<SpectraDataPlot>, SpectraDataPlotDrawer>();
+        services.AddTransient<IDataPlotBuilder<SpectraData, SpectraDataPlot>, SpectraDataPlotBuilder>();
+        services.AddTransient<IDataPlotBuilder<PeakEstimateData, PeakEstimateDataPlot>, PeakEstimateDataPlotBuilder>();
+        services.AddTransient<IDataPlotDrawer<SpectraDataPlot>, SpectraDataPlotDrawer>();
+        services.AddTransient<IDataPlotDrawer<PeakEstimateDataPlot>, PeakEstimateDataPlotDrawer>();
 
         return services;
     }
 
     private static IServiceCollection AddControllers(this IServiceCollection services)
     {
-        services.AddSingleton<IDialogController, DialogController>();
-        services.AddSingleton<IDataSourceController<SpectraData>, DirectoryDataSourceController<SpectraData>>();
-        services.AddSingleton<IDataWriterController, DirectoryDataWriterController>();
-        services.AddSingleton<IDataStorageController<SpectraData>, DataStorageController<SpectraData>>();
-        services.AddSingleton<IDataStorageController<SpectraDataPlot>, DataStorageController<SpectraDataPlot>>();
-        services.AddSingleton<IGraphicsController<SpectraDataPlot>, SpectraDataGraphicsController>();
-        services.AddSingleton<ISpectraProcessingController, SpectraProcessingController>();
-        services.AddSingleton<ICoordinateController, CoordinateController>();
-        services.AddSingleton<IPlotController, PlotController>();
+        services.AddTransient<IDialogController, DialogController>();
+        services.AddTransient<IDataSourceController<SpectraData>, DirectoryDataSourceController<SpectraData>>();
+        services.AddTransient<IDataWriterController, DirectoryDataWriterController>();
+        services.AddTransient<IDataStorageController<SpectraData>, DataStorageController<SpectraData>>();
+        services.AddTransient<IDataStorageController<SpectraDataPlot>, DataStorageController<SpectraDataPlot>>();
+        services.AddTransient<IGraphicsController<SpectraDataPlot>, SpectraDataGraphicsController>();
+        services.AddTransient<ISpectraProcessingController, SpectraProcessingController>();
+        services.AddTransient<ICoordinateController, CoordinateController>();
+        services.AddTransient<IPlotController, PlotController>();
 
         return services;
     }

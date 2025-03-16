@@ -2,89 +2,39 @@ using Microsoft.Extensions.DependencyInjection;
 using SpectraProcessing.Application.Controllers;
 using SpectraProcessing.Controllers.Interfaces;
 using SpectraProcessing.Models.Collections;
+using SpectraProcessing.Models.PeakEstimate;
 using SpectraProcessing.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Application;
 
 public partial class MainForm : Form
 {
-    // readonly double[] Xs = Generate.RandomAscending(10);
-    // readonly double[] Ys = Generate.RandomSample(10);
-    // readonly ScottPlot.Plottables.Scatter Scatter;
-    // int? IndexBeingDragged = null;
-    //
-    // public MainForm()
-    // {
-    //     InitializeComponent();
-    //
-    //     Scatter = plotView.Plot.Add.Scatter(Xs, Ys);
-    //     Scatter.LineWidth = 2;
-    //     Scatter.MarkerSize = 10;
-    //     Scatter.Smooth = true;
-    //
-    //     plotView.MouseMove += FormsPlot1_MouseMove;
-    //     plotView.MouseDown += FormsPlot1_MouseDown;
-    //     plotView.MouseUp += FormsPlot1_MouseUp;
-    // }
-    //
-    // private void FormsPlot1_MouseDown(object? sender, MouseEventArgs e)
-    // {
-    //     Pixel mousePixel = new(e.Location.X, e.Location.Y);
-    //     Coordinates mouseLocation = plotView.Plot.GetCoordinates(mousePixel);
-    //     DataPoint nearest = Scatter.Data.GetNearest(mouseLocation, plotView.Plot.LastRender);
-    //     IndexBeingDragged = nearest.IsReal ? nearest.Index : null;
-    //
-    //     if (IndexBeingDragged.HasValue)
-    //         plotView.UserInputProcessor.Disable();
-    // }
-    //
-    // private void FormsPlot1_MouseUp(object? sender, MouseEventArgs e)
-    // {
-    //     IndexBeingDragged = null;
-    //     plotView.UserInputProcessor.Enable();
-    //     plotView.Refresh();
-    // }
-    //
-    // private void FormsPlot1_MouseMove(object? sender, MouseEventArgs e)
-    // {
-    //     Pixel mousePixel = new(e.Location.X, e.Location.Y);
-    //     Coordinates mouseLocation = plotView.Plot.GetCoordinates(mousePixel);
-    //     DataPoint nearest = Scatter.Data.GetNearest(mouseLocation, plotView.Plot.LastRender);
-    //     plotView.Cursor = nearest.IsReal ? Cursors.Hand : Cursors.Arrow;
-    //
-    //     if (IndexBeingDragged.HasValue)
-    //     {
-    //         Xs[IndexBeingDragged.Value] = mouseLocation.X;
-    //         Ys[IndexBeingDragged.Value] = mouseLocation.Y;
-    //         plotView.Refresh();
-    //     }
-    // }
-
     private readonly IDialogController dialogController;
     private readonly ICoordinateController coordinateController;
     private readonly IDataSourceController<SpectraData> dataSourceController;
     private readonly IDataWriterController dataWriterController;
     private readonly IDataStorageController<SpectraData> dataStorageController;
+    private readonly ISpectraProcessingController spectraProcessingController;
     private readonly IPlotController plotController;
 
     public MainForm()
     {
         InitializeComponent();
+
         var provider = Startup.GetServiceProvider(plotView);
-
-
         plotController = provider.GetRequiredService<IPlotController>();
         dialogController = provider.GetRequiredService<IDialogController>();
         dataStorageController = provider.GetRequiredService<IDataStorageController<SpectraData>>();
         dataSourceController = provider.GetRequiredService<IDataSourceController<SpectraData>>();
         dataWriterController = provider.GetRequiredService<IDataWriterController>();
         coordinateController = provider.GetRequiredService<ICoordinateController>();
+        spectraProcessingController = provider.GetRequiredService<ISpectraProcessingController>();
 
         SetupDataReaderController();
         SetupDataStorageController();
         SetupPlotController();
         SetupCoordinateControllerController();
-        // SetupSpectraProcessingController();
+        SetupSpectraProcessingController();
 
         dataContextMenu.Tag = dataStorageTreeView;
         dataSetContextMenu.Tag = dataStorageTreeView;
@@ -286,13 +236,55 @@ public partial class MainForm : Form
 
     private void SetupCoordinateControllerController()
     {
+        plotView.MouseMove += (_, e) => coordinateController.Location = new Point<int>(e.X, e.Y);
+
         coordinateController.OnChange += () =>
         {
             var c = coordinateController.Coordinates;
             mouseCoordinatesBox.Text = $@"X:{c.X: 0.00} Y:{c.Y: 0.00}";
         };
+    }
 
-        plotView.MouseMove += (_, e) => coordinateController.Coordinates = new Point<float>(e.X, e.Y);
+    private void SetupSpectraProcessingController()
+    {
+        spectraProcessingController.OnPlotAreaChanged += plotView.Refresh;
+
+        plotView.SKControl!.MouseDoubleClick += async (_, _) =>
+        {
+            if (addPeaksToolStripMenuItem.Checked is false)
+            {
+                return;
+            }
+
+            var estimate = new PeakEstimateData(
+                center: coordinateController.Coordinates.X,
+                amplitude: coordinateController.Coordinates.Y,
+                halfWidth: 30f);
+
+            await spectraProcessingController.AddPeakEstimate(estimate);
+        };
+
+        plotView.MouseDown += async (_, _) =>
+        {
+            var canHit = await spectraProcessingController.TryHitPlot(coordinateController.Pixel, 10f);
+
+            if (canHit)
+            {
+                plotView.UserInputProcessor.Disable();
+            }
+        };
+
+        plotView.MouseMove += async (_, _) =>
+        {
+            var canMove = await spectraProcessingController.TryMoveHitPlot(coordinateController.Coordinates);
+            plotView.Cursor = canMove ? Cursors.Hand : Cursors.Arrow;
+        };
+
+        plotView.MouseUp += async (_, _) =>
+        {
+            await spectraProcessingController.ReleaseHitPlot();
+            plotView.UserInputProcessor.Enable();
+        };
     }
 
     // private void SetupSpectraProcessingController()

@@ -1,3 +1,4 @@
+using ScottPlot;
 using ScottPlot.WinForms;
 using SpectraProcessing.Controllers.Interfaces;
 using SpectraProcessing.Models.Collections;
@@ -6,18 +7,23 @@ namespace SpectraProcessing.Application.Controllers;
 
 public class CoordinateController(FormsPlot form) : ICoordinateController
 {
-    private Point<float> coordinates = new(0f, 0f);
+    private Point<int> location;
 
-    public Point<float> Coordinates
+    public Point<int> Location
     {
-        get => coordinates;
+        get => location;
         set
         {
+            location = value;
             var c = form.Plot.GetCoordinates(value.X, value.Y);
-            coordinates = new Point<float>((float) c.X, (float) c.Y);
+            Coordinates = new Point<float>((float) c.X, (float) c.Y);
             OnChange?.Invoke();
         }
     }
+
+    public Pixel Pixel => new(location.X, location.Y);
+
+    public Point<float> Coordinates { get; private set; }
 
     public event Action? OnChange;
 
