@@ -2,12 +2,13 @@ using Microsoft.Extensions.Options;
 using SpectraProcessing.Controllers.Interfaces;
 using SpectraProcessing.Controllers.Settings;
 using SpectraProcessing.Models.Collections;
+using SpectraProcessing.Models.Collections.Keys;
 
 namespace SpectraProcessing.Controllers;
 
 public sealed class DataStorageController<TData>(IOptions<DataStorageSettings> settings) : IDataStorageController<TData>
 {
-    private readonly DataStorage<TData> storage = new(settings.Value.DefaultDataSetName);
+    private readonly DataStorage<StringKey, TData> storage = new(settings.Value.DefaultDataSetName);
 
     public event Action? OnChange;
 
@@ -25,7 +26,7 @@ public sealed class DataStorageController<TData>(IOptions<DataStorageSettings> s
 
     public Task AddDataSet(DataSet<TData> set)
     {
-        storage.Add(set.Name, set);
+        storage.Add(new StringKey(set.Name), set);
 
         OnChange?.Invoke();
 
@@ -53,9 +54,11 @@ public sealed class DataStorageController<TData>(IOptions<DataStorageSettings> s
 
     public Task DeleteDataSet(DataSet<TData> set)
     {
-        if (storage.ContainsKey(set.Name) && storage[set.Name] == set)
+        var stringKey = new StringKey(set.Name);
+
+        if (storage.ContainsKey(stringKey) && storage[stringKey] == set)
         {
-            storage.RemoveThreadSafe(set.Name);
+            storage.RemoveThreadSafe(stringKey);
         }
         else
         {

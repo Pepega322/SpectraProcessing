@@ -2,19 +2,19 @@ using System.Collections.Immutable;
 
 namespace SpectraProcessing.Models.Collections;
 
-public class DataSet<T>
+public class DataSet<TValue>
 {
-    private readonly HashSet<T> set;
+    private readonly HashSet<TValue> set;
 
-    private readonly HashSet<DataSet<T>> subsets;
+    private readonly HashSet<DataSet<TValue>> subsets;
 
     private int DataCount { get; set; }
 
-    private DataSet<T>? Parent { get; set; }
+    private DataSet<TValue>? Parent { get; set; }
 
     public string Name { get; protected set; }
 
-    public IImmutableSet<T> Data
+    public IImmutableSet<TValue> Data
     {
         get
         {
@@ -25,7 +25,7 @@ public class DataSet<T>
         }
     }
 
-    public IImmutableSet<DataSet<T>> Subsets
+    public IImmutableSet<DataSet<TValue>> Subsets
     {
         get
         {
@@ -43,14 +43,14 @@ public class DataSet<T>
         subsets = [];
     }
 
-    public DataSet(string name, IReadOnlyCollection<T> data)
+    public DataSet(string name, IReadOnlyCollection<TValue> data)
     {
         Name = name;
         set = [.. data];
         subsets = [];
     }
 
-    public bool AddThreadSafe(T data)
+    public bool AddThreadSafe(TValue data)
     {
         var result = false;
 
@@ -67,7 +67,7 @@ public class DataSet<T>
         return result;
     }
 
-    public bool RemoveThreadSafe(T data)
+    public bool RemoveThreadSafe(TValue data)
     {
         var result = false;
 
@@ -89,7 +89,7 @@ public class DataSet<T>
         Parent?.RemoveSubsetThreadSafe(this);
     }
 
-    public bool AddSubsetThreadSafe(DataSet<T> subset)
+    public bool AddSubsetThreadSafe(DataSet<TValue> subset)
     {
         var result = false;
 
@@ -107,7 +107,7 @@ public class DataSet<T>
         return result;
     }
 
-    private bool RemoveSubsetThreadSafe(DataSet<T> subset)
+    private bool RemoveSubsetThreadSafe(DataSet<TValue> subset)
     {
         var result = false;
 

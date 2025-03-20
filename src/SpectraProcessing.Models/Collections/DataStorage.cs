@@ -1,46 +1,42 @@
 using System.Collections;
 using System.Collections.Concurrent;
+using SpectraProcessing.Models.Collections.Keys;
 
 namespace SpectraProcessing.Models.Collections;
 
-public class DataStorage<T> : IReadOnlyCollection<DataSet<T>>
+public class DataStorage<TKey, TValue> : IReadOnlyCollection<DataSet<TValue>>
+    where TKey : INamedKey
 {
-    private readonly string defaultKey;
+    private readonly string defaultSetName;
 
-    private readonly ConcurrentDictionary<string, DataSet<T>> storage;
+    private readonly ConcurrentDictionary<TKey, DataSet<TValue>> storage;
 
-    public DataSet<T> DefaultSet => storage[defaultKey];
+    public DataSet<TValue> DefaultSet { get; private set; }
 
-    public DataSet<T> this[string setKey] => storage[setKey];
+    public DataSet<TValue> this[TKey setKey] => storage[setKey];
 
-    public DataStorage(string defaultKey)
+    public DataStorage(string defaultSetName)
     {
-        this.defaultKey = defaultKey;
         storage = [];
-        Add(defaultKey, new DataSet<T>(defaultKey));
+        this.defaultSetName = defaultSetName;
+        DefaultSet = new DataSet<TValue>(defaultSetName);
     }
 
-    public void Add(string key, DataSet<T> set)
+    public void Add(TKey key, DataSet<TValue> set)
     {
-        if (storage.TryAdd(key, set))
-        {
-            return;
-        }
-
-        key = GetNewSetKey(key);
         storage.TryAdd(key, set);
     }
 
-    public bool ContainsKey(string key)
+    public bool ContainsKey(TKey key)
     {
         return storage.ContainsKey(key);
     }
 
-    public bool RemoveThreadSafe(string key)
+    public bool RemoveThreadSafe(TKey key)
     {
-        if (key == defaultKey)
+        if (key.Name.Equals(defaultSetName))
         {
-            storage[defaultKey] = new DataSet<T>(defaultKey);
+            DefaultSet = new DataSet<TValue>(defaultSetName);
         }
 
         return storage.TryRemove(key, out _);
@@ -50,28 +46,12 @@ public class DataStorage<T> : IReadOnlyCollection<DataSet<T>>
     {
         storage.Clear();
 
-        Add(defaultKey, new DataSet<T>(defaultKey));
-    }
-
-    private string GetNewSetKey(string setKey)
-    {
-        var i = 1;
-        while (true)
-        {
-            var newSetKey = $"{setKey} ({i})";
-
-            if (!storage.ContainsKey(newSetKey))
-            {
-                return newSetKey;
-            }
-
-            i++;
-        }
+        DefaultSet = new DataSet<TValue>(defaultSetName);
     }
 
     public int Count => storage.Count;
 
-    public IEnumerator<DataSet<T>> GetEnumerator() => storage.Values.GetEnumerator();
+    public IEnumerator<DataSet<TValue>> GetEnumerator() => storage.Values.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
