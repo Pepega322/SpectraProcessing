@@ -16,7 +16,7 @@ public sealed class EspSpectraData(
 
     public override SpectraFormat Format => SpectraFormat.Esp;
 
-    public override SpectraData ChangePoints(SpectraPoints points) => new EspSpectraData(Name, points, Info);
+    public override SpectraData ChangePoints(SpectraPoints newPoints) => new EspSpectraData(Name, newPoints, Info);
 
     public sealed record EspInfo
     {

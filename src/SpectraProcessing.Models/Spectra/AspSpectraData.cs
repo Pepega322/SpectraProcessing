@@ -17,7 +17,7 @@ public sealed class AspSpectraData(
 
     public override SpectraFormat Format => SpectraFormat.Asp;
 
-    public override SpectraData ChangePoints(SpectraPoints points) => new AspSpectraData(Name, points, Info);
+    public override SpectraData ChangePoints(SpectraPoints newPoints) => new AspSpectraData(Name, newPoints, Info);
 
     public sealed record AspInfo
     {

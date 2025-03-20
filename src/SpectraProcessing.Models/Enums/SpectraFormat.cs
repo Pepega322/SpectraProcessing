@@ -4,4 +4,5 @@ public enum SpectraFormat
 {
     Asp,
     Esp,
+    Estimated,
 }

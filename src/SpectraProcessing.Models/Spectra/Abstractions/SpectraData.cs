@@ -14,7 +14,7 @@ public abstract class SpectraData(string name, SpectraPoints points) : IWriteabl
 
     public SpectraPoints Points { get; init; } = points;
 
-    public abstract SpectraData ChangePoints(SpectraPoints points);
+    public abstract SpectraData ChangePoints(SpectraPoints newPoints);
 
     public virtual IEnumerable<string> ToContents() => Points.ToContents();
 
