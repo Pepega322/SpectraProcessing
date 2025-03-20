@@ -12,6 +12,8 @@ public sealed class PeakEstimateDataPlot(
     DraggableMarker rightMarker
 ) : IDataPlot
 {
+    private readonly Lock _locker = new();
+
     public PeakEstimateData EstimateData => estimateData;
 
     public IReadOnlyCollection<IPlottable> Markers
@@ -21,6 +23,15 @@ public sealed class PeakEstimateDataPlot(
             centerMarker,
             rightMarker,
         ];
+
+    public void UpdatePeakEstimateData(PeakEstimateData estimate)
+    {
+        OnPeakEstimateDataUpdate(
+            center: estimate.Center,
+            amplitude: estimate.Amplitude,
+            halfWidth: estimate.HalfWidth,
+            gaussianContribution: estimate.GaussianContribution);
+    }
 
     public bool TryHit(Pixel pixel, float radius)
     {
@@ -54,44 +65,55 @@ public sealed class PeakEstimateDataPlot(
 
     public void TryMoveTo(Point<float> to)
     {
-        if (leftMarker.Dragged || rightMarker.Dragged)
-        {
-            estimateData.HalfWidth = to.X - estimateData.Center;
-
-            if (estimateData.HalfWidth < 0)
-            {
-                estimateData.HalfWidth *= -1;
-            }
-
-            var leftX = estimateData.Center - estimateData.HalfWidth;
-            var rightX = estimateData.Center + estimateData.HalfWidth;
-            var halfHeight = estimateData.Amplitude / 2;
-
-            leftMarker.StartDrag(leftMarker.Coordinates);
-            rightMarker.StartDrag(rightMarker.Coordinates);
-
-            leftMarker.DragTo(new Coordinates(leftX, halfHeight));
-            rightMarker.DragTo(new Coordinates(rightX, halfHeight));
-
-            return;
-        }
-
         if (centerMarker.Dragged)
         {
-            estimateData.Center = to.X;
-            estimateData.Amplitude = to.Y;
+            var center = to.X;
+            var amplitude = to.Y;
 
-            var leftX = estimateData.Center - estimateData.HalfWidth;
-            var rightX = estimateData.Center + estimateData.HalfWidth;
-            var halfHeight = estimateData.Amplitude / 2;
+            OnPeakEstimateDataUpdate(
+                center: center,
+                amplitude: amplitude,
+                halfWidth: estimateData.HalfWidth,
+                gaussianContribution: estimateData.GaussianContribution);
+        }
+        else if (leftMarker.Dragged || rightMarker.Dragged)
+        {
+            var halfWidth = Math.Abs(value: (to.X - estimateData.Center) * 2);
 
-            leftMarker.StartDrag(leftMarker.Coordinates);
-            centerMarker.StartDrag(centerMarker.Coordinates);
-            rightMarker.StartDrag(rightMarker.Coordinates);
+            OnPeakEstimateDataUpdate(
+                center: estimateData.Center,
+                amplitude: estimateData.Amplitude,
+                halfWidth: halfWidth,
+                gaussianContribution: estimateData.GaussianContribution);
+        }
+    }
 
-            leftMarker.DragTo(new Coordinates(leftX, halfHeight));
-            centerMarker.DragTo(new Coordinates(estimateData.Center, estimateData.Amplitude));
-            rightMarker.DragTo(new Coordinates(rightX, halfHeight));
+    private void OnPeakEstimateDataUpdate(
+        float center,
+        float amplitude,
+        float halfWidth,
+        float gaussianContribution)
+    {
+        _locker.Enter();
+
+        estimateData.Amplitude = amplitude;
+        estimateData.Center = center;
+        estimateData.HalfWidth = halfWidth;
+        estimateData.GaussianContribution = gaussianContribution;
+
+        var halfHeight = estimateData.Amplitude / 2;
+
+        DragMarkerTo(leftMarker, new Coordinates(estimateData.Center - estimateData.HalfWidth / 2, halfHeight));
+        DragMarkerTo(centerMarker, new Coordinates(estimateData.Center, estimateData.Amplitude));
+        DragMarkerTo(rightMarker, new Coordinates(estimateData.Center + estimateData.HalfWidth / 2, halfHeight));
+
+        _locker.Exit();
+        return;
+
+        void DragMarkerTo(DraggableMarker marker, Coordinates to)
+        {
+            marker.StartDrag(marker.Coordinates);
+            marker.DragTo(to);
         }
     }
 }

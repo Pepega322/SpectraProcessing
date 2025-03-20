@@ -1,46 +1,116 @@
 using SpectraProcessing.Models.Collections;
+using SpectraProcessing.Models.PeakEstimate;
+using SpectraProcessing.Models.Spectra;
 using SpectraProcessing.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.MathStatistics.SpectraProcessing;
 
 public static class SpectraExtensions
 {
-    public static SpectraData SubstractBaseLine(this SpectraData s)
+    public static SpectraData SubstractBaseLine(this SpectraData spectra)
     {
-        var baseline = MathRegressionAnalysis.GetLinearRegression(s.Points);
-        var newPoints = s.Points.Transform(TransformationRule);
-        var res = s.ChangePoints(newPoints);
-        res.Name = $"{s.Name} b-";
-        return res;
+        var baseline = MathRegressionAnalysis.GetLinearRegression(spectra.Points);
+
+        var points = spectra.Points.Transform(TransformationRule);
+
+        return new EstimatedSpectraData($"{spectra.Name} -b", points);
 
         float TransformationRule(float x, float y) => y - baseline(x);
     }
 
-    public static SpectraData GetAverageSpectra(this IReadOnlyCollection<SpectraData> spectras)
+    public static Task<SpectraData> GetAverageSpectra(this IReadOnlyCollection<SpectraData> spectras)
     {
-        var spectraCountPerX = new Dictionary<float, int>();
-        var spectraYSumForX = new Dictionary<float, float>();
-        var spectraEnumerable = spectras as SpectraData[] ?? [.. spectras];
-        foreach (var spectra in spectraEnumerable)
-        {
-            var points = spectra.Points;
-            for (var i = 0; i < points.Count; i++)
-            {
-                var x = points.X[i];
-                var y = points.Y[i];
-                if (!spectraCountPerX.TryAdd(x, 1))
-                    spectraCountPerX[x]++;
-                if (!spectraYSumForX.TryAdd(x, y))
-                    spectraYSumForX[x] += y;
-            }
-        }
+        return Task.Run(() => GetAverageSpectraInternal(spectras));
 
-        var resultX = spectraCountPerX.Keys.OrderBy(x => x).ToList();
-        var resultY = resultX
-            .Select(x => spectraYSumForX[x] / spectraCountPerX[x])
-            .ToList();
-        var newPoints = new SpectraPoints(resultX, resultY);
-        return spectraEnumerable.First().ChangePoints(newPoints);
+        SpectraData GetAverageSpectraInternal(IReadOnlyCollection<SpectraData> s)
+        {
+            var spectraCountPerX = new Dictionary<float, int>();
+            var spectraYSumForX = new Dictionary<float, float>();
+
+            foreach (var spectra in s)
+            {
+                for (var i = 0; i < spectra.Points.Count; i++)
+                {
+                    var x = spectra.Points.X[i];
+                    var y = spectra.Points.Y[i];
+
+                    if (!spectraCountPerX.TryAdd(x, 1))
+                    {
+                        spectraCountPerX[x]++;
+                    }
+
+                    if (!spectraYSumForX.TryAdd(x, y))
+                    {
+                        spectraYSumForX[x] += y;
+                    }
+                }
+            }
+
+            var resultX = spectraCountPerX.Keys.OrderBy(x => x).ToArray();
+
+            var resultY = resultX
+                .Select(x => spectraYSumForX[x] / spectraCountPerX[x])
+                .ToArray();
+
+            var points = new SpectraPoints(resultX, resultY);
+
+            return new EstimatedSpectraData("average", points);
+        }
+    }
+
+    public static Task<SpectraData> GetSumSpectra(this IReadOnlyCollection<SpectraData> spectras)
+    {
+        return Task.Run(() => GetSumSpectraInternal(spectras));
+
+        SpectraData GetSumSpectraInternal(IReadOnlyCollection<SpectraData> s)
+        {
+            var spectraYSumForX = new Dictionary<float, float>();
+
+            foreach (var spectra in s)
+            {
+                for (var i = 0; i < spectra.Points.Count; i++)
+                {
+                    var x = spectra.Points.X[i];
+                    var y = spectra.Points.Y[i];
+
+                    if (!spectraYSumForX.TryAdd(x, y))
+                    {
+                        spectraYSumForX[x] += y;
+                    }
+                }
+            }
+
+            var resultX = spectraYSumForX.Keys.OrderBy(x => x).ToArray();
+
+            var resultY = resultX
+                .Select(x => spectraYSumForX[x])
+                .ToArray();
+
+            var points = new SpectraPoints(resultX, resultY);
+
+            return new EstimatedSpectraData("sum", points);
+        }
+    }
+
+    public static async Task<IDictionary<PeakEstimateData, SpectraData>> GetPeaksSpectras(
+        this SpectraData spectra,
+        IReadOnlyCollection<PeakEstimateData> peakEstimates)
+    {
+        var tasks = peakEstimates
+            .Select(e => Task.Run(() => GetPeakSpectra(spectra.Points.X, e)));
+
+        var results = await Task.WhenAll(tasks);
+
+        return results.ToDictionary(x => x.Item1, x => x.Item2);
+
+        (PeakEstimateData, SpectraData) GetPeakSpectra(IReadOnlyList<float> xs, PeakEstimateData estimate)
+        {
+            var ys = xs.Select(x => (float) MathFunctions.GaussianAndLorentzianMix(x, estimate)).ToArray();
+
+            var points = new SpectraPoints(xs, ys);
+
+            return (estimate, new EstimatedSpectraData("", points));
+        }
     }
 
     // public static SpectraPeak ProcessPeak(this Spectra s, PeakInfo info)

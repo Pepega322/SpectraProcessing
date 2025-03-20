@@ -10,34 +10,38 @@ public class PeakEstimateDataPlotBuilder : IDataPlotBuilder<PeakEstimateData, Pe
 {
     private const MarkerShape shape = MarkerShape.Cross;
 
-    private const float radius = 10f;
+    private const float radius = 20f;
 
-    private static readonly Color Color = Colors.Red;
+    private static long _counter;
+
+    private static readonly IPalette Palette = new ScottPlot.Palettes.Category20();
 
     private readonly PlotArea builder = new();
 
     public Task<PeakEstimateDataPlot> GetPlot(PeakEstimateData plottableData)
     {
+        var color = Palette.GetColor((int) Interlocked.Increment(ref _counter));
+
         var leftMarker = builder.Add.Marker(
-            x: plottableData.Center - plottableData.HalfWidth,
+            x: plottableData.Center - plottableData.HalfWidth / 2,
             y: plottableData.Amplitude / 2,
             shape,
             radius,
-            Color);
+            color);
 
         var centerMarker = builder.Add.Marker(
             x: plottableData.Center,
             y: plottableData.Amplitude,
             shape,
             radius,
-            Color);
+            color);
 
         var rightMarker = builder.Add.Marker(
-            x: plottableData.Center + plottableData.HalfWidth,
+            x: plottableData.Center + plottableData.HalfWidth / 2,
             y: plottableData.Amplitude / 2,
             shape,
             radius,
-            Color);
+            color);
 
         var plot = new PeakEstimateDataPlot(
             estimateData: plottableData,

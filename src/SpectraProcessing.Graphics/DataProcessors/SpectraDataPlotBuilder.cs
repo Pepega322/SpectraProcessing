@@ -30,7 +30,10 @@ public class SpectraDataPlotBuilder(IPalette palette) : IDataPlotBuilder<Spectra
         {
             case AspSpectraData asp:
             {
-                var aspPlot = builder.Add.Signal(asp.Points.Y.ToArray(), asp.Info.Delta, color);
+                var aspPlot = builder.Add.Signal(
+                    asp.Points.Y.ToArray(),
+                    asp.Info.Delta,
+                    color);
 
                 result = new AspSpectraDataPlot(asp, aspPlot);
 
@@ -38,13 +41,27 @@ public class SpectraDataPlotBuilder(IPalette palette) : IDataPlotBuilder<Spectra
             }
             case EspSpectraData esp:
             {
-                var espPlot = builder.Add.SignalXY(esp.Points.X.ToArray(), esp.Points.Y.ToArray(), color);
+                var espPlot = builder.Add.SignalXY(
+                    esp.Points.X.ToArray(),
+                    esp.Points.Y.ToArray(),
+                    color);
 
                 result = new EspSpectraDataPlot(esp, espPlot);
 
                 break;
             }
-            default: throw new NotSupportedException();
+            case EstimatedSpectraData estimated:
+            {
+                var estimatedPlot = builder.Add.SignalXY(
+                    estimated.Points.X.ToArray(),
+                    estimated.Points.Y.ToArray(),
+                    color);
+
+                result = new EstimatedSpectraDataPlot(estimated, estimatedPlot);
+
+                break;
+            }
+            default: throw new NotSupportedException(plottableData.GetType().Name + " is not supported");
         }
 
         return Task.FromResult(result);

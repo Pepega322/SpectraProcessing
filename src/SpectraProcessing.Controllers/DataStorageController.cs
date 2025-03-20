@@ -12,7 +12,10 @@ public sealed class DataStorageController<TData>(IOptions<DataStorageSettings> s
 
     public event Action? OnChange;
 
-    public IReadOnlyCollection<DataSet<TData>> StorageData => storage;
+    public IReadOnlyCollection<DataSet<TData>> StorageData
+        => storage
+            .Concat([storage.DefaultSet])
+            .ToArray();
 
     public Task AddDataToDefaultSet(TData data)
     {
