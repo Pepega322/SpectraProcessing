@@ -10,6 +10,8 @@ public interface ISpectraProcessingController
 
     Task AddPeakEstimate(PeakEstimateData estimate);
 
+    Task TryRemoveHitPeakEstimate(Pixel pixel, float radius);
+
     Task<bool> TryHitPlot(Pixel pixel, float radius);
 
     Task<bool> TryMoveHitPlot(Point<float> to);

@@ -249,6 +249,22 @@ public partial class MainForm : Form
     {
         spectraProcessingController.OnPlotAreaChanged += plotView.Refresh;
 
+        addPeaksToolStripMenuItem.Click += (_, _) =>
+        {
+            if (addPeaksToolStripMenuItem.Checked)
+            {
+                removePeaksToolStripMenuItem.Checked = false;
+            }
+        };
+
+        removePeaksToolStripMenuItem.Click += (_, _) =>
+        {
+            if (removePeaksToolStripMenuItem.Checked)
+            {
+                addPeaksToolStripMenuItem.Checked = false;
+            }
+        };
+
         plotView.SKControl!.MouseDoubleClick += async (_, _) =>
         {
             if (addPeaksToolStripMenuItem.Checked is false)
@@ -262,6 +278,14 @@ public partial class MainForm : Form
                 halfWidth: 30f);
 
             await spectraProcessingController.AddPeakEstimate(estimate);
+        };
+
+        plotView.SKControl!.MouseDoubleClick += async (_, _) =>
+        {
+            if (removePeaksToolStripMenuItem.Checked)
+            {
+                await spectraProcessingController.TryRemoveHitPeakEstimate(coordinateController.Pixel, 10f);
+            }
         };
 
         plotView.MouseDown += async (_, _) =>

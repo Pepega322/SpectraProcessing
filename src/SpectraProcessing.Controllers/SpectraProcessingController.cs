@@ -19,6 +19,33 @@ public class SpectraProcessingController(
 
     public event Action? OnPlotAreaChanged;
 
+    public async Task AddPeakEstimate(PeakEstimateData estimate)
+    {
+        var plot = await peakEstimateDataPlotBuilder.GetPlot(estimate);
+
+        peakEstimateDataPlots.Add(plot);
+
+        await peakEstimateDataPlotDrawer.Draw(plot);
+
+        OnPlotAreaChanged?.Invoke();
+    }
+
+    public async Task TryRemoveHitPeakEstimate(Pixel pixel, float radius)
+    {
+        var toRemove = peakEstimateDataPlots.FirstOrDefault(p => p.TryHit(pixel, radius));
+
+        if (toRemove is null)
+        {
+            return;
+        }
+
+        await peakEstimateDataPlotDrawer.Erase(toRemove);
+
+        peakEstimateDataPlots.Remove(toRemove);
+
+        OnPlotAreaChanged?.Invoke();
+    }
+
     public Task<bool> TryHitPlot(Pixel pixel, float radius)
     {
         hitPlot = peakEstimateDataPlots.FirstOrDefault(p => p.TryHit(pixel, radius));
@@ -47,16 +74,5 @@ public class SpectraProcessingController(
         hitPlot = null;
 
         return Task.CompletedTask;
-    }
-
-    public async Task AddPeakEstimate(PeakEstimateData estimate)
-    {
-        var plot = await peakEstimateDataPlotBuilder.GetPlot(estimate);
-
-        peakEstimateDataPlots.Add(plot);
-
-        await peakEstimateDataPlotDrawer.Draw(plot);
-
-        OnPlotAreaChanged?.Invoke();
     }
 }

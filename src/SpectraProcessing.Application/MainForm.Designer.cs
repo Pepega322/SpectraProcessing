@@ -70,6 +70,7 @@ partial class MainForm
         plotSetContextMenuProcessPeaks = new ToolStripMenuItem();
         plotSetContextMenuGetAverage = new ToolStripMenuItem();
         plotSetContextMenuClear = new ToolStripMenuItem();
+        removePeaksToolStripMenuItem = new ToolStripMenuItem();
         tableLayoutPanel1.SuspendLayout();
         tableLayoutPanel2.SuspendLayout();
         tableLayoutPanel3.SuspendLayout();
@@ -156,7 +157,7 @@ partial class MainForm
         // 
         menuStrip2.Dock = DockStyle.Fill;
         menuStrip2.ImageScalingSize = new Size(32, 32);
-        menuStrip2.Items.AddRange(new ToolStripItem[] { resizeToolStripMenuItem, addPeaksToolStripMenuItem });
+        menuStrip2.Items.AddRange(new ToolStripItem[] { resizeToolStripMenuItem, addPeaksToolStripMenuItem, removePeaksToolStripMenuItem });
         menuStrip2.Location = new Point(0, 0);
         menuStrip2.Name = "menuStrip2";
         menuStrip2.Size = new Size(1123, 40);
@@ -401,6 +402,13 @@ partial class MainForm
         plotSetContextMenuClear.Size = new Size(299, 38);
         plotSetContextMenuClear.Text = "Clear";
         // 
+        // removePeaksToolStripMenuItem
+        // 
+        removePeaksToolStripMenuItem.CheckOnClick = true;
+        removePeaksToolStripMenuItem.Name = "removePeaksToolStripMenuItem";
+        removePeaksToolStripMenuItem.Size = new Size(188, 36);
+        removePeaksToolStripMenuItem.Text = "Remove peaks";
+        // 
         // MainForm
         // 
         AutoScaleDimensions = new SizeF(13F, 32F);
@@ -476,4 +484,5 @@ partial class MainForm
     private MenuStrip menuStrip2;
     private ToolStripMenuItem resizeToolStripMenuItem;
     private ToolStripMenuItem addPeaksToolStripMenuItem;
+    private ToolStripMenuItem removePeaksToolStripMenuItem;
 }
