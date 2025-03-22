@@ -1,5 +1,6 @@
-using SpectraProcessing.Controllers.Interfaces;
+using SpectraProcessing.Bll.Controllers.Interfaces;
 using SpectraProcessing.Models.Collections;
+using SpectraProcessing.Models.Collections.Keys;
 using SpectraProcessing.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Application.Controllers;
@@ -15,12 +16,14 @@ internal static class TreeViewHelpers
         tree.EndUpdate();
     }
 
-    public static IReadOnlyCollection<TreeNode> GetDataNodes<TData>(
-        this IDataStorageController<TData> dataStorageController)
+    public static IReadOnlyCollection<TreeNode> GetDataNodes<TKey, TData>(
+        this IDataStorageController<TKey, TData> dataStorageController)
+        where TKey : INamedKey
+
     {
         var nodes = new List<TreeNode>();
 
-        foreach (var set in dataStorageController.StorageData)
+        foreach (var set in dataStorageController.StorageDataSets)
         {
             var node = new TreeNode
             {

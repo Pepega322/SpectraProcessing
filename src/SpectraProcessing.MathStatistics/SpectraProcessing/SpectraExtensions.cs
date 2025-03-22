@@ -1,5 +1,5 @@
 using SpectraProcessing.Models.Collections;
-using SpectraProcessing.Models.PeakEstimate;
+using SpectraProcessing.Models.Peak;
 using SpectraProcessing.Models.Spectra;
 using SpectraProcessing.Models.Spectra.Abstractions;
 
@@ -92,9 +92,9 @@ public static class SpectraExtensions
         }
     }
 
-    public static async Task<IDictionary<PeakEstimateData, SpectraData>> GetPeaksSpectras(
+    public static async Task<IDictionary<PeakData, SpectraData>> GetPeaksSpectras(
         this SpectraData spectra,
-        IReadOnlyCollection<PeakEstimateData> peakEstimates)
+        IReadOnlyCollection<PeakData> peakEstimates)
     {
         var tasks = peakEstimates
             .Select(e => Task.Run(() => GetPeakSpectra(spectra.Points.X, e)));
@@ -103,7 +103,7 @@ public static class SpectraExtensions
 
         return results.ToDictionary(x => x.Item1, x => x.Item2);
 
-        (PeakEstimateData, SpectraData) GetPeakSpectra(IReadOnlyList<float> xs, PeakEstimateData estimate)
+        (PeakData, SpectraData) GetPeakSpectra(IReadOnlyList<float> xs, PeakData estimate)
         {
             var ys = xs.Select(x => (float) MathFunctions.GaussianAndLorentzianMix(x, estimate)).ToArray();
 

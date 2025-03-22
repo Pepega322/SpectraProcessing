@@ -1,4 +1,4 @@
-namespace SpectraProcessing.Controllers.Settings;
+namespace SpectraProcessing.Bll.Settings;
 
 public record DataReaderControllerSettings
 {

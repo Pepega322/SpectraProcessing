@@ -1,7 +1,7 @@
 using SpectraProcessing.Models.Collections;
 using SpectraProcessing.Models.Spectra.Abstractions;
 
-namespace SpectraProcessing.Controllers.Interfaces;
+namespace SpectraProcessing.Bll.Controllers.Interfaces;
 
 public interface IPlotController
 {

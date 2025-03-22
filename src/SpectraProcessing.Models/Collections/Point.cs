@@ -2,8 +2,8 @@ using System.Numerics;
 
 namespace SpectraProcessing.Models.Collections;
 
-public readonly struct Point<T>(T x, T y) where T : struct, INumber<T>
+public class Point<T>(T x, T y) where T : struct, INumber<T>
 {
-    public readonly T X = x;
-    public readonly T Y = y;
+    public T X { get; set; } = x;
+    public T Y { get; set; } = y;
 }

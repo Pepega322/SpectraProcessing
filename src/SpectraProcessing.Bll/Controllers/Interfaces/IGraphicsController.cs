@@ -1,7 +1,7 @@
 using SpectraProcessing.Domain.DataTypes;
 using SpectraProcessing.Models.Collections;
 
-namespace SpectraProcessing.Controllers.Interfaces;
+namespace SpectraProcessing.Bll.Controllers.Interfaces;
 
 public interface IGraphicsController<TPlot> where TPlot : IDataPlot
 {

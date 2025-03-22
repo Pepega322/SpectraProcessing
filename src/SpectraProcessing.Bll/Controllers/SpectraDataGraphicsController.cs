@@ -1,10 +1,10 @@
 using ScottPlot;
-using SpectraProcessing.Controllers.Interfaces;
+using SpectraProcessing.Bll.Controllers.Interfaces;
 using SpectraProcessing.Domain.DataProcessors;
 using SpectraProcessing.Models.Collections;
 using SpectraProcessing.Models.Spectra.Abstractions;
 
-namespace SpectraProcessing.Controllers;
+namespace SpectraProcessing.Bll.Controllers;
 
 public sealed class SpectraDataGraphicsController(IDataPlotDrawer<SpectraDataPlot> drawer)
     : IGraphicsController<SpectraDataPlot>

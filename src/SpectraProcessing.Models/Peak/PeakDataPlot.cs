@@ -3,18 +3,18 @@ using SpectraProcessing.Domain.DataTypes;
 using SpectraProcessing.Models.Collections;
 using SpectraProcessing.Models.Plottables;
 
-namespace SpectraProcessing.Models.PeakEstimate;
+namespace SpectraProcessing.Models.Peak;
 
-public sealed class PeakEstimateDataPlot(
-    PeakEstimateData estimateData,
+public sealed class PeakDataPlot(
+    PeakData peak,
     DraggableMarker leftMarker,
     DraggableMarker centerMarker,
     DraggableMarker rightMarker
 ) : IDataPlot
 {
-    private readonly Lock _locker = new();
+    private readonly Lock locker = new();
 
-    public PeakEstimateData EstimateData => estimateData;
+    public PeakData Peak => peak;
 
     public IReadOnlyCollection<IPlottable> Markers
         =>
@@ -24,7 +24,7 @@ public sealed class PeakEstimateDataPlot(
             rightMarker,
         ];
 
-    public void UpdatePeakEstimateData(PeakEstimateData estimate)
+    public void UpdatePeakEstimateData(PeakData estimate)
     {
         OnPeakEstimateDataUpdate(
             center: estimate.Center,
@@ -73,18 +73,18 @@ public sealed class PeakEstimateDataPlot(
             OnPeakEstimateDataUpdate(
                 center: center,
                 amplitude: amplitude,
-                halfWidth: estimateData.HalfWidth,
-                gaussianContribution: estimateData.GaussianContribution);
+                halfWidth: peak.HalfWidth,
+                gaussianContribution: peak.GaussianContribution);
         }
         else if (leftMarker.Dragged || rightMarker.Dragged)
         {
-            var halfWidth = Math.Abs(value: (to.X - estimateData.Center) * 2);
+            var halfWidth = Math.Abs(value: (to.X - peak.Center) * 2);
 
             OnPeakEstimateDataUpdate(
-                center: estimateData.Center,
-                amplitude: estimateData.Amplitude,
+                center: peak.Center,
+                amplitude: peak.Amplitude,
                 halfWidth: halfWidth,
-                gaussianContribution: estimateData.GaussianContribution);
+                gaussianContribution: peak.GaussianContribution);
         }
     }
 
@@ -94,20 +94,21 @@ public sealed class PeakEstimateDataPlot(
         float halfWidth,
         float gaussianContribution)
     {
-        _locker.Enter();
+        locker.Enter();
 
-        estimateData.Amplitude = amplitude;
-        estimateData.Center = center;
-        estimateData.HalfWidth = halfWidth;
-        estimateData.GaussianContribution = gaussianContribution;
+        peak.Amplitude = amplitude;
+        peak.Center = center;
+        peak.HalfWidth = halfWidth;
+        peak.GaussianContribution = gaussianContribution;
 
-        var halfHeight = estimateData.Amplitude / 2;
+        var halfHeight = peak.Amplitude / 2;
 
-        DragMarkerTo(leftMarker, new Coordinates(estimateData.Center - estimateData.HalfWidth / 2, halfHeight));
-        DragMarkerTo(centerMarker, new Coordinates(estimateData.Center, estimateData.Amplitude));
-        DragMarkerTo(rightMarker, new Coordinates(estimateData.Center + estimateData.HalfWidth / 2, halfHeight));
+        DragMarkerTo(leftMarker, new Coordinates(peak.Center - peak.HalfWidth / 2, halfHeight));
+        DragMarkerTo(centerMarker, new Coordinates(peak.Center, peak.Amplitude));
+        DragMarkerTo(rightMarker, new Coordinates(peak.Center + peak.HalfWidth / 2, halfHeight));
 
-        _locker.Exit();
+        locker.Exit();
+
         return;
 
         void DragMarkerTo(DraggableMarker marker, Coordinates to)

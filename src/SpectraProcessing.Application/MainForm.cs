@@ -1,8 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using SpectraProcessing.Application.Controllers;
-using SpectraProcessing.Controllers.Interfaces;
+using SpectraProcessing.Bll.Controllers.Interfaces;
+using SpectraProcessing.Bll.Providers.Interfaces;
+using SpectraProcessing.MathStatistics;
 using SpectraProcessing.Models.Collections;
-using SpectraProcessing.Models.PeakEstimate;
+using SpectraProcessing.Models.Collections.Keys;
+using SpectraProcessing.Models.Peak;
 using SpectraProcessing.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Application;
@@ -10,12 +13,13 @@ namespace SpectraProcessing.Application;
 public partial class MainForm : Form
 {
     private readonly IDialogController dialogController;
-    private readonly ICoordinateController coordinateController;
     private readonly IDataSourceController<SpectraData> dataSourceController;
     private readonly IDataWriterController dataWriterController;
-    private readonly IDataStorageController<SpectraData> dataStorageController;
+    private readonly IDataStorageController<StringKey, SpectraData> dataStorageController;
     private readonly ISpectraProcessingController spectraProcessingController;
     private readonly IPlotController plotController;
+    private readonly IPeakController peakController;
+    private readonly ICoordinateProvider coordinateProvider;
 
     public MainForm()
     {
@@ -24,16 +28,17 @@ public partial class MainForm : Form
         var provider = Startup.GetServiceProvider(plotView);
         plotController = provider.GetRequiredService<IPlotController>();
         dialogController = provider.GetRequiredService<IDialogController>();
-        dataStorageController = provider.GetRequiredService<IDataStorageController<SpectraData>>();
+        dataStorageController = provider.GetRequiredService<IDataStorageController<StringKey, SpectraData>>();
         dataSourceController = provider.GetRequiredService<IDataSourceController<SpectraData>>();
         dataWriterController = provider.GetRequiredService<IDataWriterController>();
-        coordinateController = provider.GetRequiredService<ICoordinateController>();
+        coordinateProvider = provider.GetRequiredService<ICoordinateProvider>();
+        peakController = provider.GetRequiredService<IPeakController>();
         spectraProcessingController = provider.GetRequiredService<ISpectraProcessingController>();
 
         SetupDataReaderController();
         SetupDataStorageController();
         SetupPlotController();
-        SetupCoordinateControllerController();
+        SetupCoordinateProvider();
         SetupSpectraProcessingController();
 
         dataContextMenu.Tag = dataStorageTreeView;
@@ -48,22 +53,59 @@ public partial class MainForm : Form
         plotStorageTreeView.NodeMouseClick += PlotDrawContextMenu;
         plotStorageTreeView.NodeMouseClick += PlotSetDrawContextMenu;
         plotStorageTreeView.NodeMouseDoubleClick += TreeNodeClickSelect;
+
+        PeakData[] estimates =
+        [
+            new(200, 30, 50, 0),
+            new(440, 15, 50, 0),
+            new(500, 30, 50, 0),
+            new(740, 10, 50, 0),
+            new(800, 30, 50, 0),
+            new(850, 20, 50, 0),
+        ];
+
+        foreach (var estimate in estimates)
+        {
+            var fl = 1f;
+
+            var plot = plotView.Plot.Add.Function(x => MathFunctions.GaussianAndLorentzianMix(x, estimate));
+        }
+
+        plotView.Plot.Add.Function(x => MathFunctions.GaussianAndLorentzianMix(x, estimates));
+    }
+
+    private async Task<int> Prepare()
+    {
+        var set = await dataSourceController.ReadFolderAsync("d:\\Study\\Chemfuck\\диплом\\DEV\\");
+
+        await dataStorageController.AddDataSet(new StringKey(set.Name), set);
+
+        var spectra = set.Data.Single(s => s.Name == "Gauss.esp");
+
+        await plotController.DataAddToPlotAreaToDefault(spectra);
+
+        await plotController.PlotAreaResize();
+
+        plotView.Refresh();
+
+        return 1;
     }
 
     private void SetupDataReaderController()
     {
         readFolderToolStripMenuItem.Click += async (_, _) =>
         {
-            var path = dialogController.GetFolderPath();
-
-            if (path is null)
-            {
-                return;
-            }
-
-            var set = await dataSourceController.ReadFolderAsync(path);
-
-            await dataStorageController.AddDataSet(set);
+            await Prepare();
+            // var path = dialogController.GetFolderPath();
+            //
+            // if (path is null)
+            // {
+            //     return;
+            // }
+            //
+            // var set = await dataSourceController.ReadFolderAsync(path);
+            //
+            // await dataStorageController.AddDataSet(set);
         };
 
         readFolderRecursiveToolStripMenuItem.Click += async (_, _) =>
@@ -77,7 +119,7 @@ public partial class MainForm : Form
 
             var set = await dataSourceController.ReadFolderFullDepthAsync(path);
 
-            await dataStorageController.AddDataSet(set);
+            await dataStorageController.AddDataSet(new StringKey(set.Name), set);
         };
     }
 
@@ -146,7 +188,7 @@ public partial class MainForm : Form
         dataSetContextMenuDelete.Click += async (sender, _) =>
         {
             var set = TreeViewHelpers.GetContextSet<SpectraData>(sender);
-            await dataStorageController.DeleteDataSet(set);
+            await dataStorageController.DeleteDataSet(new StringKey(set.Name), set);
         };
 
         //Plotting
@@ -221,6 +263,7 @@ public partial class MainForm : Form
             if (node is { Tag: SpectraDataPlot plot, Checked: true })
             {
                 await plotController.PlotHighlight(plot);
+                await spectraProcessingController.SaveSpectraPeaks(plot.SpectraData);
             }
         };
 
@@ -234,13 +277,12 @@ public partial class MainForm : Form
         };
     }
 
-    private void SetupCoordinateControllerController()
+    private void SetupCoordinateProvider()
     {
-        plotView.MouseMove += (_, e) => coordinateController.Location = new Point<int>(e.X, e.Y);
-
-        coordinateController.OnChange += () =>
+        plotView.MouseMove += (_, e) =>
         {
-            var c = coordinateController.Coordinates;
+            coordinateProvider.UpdateCoordinates(e.X, e.Y);
+            var c = coordinateProvider.Coordinates;
             mouseCoordinatesBox.Text = $@"X:{c.X: 0.00} Y:{c.Y: 0.00}";
         };
     }
@@ -272,43 +314,30 @@ public partial class MainForm : Form
                 return;
             }
 
-            var estimate = new PeakEstimateData(
-                center: coordinateController.Coordinates.X,
-                amplitude: coordinateController.Coordinates.Y,
+            var estimate = new PeakData(
+                center: coordinateProvider.Coordinates.X,
+                amplitude: coordinateProvider.Coordinates.Y,
                 halfWidth: 30f);
 
-            await spectraProcessingController.AddPeakEstimate(estimate);
+            await spectraProcessingController.AddPeak(estimate);
         };
 
         plotView.SKControl!.MouseDoubleClick += async (_, _) =>
         {
-            if (removePeaksToolStripMenuItem.Checked)
+            if (!removePeaksToolStripMenuItem.Checked)
             {
-                await spectraProcessingController.TryRemoveHitPeakEstimate(coordinateController.Pixel, 10f);
+                return;
+            }
+
+            var peak = await peakController.TryGetPeak();
+
+            if (peak is not null)
+            {
+                await spectraProcessingController.RemovePeak(peak.Peak);
             }
         };
 
-        plotView.MouseDown += async (_, _) =>
-        {
-            var canHit = await spectraProcessingController.TryHitPlot(coordinateController.Pixel, 10f);
-
-            if (canHit)
-            {
-                plotView.UserInputProcessor.Disable();
-            }
-        };
-
-        plotView.MouseMove += async (_, _) =>
-        {
-            var canMove = await spectraProcessingController.TryMoveHitPlot(coordinateController.Coordinates);
-            plotView.Cursor = canMove ? Cursors.Hand : Cursors.Arrow;
-        };
-
-        plotView.MouseUp += async (_, _) =>
-        {
-            await spectraProcessingController.ReleaseHitPlot();
-            plotView.UserInputProcessor.Enable();
-        };
+        plotView.MouseDown += async (_, _) => await peakController.TryMovePeak();
     }
 
     // private void SetupSpectraProcessingController()

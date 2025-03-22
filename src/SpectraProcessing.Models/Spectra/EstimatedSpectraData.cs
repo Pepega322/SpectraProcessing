@@ -7,7 +7,7 @@ namespace SpectraProcessing.Models.Spectra;
 public class EstimatedSpectraData(string name, SpectraPoints points) : SpectraData(name, points)
 {
     public override string Extension => "estimated";
-    public override SpectraFormat Format => SpectraFormat.Estimated;
+    protected override SpectraFormat Format => SpectraFormat.Estimated;
 
     public override SpectraData ChangePoints(SpectraPoints newPoints)
     {

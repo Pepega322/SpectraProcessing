@@ -1,4 +1,4 @@
-using SpectraProcessing.Controllers.Interfaces;
+using SpectraProcessing.Bll.Controllers.Interfaces;
 
 namespace SpectraProcessing.Application.Controllers;
 

@@ -1,8 +1,8 @@
 ﻿using SpectraProcessing.Domain.DataTypes;
 
-namespace SpectraProcessing.Models.PeakEstimate;
+namespace SpectraProcessing.Models.Peak;
 
-public sealed class PeakEstimateData : IPlottableData
+public sealed class PeakData : IPlottableData
 {
     private static long _counter;
 
@@ -16,7 +16,7 @@ public sealed class PeakEstimateData : IPlottableData
 
     public float GaussianContribution { get; set; }
 
-    public PeakEstimateData(
+    public PeakData(
         float center,
         float amplitude,
         float halfWidth,
@@ -34,5 +34,14 @@ public sealed class PeakEstimateData : IPlottableData
         GaussianContribution = gaussianContribution;
     }
 
-    public override int GetHashCode() => HashCode.Combine(id);
+    public PeakData Copy()
+        => new(
+            center: Center,
+            amplitude: Amplitude,
+            halfWidth: HalfWidth,
+            gaussianContribution: GaussianContribution);
+
+    public override bool Equals(object? obj) => obj is PeakData data && data.id == id;
+
+    public override int GetHashCode() => id.GetHashCode();
 }

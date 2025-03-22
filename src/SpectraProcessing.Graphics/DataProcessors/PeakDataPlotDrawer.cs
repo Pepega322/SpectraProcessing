@@ -1,14 +1,14 @@
 ﻿using SpectraProcessing.Domain.DataProcessors;
-using SpectraProcessing.Models.PeakEstimate;
+using SpectraProcessing.Models.Peak;
 using PlotArea = ScottPlot.Plot;
 
 namespace SpectraProcessing.Graphics.DataProcessors;
 
-public class PeakEstimateDataPlotDrawer(PlotArea plotForm) : IDataPlotDrawer<PeakEstimateDataPlot>
+public class PeakDataPlotDrawer(PlotArea plotForm) : IDataPlotDrawer<PeakDataPlot>
 {
-    private readonly ISet<PeakEstimateDataPlot> plotted = new HashSet<PeakEstimateDataPlot>();
+    private readonly ISet<PeakDataPlot> plotted = new HashSet<PeakDataPlot>();
 
-    public Task<bool> IsDrew(PeakEstimateDataPlot plot)
+    public Task<bool> IsDrew(PeakDataPlot plot)
     {
         lock (plotted)
         {
@@ -16,7 +16,7 @@ public class PeakEstimateDataPlotDrawer(PlotArea plotForm) : IDataPlotDrawer<Pea
         }
     }
 
-    public Task Draw(PeakEstimateDataPlot plt)
+    public Task Draw(PeakDataPlot plt)
     {
         lock (plotted)
         {
@@ -37,7 +37,7 @@ public class PeakEstimateDataPlotDrawer(PlotArea plotForm) : IDataPlotDrawer<Pea
         return Task.CompletedTask;
     }
 
-    public Task Erase(PeakEstimateDataPlot plt)
+    public Task Erase(PeakDataPlot plt)
     {
         lock (plotted)
         {

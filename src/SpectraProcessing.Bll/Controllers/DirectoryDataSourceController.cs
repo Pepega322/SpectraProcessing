@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Logging;
-using SpectraProcessing.Controllers.Interfaces;
+using SpectraProcessing.Bll.Controllers.Interfaces;
 using SpectraProcessing.Domain.InputOutput;
 using SpectraProcessing.Models.Collections;
 
-namespace SpectraProcessing.Controllers;
+namespace SpectraProcessing.Bll.Controllers;
 
 public sealed class DirectoryDataSourceController<TData>(
     IDataReader<TData> reader,

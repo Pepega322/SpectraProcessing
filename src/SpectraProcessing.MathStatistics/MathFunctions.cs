@@ -1,14 +1,17 @@
-﻿using SpectraProcessing.Models.PeakEstimate;
+﻿using SpectraProcessing.Models.Peak;
 
 namespace SpectraProcessing.MathStatistics;
 
 public static class MathFunctions
 {
-    public static double GaussianAndLorentzianMix(float x, PeakEstimateData estimate)
+    public static double GaussianAndLorentzianMix(double x, PeakData estimate)
         => estimate.GaussianContribution * Gaussian(x, estimate)
             + (1 - estimate.GaussianContribution) * Lorentzian(x, estimate);
 
-    private static double Gaussian(float x, PeakEstimateData estimate)
+    public static double GaussianAndLorentzianMix(double x, IReadOnlyCollection<PeakData> estimates)
+        => estimates.Sum(e => GaussianAndLorentzianMix(x, e));
+
+    private static double Gaussian(double x, PeakData estimate)
     {
         var a = -4 * Math.Log(2);
 
@@ -19,7 +22,7 @@ public static class MathFunctions
         return estimate.Amplitude * Math.Exp(a * b * b / c);
     }
 
-    private static double Lorentzian(float x, PeakEstimateData estimate)
+    private static double Lorentzian(double x, PeakData estimate)
     {
         var a = 2 * (x - estimate.Center) / estimate.HalfWidth;
 

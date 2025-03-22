@@ -1,13 +1,14 @@
-using SpectraProcessing.Controllers.Interfaces;
+using SpectraProcessing.Bll.Controllers.Interfaces;
 using SpectraProcessing.Domain.DataProcessors;
 using SpectraProcessing.Models.Collections;
+using SpectraProcessing.Models.Collections.Keys;
 using SpectraProcessing.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Application.Controllers;
 
 public class PlotController(
     IDataPlotBuilder<SpectraData, SpectraDataPlot> spectraDataPlotBuilder,
-    IDataStorageController<SpectraDataPlot> spectraDataStorageController,
+    IDataStorageController<StringKey, SpectraDataPlot> spectraDataStorageController,
     IGraphicsController<SpectraDataPlot> spectraGraphicsController,
     ISpectraProcessingController spectraProcessingController
 ) : IPlotController
@@ -16,7 +17,7 @@ public class PlotController(
 
     public event Action? OnPlotStorageChanged;
 
-    public IReadOnlyCollection<DataSet<SpectraDataPlot>> Plots => spectraDataStorageController.StorageData;
+    public IReadOnlyCollection<DataSet<SpectraDataPlot>> Plots => spectraDataStorageController.StorageDataSets;
 
     public async Task ContextDataSetAddToPlotArea(DataSet<SpectraData> set)
     {
@@ -24,7 +25,7 @@ public class PlotController(
 
         var plotSet = new DataSet<SpectraDataPlot>(set.Name, plots);
 
-        await spectraDataStorageController.AddDataSet(plotSet);
+        await spectraDataStorageController.AddDataSet(new StringKey(plotSet.Name), plotSet);
 
         await spectraGraphicsController.DrawDataSet(plotSet);
 
@@ -91,7 +92,7 @@ public class PlotController(
 
     public async Task ContextPlotSetDelete(DataSet<SpectraDataPlot> set)
     {
-        await spectraDataStorageController.DeleteDataSet(set);
+        await spectraDataStorageController.DeleteDataSet(new StringKey(set.Name), set);
         await spectraGraphicsController.EraseDataSet(set);
 
         OnPlotAreaChanged?.Invoke();

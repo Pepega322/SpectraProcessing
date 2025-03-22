@@ -1,6 +1,6 @@
 using SpectraProcessing.Models.Collections;
 
-namespace SpectraProcessing.Controllers.Interfaces;
+namespace SpectraProcessing.Bll.Controllers.Interfaces;
 
 public interface IDataSourceController<TData>
 {

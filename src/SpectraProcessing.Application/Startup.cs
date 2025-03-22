@@ -3,14 +3,17 @@ using Microsoft.Extensions.DependencyInjection;
 using ScottPlot;
 using ScottPlot.WinForms;
 using SpectraProcessing.Application.Controllers;
-using SpectraProcessing.Controllers;
-using SpectraProcessing.Controllers.Interfaces;
-using SpectraProcessing.Controllers.Settings;
+using SpectraProcessing.Bll.Controllers;
+using SpectraProcessing.Bll.Controllers.Interfaces;
+using SpectraProcessing.Bll.Providers;
+using SpectraProcessing.Bll.Providers.Interfaces;
+using SpectraProcessing.Bll.Settings;
 using SpectraProcessing.DataSource.InputOutput;
 using SpectraProcessing.Domain.DataProcessors;
 using SpectraProcessing.Domain.InputOutput;
 using SpectraProcessing.Graphics.DataProcessors;
-using SpectraProcessing.Models.PeakEstimate;
+using SpectraProcessing.Models.Collections.Keys;
+using SpectraProcessing.Models.Peak;
 using SpectraProcessing.Models.Spectra.Abstractions;
 using Plot = ScottPlot.Plot;
 
@@ -65,24 +68,29 @@ public static class Startup
         services.AddTransient<IDataReader<SpectraData>, SpectraFileReader>();
         // services.AddSingleton<IDataReader<PeakBordersSet>, PeakBordersSetReader>();
         services.AddTransient<IDataPlotBuilder<SpectraData, SpectraDataPlot>, SpectraDataPlotBuilder>();
-        services.AddTransient<IDataPlotBuilder<PeakEstimateData, PeakEstimateDataPlot>, PeakEstimateDataPlotBuilder>();
+        services.AddTransient<IDataPlotBuilder<PeakData, PeakDataPlot>, PeakDataPlotBuilder>();
         services.AddTransient<IDataPlotDrawer<SpectraDataPlot>, SpectraDataPlotDrawer>();
-        services.AddTransient<IDataPlotDrawer<PeakEstimateDataPlot>, PeakEstimateDataPlotDrawer>();
+        services.AddTransient<IDataPlotDrawer<PeakDataPlot>, PeakDataPlotDrawer>();
 
         return services;
     }
 
     private static IServiceCollection AddControllers(this IServiceCollection services)
     {
-        services.AddTransient<IDialogController, DialogController>();
-        services.AddTransient<IDataSourceController<SpectraData>, DirectoryDataSourceController<SpectraData>>();
-        services.AddTransient<IDataWriterController, DirectoryDataWriterController>();
-        services.AddTransient<IDataStorageController<SpectraData>, DataStorageController<SpectraData>>();
-        services.AddTransient<IDataStorageController<SpectraDataPlot>, DataStorageController<SpectraDataPlot>>();
-        services.AddTransient<IGraphicsController<SpectraDataPlot>, SpectraDataGraphicsController>();
-        services.AddTransient<ISpectraProcessingController, SpectraProcessingController>();
-        services.AddTransient<ICoordinateController, CoordinateController>();
-        services.AddTransient<IPlotController, PlotController>();
+        services
+            .AddSingleton<ICoordinateProvider, CoordinateProvider>()
+            .AddSingleton<IDataStorageController<StringKey, SpectraData>,
+                DataStorageController<StringKey, SpectraData>>()
+            .AddSingleton<IDataStorageController<StringKey, SpectraDataPlot>,
+                DataStorageController<StringKey, SpectraDataPlot>>()
+            .AddSingleton<IDataStorageController<SpectraKey, PeakDataPlot>,
+                DataStorageController<SpectraKey, PeakDataPlot>>()
+            .AddSingleton<IPlotController, PlotController>()
+            .AddTransient<IDialogController, DialogController>()
+            .AddTransient<IDataSourceController<SpectraData>, DirectoryDataSourceController<SpectraData>>()
+            .AddTransient<IDataWriterController, DirectoryDataWriterController>()
+            .AddTransient<IGraphicsController<SpectraDataPlot>, SpectraDataGraphicsController>()
+            .AddTransient<ISpectraProcessingController, SpectraProcessingController>();
 
         return services;
     }

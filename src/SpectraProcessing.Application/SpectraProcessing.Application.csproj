@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SpectraProcessing.Controllers\SpectraProcessing.Controllers.csproj"/>
+    <ProjectReference Include="..\SpectraProcessing.Bll\SpectraProcessing.Bll.csproj"/>
     <ProjectReference Include="..\SpectraProcessing.DataSource\SpectraProcessing.DataSource.csproj"/>
   </ItemGroup>
 

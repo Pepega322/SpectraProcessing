@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpectraProcessing.Controllers", "src\SpectraProcessing.Controllers\SpectraProcessing.Controllers.csproj", "{D4B47FC1-EA72-449C-BA52-DF1ABEE7D5A6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpectraProcessing.Bll", "src\SpectraProcessing.Bll\SpectraProcessing.Bll.csproj", "{D4B47FC1-EA72-449C-BA52-DF1ABEE7D5A6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpectraProcessing.DataSource", "src\SpectraProcessing.DataSource\SpectraProcessing.DataSource.csproj", "{97C5821E-57B9-4DA8-860B-DA26766B2727}"
 EndProject

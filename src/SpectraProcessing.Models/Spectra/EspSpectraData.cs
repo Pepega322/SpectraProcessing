@@ -14,7 +14,7 @@ public sealed class EspSpectraData(
 
     public override string Extension => "esp";
 
-    public override SpectraFormat Format => SpectraFormat.Esp;
+    protected override SpectraFormat Format => SpectraFormat.Esp;
 
     public override SpectraData ChangePoints(SpectraPoints newPoints) => new EspSpectraData(Name, newPoints, Info);
 
