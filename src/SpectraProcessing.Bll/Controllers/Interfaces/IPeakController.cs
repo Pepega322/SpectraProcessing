@@ -1,4 +1,4 @@
-﻿using SpectraProcessing.Models.Peak;
+﻿using SpectraProcessing.Bll.Models.ScottPlot.Peak;
 
 namespace SpectraProcessing.Bll.Controllers.Interfaces;
 

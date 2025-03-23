@@ -1,12 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
-using SpectraProcessing.Application.Controllers;
+using SpectraProcessing.Application.Extensions;
 using SpectraProcessing.Bll.Controllers.Interfaces;
+using SpectraProcessing.Bll.Models.ScottPlot.Spectra.Abstractions;
 using SpectraProcessing.Bll.Providers.Interfaces;
-using SpectraProcessing.MathStatistics;
-using SpectraProcessing.Models.Collections;
-using SpectraProcessing.Models.Collections.Keys;
-using SpectraProcessing.Models.Peak;
-using SpectraProcessing.Models.Spectra.Abstractions;
+using SpectraProcessing.Domain.Collections;
+using SpectraProcessing.Domain.Collections.Keys;
+using SpectraProcessing.Domain.Models.Peak;
+using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Application;
 
@@ -26,6 +26,7 @@ public partial class MainForm : Form
         InitializeComponent();
 
         var provider = Startup.GetServiceProvider(plotView);
+
         spectraController = provider.GetRequiredService<ISpectraController>();
         dialogController = provider.GetRequiredService<IDialogController>();
         dataStorageProvider = provider.GetRequiredService<IDataStorageProvider<StringKey, SpectraData>>();
@@ -106,13 +107,16 @@ public partial class MainForm : Form
     private void SetupDataStorageController()
     {
         dataStorageProvider.OnChange +=
-            async () => await dataStorageTreeView.BuildTreeAsync(dataStorageProvider.GetDataNodes);
+            async () => await dataStorageTreeView.BuildTreeAsync(
+                dataStorageProvider.StorageDataSets
+                    .Concat([dataStorageProvider.DefaultDataSet])
+                    .GetDataNodes);
 
         dataContextMenuClear.Click += (_, _) => dataStorageProvider.Clear();
 
         dataContextMenuSaveAsEsp.Click += async (sender, _) =>
         {
-            var data = TreeViewHelpers.GetContextData<SpectraData>(sender);
+            var data = TreeViewExtensions.GetContextData<SpectraData>(sender);
 
             var fullname = dialogController.GetSaveFileFullName(data.Name, ".esp");
 
@@ -126,8 +130,8 @@ public partial class MainForm : Form
 
         dataContextMenuDelete.Click += async (sender, _) =>
         {
-            var ownerSet = TreeViewHelpers.GetContextParentSet<SpectraData>(sender);
-            var spectra = TreeViewHelpers.GetContextData<SpectraData>(sender);
+            var ownerSet = TreeViewExtensions.GetContextParentSet<SpectraData>(sender);
+            var spectra = TreeViewExtensions.GetContextData<SpectraData>(sender);
             await dataStorageProvider.DeleteData(ownerSet, spectra);
         };
 
@@ -142,7 +146,7 @@ public partial class MainForm : Form
                 return;
             }
 
-            var set = TreeViewHelpers.GetContextSet<SpectraData>(sender);
+            var set = TreeViewExtensions.GetContextSet<SpectraData>(sender);
 
             var outputPath = Path.Combine(path, $"{set.Name} (converted)");
 
@@ -158,7 +162,7 @@ public partial class MainForm : Form
                 return;
             }
 
-            var set = TreeViewHelpers.GetContextSet<SpectraData>(sender);
+            var set = TreeViewExtensions.GetContextSet<SpectraData>(sender);
 
             var outputPath = Path.Combine(path, $"{set.Name} (converted full depth)");
 
@@ -167,26 +171,26 @@ public partial class MainForm : Form
 
         dataSetContextMenuDelete.Click += async (sender, _) =>
         {
-            var set = TreeViewHelpers.GetContextSet<SpectraData>(sender);
+            var set = TreeViewExtensions.GetContextSet<SpectraData>(sender);
             await dataStorageProvider.DeleteDataSet(new StringKey(set.Name), set);
         };
 
         //Plotting
         dataContextMenuPlot.Click += async (sender, _) =>
         {
-            var spectra = TreeViewHelpers.GetContextData<SpectraData>(sender);
+            var spectra = TreeViewExtensions.GetContextData<SpectraData>(sender);
             await spectraController.ContextDataAddToClearPlotToDefault(spectra);
         };
 
         dataSetContextMenuPlot.Click += async (s, _) =>
         {
-            var set = TreeViewHelpers.GetContextSet<SpectraData>(s);
+            var set = TreeViewExtensions.GetContextSet<SpectraData>(s);
             await spectraController.ContextDataAddToClearPlotArea(set);
         };
 
         dataSetContextMenuAddToPlot.Click += async (s, _) =>
         {
-            var set = TreeViewHelpers.GetContextSet<SpectraData>(s);
+            var set = TreeViewExtensions.GetContextSet<SpectraData>(s);
             await spectraController.AddToPlotArea(set);
         };
 
@@ -212,8 +216,8 @@ public partial class MainForm : Form
 
         plotContextMenuDelete.Click += async (sender, _) =>
         {
-            var ownerSet = TreeViewHelpers.GetContextParentSet<SpectraDataPlot>(sender);
-            var plot = TreeViewHelpers.GetContextData<SpectraDataPlot>(sender);
+            var ownerSet = TreeViewExtensions.GetContextParentSet<SpectraDataPlot>(sender);
+            var plot = TreeViewExtensions.GetContextData<SpectraDataPlot>(sender);
             await spectraController.ContextPlotDelete(ownerSet, plot);
         };
 
@@ -232,13 +236,13 @@ public partial class MainForm : Form
 
         plotSetContextMenuDelete.Click += async (sender, _) =>
         {
-            var set = TreeViewHelpers.GetContextSet<SpectraDataPlot>(sender);
+            var set = TreeViewExtensions.GetContextSet<SpectraDataPlot>(sender);
             await spectraController.ContextPlotSetDelete(set);
         };
 
         plotStorageTreeView.NodeMouseDoubleClick += async (sender, _) =>
         {
-            var node = TreeViewHelpers.GetClickTreeNode(sender);
+            var node = TreeViewExtensions.GetClickTreeNode(sender);
 
             if (node is { Tag: SpectraDataPlot plot, Checked: true })
             {
@@ -251,7 +255,7 @@ public partial class MainForm : Form
 
         plotSetContextMenuHighlight.Click += async (sender, _) =>
         {
-            var set = TreeViewHelpers.GetContextSet<SpectraDataPlot>(sender);
+            var set = TreeViewExtensions.GetContextSet<SpectraDataPlot>(sender);
 
             await spectraController.ContextPlotSetHighlight(set);
         };

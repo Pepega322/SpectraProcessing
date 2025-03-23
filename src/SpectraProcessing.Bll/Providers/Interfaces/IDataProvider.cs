@@ -1,4 +1,4 @@
-using SpectraProcessing.Models.Collections;
+using SpectraProcessing.Domain.Collections;
 
 namespace SpectraProcessing.Bll.Providers.Interfaces;
 

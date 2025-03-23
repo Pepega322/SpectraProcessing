@@ -1,5 +1,5 @@
-using SpectraProcessing.Models.Collections;
-using SpectraProcessing.Models.Collections.Keys;
+using SpectraProcessing.Domain.Collections;
+using SpectraProcessing.Domain.Collections.Keys;
 
 namespace SpectraProcessing.Bll.Providers.Interfaces;
 

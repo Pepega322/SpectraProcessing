@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SpectraProcessing.Dal.IO;
-using SpectraProcessing.Dal.IO.Interfaces;
-using SpectraProcessing.Domain.Spectra.Abstractions;
+using SpectraProcessing.Dal.Repositories;
+using SpectraProcessing.Dal.Repositories.Interfaces;
+using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Dal.Extensions;
 
@@ -17,7 +17,7 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.AddSingleton<IDataRepository<SpectraData>, SpectraDataFileRepository>();
+        services.AddSingleton<IDataRepository<SpectraData>, SpectraDataIORepository>();
 
         return services;
     }

@@ -1,10 +1,10 @@
 ﻿using ScottPlot;
 using SpectraProcessing.Bll.Providers.Interfaces;
-using SpectraProcessing.Models.Collections;
+using SpectraProcessing.Domain.Collections;
 
 namespace SpectraProcessing.Bll.Providers;
 
-public sealed class CoordinateProvider(Plot plot) : ICoordinateProvider
+internal sealed class CoordinateProvider(Plot plot) : ICoordinateProvider
 {
     public Point<float> Coordinates { get; } = new(0, 0);
 

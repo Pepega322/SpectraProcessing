@@ -1,5 +1,5 @@
-﻿using SpectraProcessing.Models.Peak;
-using SpectraProcessing.Models.Spectra.Abstractions;
+﻿using SpectraProcessing.Domain.Models.Peak;
+using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Bll.Controllers.Interfaces;
 

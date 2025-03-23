@@ -1,5 +1,6 @@
-using SpectraProcessing.Models.Collections;
-using SpectraProcessing.Models.Spectra.Abstractions;
+using SpectraProcessing.Bll.Models.ScottPlot.Spectra.Abstractions;
+using SpectraProcessing.Domain.Collections;
+using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Bll.Controllers.Interfaces;
 

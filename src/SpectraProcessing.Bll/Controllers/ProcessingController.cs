@@ -1,12 +1,13 @@
 ﻿using SpectraProcessing.Bll.Controllers.Interfaces;
+using SpectraProcessing.Bll.Models.ScottPlot.Peak;
 using SpectraProcessing.Bll.Providers.Interfaces;
-using SpectraProcessing.Models.Collections.Keys;
-using SpectraProcessing.Models.Peak;
-using SpectraProcessing.Models.Spectra.Abstractions;
+using SpectraProcessing.Domain.Collections.Keys;
+using SpectraProcessing.Domain.Models.Peak;
+using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Bll.Controllers;
 
-public class ProcessingController(IDataStorageProvider<SpectraKey, PeakDataPlot> peaksStorage)
+internal sealed class ProcessingController(IDataStorageProvider<SpectraKey, PeakDataPlot> peaksStorage)
     : IProcessingController
 {
     public event Action? OnPlotAreaChanged;

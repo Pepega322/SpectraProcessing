@@ -1,14 +1,13 @@
 using Microsoft.Extensions.Logging;
 using SpectraProcessing.Bll.Providers.Interfaces;
+using SpectraProcessing.Dal.Repositories.Interfaces;
+using SpectraProcessing.Domain.Collections;
 using SpectraProcessing.Domain.DataTypes;
-using SpectraProcessing.Domain.InputOutput;
-using SpectraProcessing.Models.Collections;
 
 namespace SpectraProcessing.Bll.Providers;
 
-public sealed class DirectoryDataProvider<TData>(
-    IDataReader<TData> reader,
-    IDataWriter writer,
+internal sealed class DirectoryDataProvider<TData>(
+    IDataRepository<TData> dataRepository,
     ILogger<DirectoryDataProvider<TData>> logger
 ) : IDataProvider<TData>
     where TData : class, IWriteableData
@@ -23,7 +22,7 @@ public sealed class DirectoryDataProvider<TData>(
         {
             try
             {
-                var data = await reader.ReadData(file.FullName);
+                var data = await dataRepository.ReadData(file.FullName);
 
                 set.AddThreadSafe(data);
             }
@@ -70,7 +69,7 @@ public sealed class DirectoryDataProvider<TData>(
 
     public Task DataWriteAs(TData data, string path)
     {
-        return writer.WriteData(data, path);
+        return dataRepository.WriteData(data, path);
     }
 
     public Task SetOnlyWriteAs(DataSet<TData> set, string path, string extension)
@@ -96,7 +95,7 @@ public sealed class DirectoryDataProvider<TData>(
         {
             try
             {
-                var data = await reader.ReadData(file.FullName);
+                var data = await dataRepository.ReadData(file.FullName);
 
                 node.AddThreadSafe(data);
             }
