@@ -119,8 +119,10 @@ internal sealed class SpectraController(
         OnPlotAreaChanged?.Invoke();
     }
 
-    public async Task PlotHighlight(SpectraDataPlot plot)
+    public async Task<bool> PlotHighlight(SpectraDataPlot plot)
     {
+        var isHighlighted = true;
+
         if (highlightedData is not null)
         {
             await SetHighlighting(highlightedData, false);
@@ -129,6 +131,7 @@ internal sealed class SpectraController(
         if (Equals(highlightedData, plot))
         {
             highlightedData = null;
+            isHighlighted = false;
         }
         else
         {
@@ -137,6 +140,8 @@ internal sealed class SpectraController(
         }
 
         OnPlotAreaChanged?.Invoke();
+
+        return isHighlighted;
     }
 
     public async Task ContextPlotSetDelete(DataSet<SpectraDataPlot> set)

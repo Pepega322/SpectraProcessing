@@ -28,7 +28,7 @@ public interface ISpectraController
 
     Task ContextPlotSetHighlight(DataSet<SpectraDataPlot> set);
 
-    Task PlotHighlight(SpectraDataPlot plot);
+    Task<bool> PlotHighlight(SpectraDataPlot plot);
 
     Task ContextPlotSetDelete(DataSet<SpectraDataPlot> set);
 

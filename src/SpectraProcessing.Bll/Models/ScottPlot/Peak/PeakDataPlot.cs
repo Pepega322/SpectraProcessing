@@ -1,5 +1,4 @@
 ﻿using ScottPlot;
-using ScottPlot.Plottables;
 using SpectraProcessing.Bll.Math;
 using SpectraProcessing.Bll.Models.ScottPlot.Plottables;
 using SpectraProcessing.Domain.Collections;
@@ -36,6 +35,8 @@ public sealed class PeakDataPlot : IDataPlot
         const MarkerShape shape = MarkerShape.Cross;
         const float markerSize = 20f;
 
+        Peak = data;
+
         using var builder = new Plot();
 
         leftMarker = new DraggableMarker(
@@ -62,8 +63,9 @@ public sealed class PeakDataPlot : IDataPlot
                 markerSize,
                 MarkerColor));
 
-        Peak = data;
-        Line = GetPeakLine(builder, data);
+        var line = builder.Add.Function(x => SpectraModeling.GaussianAndLorentzianMix(x, data));
+        line.LineColor = PeakColor;
+        Line = line;
     }
 
     public void UpdatePeakEstimateData(PeakData estimate)
@@ -158,12 +160,5 @@ public sealed class PeakDataPlot : IDataPlot
             marker.StartDrag(marker.Coordinates);
             marker.DragTo(to);
         }
-    }
-
-    private static FunctionPlot GetPeakLine(Plot builder, PeakData data)
-    {
-        var line = builder.Add.Function(x => SpectraModeling.GaussianAndLorentzianMix(x, data));
-        line.LineColor = PeakColor;
-        return line;
     }
 }

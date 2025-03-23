@@ -1,4 +1,5 @@
-﻿using ScottPlot;
+﻿using System.Collections.Concurrent;
+using ScottPlot;
 using SpectraProcessing.Bll.Math;
 using SpectraProcessing.Bll.Models.ScottPlot.Peak;
 using SpectraProcessing.Bll.Providers.Interfaces;
@@ -9,6 +10,8 @@ namespace SpectraProcessing.Bll.Providers;
 
 internal sealed class PeakDataPlotProvider : IDataPlotProvider<PeakData, PeakDataPlot>
 {
+    private static readonly ConcurrentDictionary<PeakData, PeakDataPlot> PeakDataPlots = new();
+
     private readonly Plot plotForm;
 
     private readonly IDictionary<PeakData, PeakDataPlot> plotted = new Dictionary<PeakData, PeakDataPlot>();
@@ -134,16 +137,17 @@ internal sealed class PeakDataPlotProvider : IDataPlotProvider<PeakData, PeakDat
         return Task.CompletedTask;
     }
 
-    private PeakDataPlot GetOrCreatePlot(PeakData data)
+    private static PeakDataPlot GetOrCreatePlot(PeakData data)
     {
-        lock (plotted)
+        if (PeakDataPlots.TryGetValue(data, out var plot))
         {
-            if (plotted.TryGetValue(data, out var plot))
-            {
-                return plot;
-            }
+            return plot;
         }
 
-        return new PeakDataPlot(data);
+        var newPlot = new PeakDataPlot(data);
+
+        PeakDataPlots.TryAdd(data, newPlot);
+
+        return newPlot;
     }
 }

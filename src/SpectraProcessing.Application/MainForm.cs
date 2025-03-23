@@ -240,16 +240,6 @@ public partial class MainForm : Form
             await spectraController.ContextPlotSetDelete(set);
         };
 
-        plotStorageTreeView.NodeMouseDoubleClick += async (sender, _) =>
-        {
-            var node = TreeViewExtensions.GetClickTreeNode(sender);
-
-            if (node is { Tag: SpectraDataPlot plot, Checked: true })
-            {
-                await spectraController.PlotHighlight(plot);
-            }
-        };
-
         plotSetContextMenuClear.Click += (_, _) => spectraController.PlotAreaClear();
 
         plotSetContextMenuHighlight.Click += async (sender, _) =>
@@ -293,15 +283,15 @@ public partial class MainForm : Form
             }
         };
 
-        customPeaksToolStripMenuItem.Click += (_, _) =>
+        customPeaksToolStripMenuItem.Click += async (_, _) =>
         {
             if (customPeaksToolStripMenuItem.Checked)
             {
-                processingController.SaveSpectraPeaks();
+                customPeaksToolStripMenuItem.Checked = await processingController.SaveSpectraPeaks();
             }
             else
             {
-                processingController.RemovedSpectraPeaks();
+                customPeaksToolStripMenuItem.Checked = await processingController.RemovedSpectraPeaks() is false;
             }
         };
 
@@ -339,7 +329,14 @@ public partial class MainForm : Form
         {
             var node = TreeViewExtensions.GetClickTreeNode(sender);
 
-            if (node is { Tag: SpectraDataPlot plot, Checked: true })
+            if (node is not { Tag: SpectraDataPlot plot, Checked: true })
+            {
+                return;
+            }
+
+            var isHighlight = await spectraController.PlotHighlight(plot);
+
+            if (isHighlight)
             {
                 customPeaksToolStripMenuItem.Checked = await processingController.CheckoutSpectra(plot.SpectraData);
             }

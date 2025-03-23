@@ -1,4 +1,4 @@
-using System.Reflection.Metadata.Ecma335;
+using System.Collections.Concurrent;
 using ScottPlot;
 using SpectraProcessing.Bll.Models.ScottPlot.Spectra;
 using SpectraProcessing.Bll.Models.ScottPlot.Spectra.Abstractions;
@@ -14,6 +14,8 @@ internal sealed class SpectraDataPlotProvider(
     IPalette palette
 ) : IDataPlotProvider<SpectraData, SpectraDataPlot>
 {
+    private static readonly ConcurrentDictionary<SpectraData, SpectraDataPlot> SpectraDataPlots = new();
+
     private static int _counter;
 
     private readonly IDictionary<SpectraData, SpectraDataPlot> plotted = new Dictionary<SpectraData, SpectraDataPlot>();
@@ -134,25 +136,24 @@ internal sealed class SpectraDataPlotProvider(
 
     private SpectraDataPlot GetOrCreatePlot(SpectraData data)
     {
-        lock (plotted)
+        if (SpectraDataPlots.TryGetValue(data, out var plot))
         {
-            if (plotted.TryGetValue(data, out var plot))
-            {
-                return plot;
-            }
+            return plot;
         }
 
         var color = palette.GetColor(Interlocked.Increment(ref _counter));
 
-        SpectraDataPlot result = data switch
+        SpectraDataPlot newPlot = data switch
         {
             AspSpectraData asp => new AspSpectraDataPlot(asp),
             EspSpectraData esp => new EspSpectraDataPlot(esp),
             _                  => throw new NotSupportedException(data.GetType().Name + " is not supported"),
         };
 
-        result.ChangeColor(color);
+        newPlot.ChangeColor(color);
 
-        return result;
+        SpectraDataPlots.TryAdd(data, newPlot);
+
+        return newPlot;
     }
 }
