@@ -59,17 +59,20 @@ internal sealed class ProcessingController(
 
         if (key.Equals(currentSpectraKey))
         {
-            return true;
-        }
-
-        if (peaksStorage.Sets.TryGetValue(key, out var customPeaks))
-        {
-            await peaksPlotProvider.Clear();
-            await DrawPeaksSet(customPeaks);
-            OnPlotAreaChanged?.Invoke();
+            return peaksStorage.Sets.ContainsKey(key);
         }
 
         currentSpectraKey = key;
+
+        if (!peaksStorage.Sets.TryGetValue(key, out var customPeaks))
+        {
+            return false;
+        }
+
+        await peaksPlotProvider.Clear();
+        await DrawPeaksSet(customPeaks);
+        OnPlotAreaChanged?.Invoke();
+
         return true;
     }
 

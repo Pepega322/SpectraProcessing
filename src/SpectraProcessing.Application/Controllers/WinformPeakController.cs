@@ -53,7 +53,6 @@ internal sealed class WinformPeakController(
         MouseEventHandler onMouseUp = (_, _) =>
         {
             plotView.MouseMove -= onMouseMove;
-            Console.WriteLine("Mouse up");
             hitPeak.ReleaseHit();
             plotView.UserInputProcessor.Enable();
             plotView.Cursor = Cursors.Arrow;

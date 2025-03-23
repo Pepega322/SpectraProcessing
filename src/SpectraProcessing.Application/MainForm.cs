@@ -293,6 +293,18 @@ public partial class MainForm : Form
             }
         };
 
+        customPeaksToolStripMenuItem.Click += (_, _) =>
+        {
+            if (customPeaksToolStripMenuItem.Checked)
+            {
+                processingController.SaveSpectraPeaks();
+            }
+            else
+            {
+                processingController.RemovedSpectraPeaks();
+            }
+        };
+
         plotView.SKControl!.MouseDoubleClick += async (_, _) =>
         {
             if (addPeaksToolStripMenuItem.Checked is false)
@@ -329,7 +341,7 @@ public partial class MainForm : Form
 
             if (node is { Tag: SpectraDataPlot plot, Checked: true })
             {
-                await processingController.CheckoutSpectra(plot.SpectraData);
+                customPeaksToolStripMenuItem.Checked = await processingController.CheckoutSpectra(plot.SpectraData);
             }
         };
     }
