@@ -1,16 +1,22 @@
 using System.Globalization;
-using SpectraProcessing.DataSource.Exceptions;
+using SpectraProcessing.Dal.Exceptions;
+using SpectraProcessing.Dal.IO.Interfaces;
+using SpectraProcessing.Domain.Collections;
+using SpectraProcessing.Domain.Enums;
 using SpectraProcessing.Domain.Extensions;
-using SpectraProcessing.Domain.InputOutput;
-using SpectraProcessing.Models.Collections;
-using SpectraProcessing.Models.Enums;
-using SpectraProcessing.Models.Spectra;
-using SpectraProcessing.Models.Spectra.Abstractions;
+using SpectraProcessing.Domain.Spectra;
+using SpectraProcessing.Domain.Spectra.Abstractions;
 
-namespace SpectraProcessing.DataSource.InputOutput;
+namespace SpectraProcessing.Dal.IO;
 
-public class SpectraFileReader : IDataReader<SpectraData>
+internal class SpectraDataFileRepository : IDataRepository<SpectraData>
 {
+    private readonly FileStreamOptions options = new()
+    {
+        Mode = FileMode.Create,
+        Access = FileAccess.Write,
+    };
+
     public async Task<SpectraData> ReadData(string fullName)
     {
         var file = new FileInfo(fullName);
@@ -40,6 +46,15 @@ public class SpectraFileReader : IDataReader<SpectraData>
         {
             throw new CorruptedFileException($"{fullName} {Environment.NewLine} {e.Message}");
         }
+    }
+
+    public async Task WriteData(SpectraData data, string fullName)
+    {
+        await using var writer = new StreamWriter(fullName, options);
+
+        var text = string.Join(Environment.NewLine, data.ToContents());
+
+        await writer.WriteAsync(text);
     }
 
     private static AspSpectraData ParseAsp(string name, string[] contents)

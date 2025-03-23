@@ -1,9 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-  <ItemGroup>
-    <ProjectReference Include="..\SpectraProcessing.Domain\SpectraProcessing.Domain.csproj"/>
-    <ProjectReference Include="..\SpectraProcessing.MathStatistics\SpectraProcessing.MathStatistics.csproj"/>
-    <ProjectReference Include="..\SpectraProcessing.Models\SpectraProcessing.Models.csproj" />
-  </ItemGroup>
-
-</Project>
