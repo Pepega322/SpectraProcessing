@@ -336,10 +336,14 @@ public partial class MainForm : Form
 
             var isHighlight = await spectraController.PlotHighlight(plot);
 
-            if (isHighlight)
+            if (!isHighlight)
             {
-                customPeaksToolStripMenuItem.Checked = await processingController.CheckoutSpectra(plot.SpectraData);
+                return;
             }
+
+            customPeaksToolStripMenuItem.Checked = await processingController.CheckoutSpectra(plot.SpectraData);
+
+            await HighlightNodeUntilNextClick(node);
         };
     }
 
@@ -445,6 +449,26 @@ public partial class MainForm : Form
     // }
 
 #region SupportMethods
+
+    private async Task HighlightNodeUntilNextClick(TreeNode node)
+    {
+        node.NodeFont = new Font(plotStorageTreeView.Font, FontStyle.Bold);
+
+        var tcs = new TaskCompletionSource();
+
+        TreeNodeMouseClickEventHandler? moveBackFont = (_, _) =>
+        {
+            node.NodeFont = new Font(plotStorageTreeView.Font, FontStyle.Regular);
+            tcs.TrySetResult();
+        };
+
+        plotStorageTreeView.NodeMouseDoubleClick += moveBackFont;
+
+
+        await tcs.Task;
+
+        plotStorageTreeView.NodeMouseDoubleClick -= moveBackFont;
+    }
 
     private static void TreeNodeClickSelect(object? sender, TreeNodeMouseClickEventArgs e)
     {
