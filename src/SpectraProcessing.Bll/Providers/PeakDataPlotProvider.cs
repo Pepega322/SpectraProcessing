@@ -47,6 +47,7 @@ internal sealed class PeakDataPlotProvider(Plot plotForm) : IDataPlotProvider<Pe
             centerMarker: new DraggableMarker(centerMarker),
             rightMarker: new DraggableMarker(rightMarker));
 
+        //TODO добавить к этой штуке отрисовку всего пика через функцию
         return Task.FromResult(plot);
     }
 

@@ -14,6 +14,7 @@ internal sealed class ProcessingController(IDataStorageProvider<SpectraKey, Peak
 
     public Task AddPeak(PeakData peak)
     {
+        //TODO работаем тут
         throw new NotImplementedException();
     }
 
