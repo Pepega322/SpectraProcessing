@@ -2,112 +2,85 @@ using ScottPlot;
 using SpectraProcessing.Bll.Models.ScottPlot.Spectra;
 using SpectraProcessing.Bll.Models.ScottPlot.Spectra.Abstractions;
 using SpectraProcessing.Bll.Providers.Interfaces;
+using SpectraProcessing.Domain.Extensions;
 using SpectraProcessing.Domain.Models.Spectra;
 using SpectraProcessing.Domain.Models.Spectra.Abstractions;
-using PlotArea = ScottPlot.Plot;
 
 namespace SpectraProcessing.Bll.Providers;
 
 internal sealed class SpectraDataPlotProvider(
-    PlotArea plotForm,
+    Plot plotForm,
     IPalette palette
 ) : IDataPlotProvider<SpectraData, SpectraDataPlot>
 {
     private static int _counter;
 
-    private readonly PlotArea builder = new();
+    private readonly IDictionary<SpectraData, SpectraDataPlot> plotted = new Dictionary<SpectraData, SpectraDataPlot>();
 
-    private readonly ISet<SpectraDataPlot> plotted = new HashSet<SpectraDataPlot>();
-
-    public Task<SpectraDataPlot> GetPlot(SpectraData plottableData)
-    {
-        var color = palette.GetColor(Interlocked.Increment(ref _counter));
-
-        SpectraDataPlot result;
-
-        switch (plottableData)
-        {
-            case AspSpectraData asp:
-            {
-                var aspPlot = builder.Add.Signal(
-                    asp.Points.Y.ToArray(),
-                    asp.Info.Delta,
-                    color);
-
-                result = new AspSpectraDataPlot(asp, aspPlot);
-
-                break;
-            }
-            case EspSpectraData esp:
-            {
-                var espPlot = builder.Add.SignalXY(
-                    esp.Points.X.ToArray(),
-                    esp.Points.Y.ToArray(),
-                    color);
-
-                result = new EspSpectraDataPlot(esp, espPlot);
-
-                break;
-            }
-            case EstimatedSpectraData estimated:
-            {
-                var estimatedPlot = builder.Add.SignalXY(
-                    estimated.Points.X.ToArray(),
-                    estimated.Points.Y.ToArray(),
-                    color);
-
-                result = new EstimatedSpectraDataPlot(estimated, estimatedPlot);
-
-                break;
-            }
-            default: throw new NotSupportedException(plottableData.GetType().Name + " is not supported");
-        }
-
-        return Task.FromResult(result);
-    }
-
-    public Task<bool> IsDrew(SpectraDataPlot plot)
+    public Task<bool> IsDrew(SpectraData data)
     {
         lock (plotted)
         {
-            return Task.FromResult(plotted.Contains(plot));
+            return Task.FromResult(plotted.ContainsKey(data));
         }
     }
 
-    public Task Draw(SpectraDataPlot plt)
+    public Task<IReadOnlyCollection<SpectraDataPlot>> Draw(IReadOnlyCollection<SpectraData> data)
     {
+        IReadOnlyCollection<SpectraDataPlot> plots = data.Select(GetOrCreatePlot).ToArray();
+
+        IReadOnlyCollection<SpectraDataPlot> newPlots;
+
         lock (plotted)
         {
-            if (!plotted.Add(plt))
+            newPlots = plots
+                .Where(p => plotted.TryAdd(p.SpectraData, p))
+                .ToArray();
+
+            if (newPlots.IsEmpty())
             {
-                return Task.CompletedTask;
+                return Task.FromResult(plots);
             }
         }
 
         lock (plotForm)
         {
-            plotForm.Add.Plottable(plt.Plottable);
+            foreach (var plot in newPlots)
+            {
+                plotForm.Add.Plottable(plot.Plottable);
+            }
         }
 
-        return Task.CompletedTask;
+        return Task.FromResult(plots);
     }
 
-    public Task Erase(SpectraDataPlot plt)
+    public Task<IReadOnlyCollection<SpectraDataPlot>> Erase(IReadOnlyCollection<SpectraData> data)
     {
+        IReadOnlyCollection<SpectraDataPlot> plots = data.Select(GetOrCreatePlot).ToArray();
+
+        IReadOnlyCollection<SpectraDataPlot> removedPlots;
+
         lock (plotted)
         {
-            if (!plotted.Remove(plt))
+            removedPlots = plots
+                .Where(p => plotted.Remove(p.SpectraData))
+                .ToArray();
+
+            if (removedPlots.IsEmpty())
             {
-                return Task.CompletedTask;
+                return Task.FromResult(plots);
             }
         }
 
         lock (plotForm)
         {
-            plotForm.Remove(plt.Plottable);
+            foreach (var plot in removedPlots)
+            {
+                plotForm.Remove(plot.Plottable);
+            }
         }
 
-        return Task.CompletedTask;
+        return Task.FromResult(plots);
     }
 
     public Task Resize()
@@ -123,19 +96,43 @@ internal sealed class SpectraDataPlotProvider(
 
     public Task Clear()
     {
-        lock (plotForm)
-        {
-            foreach (var plt in plotted)
-            {
-                plotForm.Remove(plt.Plottable);
-            }
-        }
-
         lock (plotted)
         {
+            lock (plotForm)
+            {
+                foreach (var plot in plotted.Values)
+                {
+                    plotForm.Remove(plot.Plottable);
+                }
+            }
+
             plotted.Clear();
         }
 
         return Task.CompletedTask;
+    }
+
+    private SpectraDataPlot GetOrCreatePlot(SpectraData data)
+    {
+        lock (plotted)
+        {
+            if (plotted.TryGetValue(data, out var plot))
+            {
+                return plot;
+            }
+        }
+
+        var color = palette.GetColor(Interlocked.Increment(ref _counter));
+
+        SpectraDataPlot result = data switch
+        {
+            AspSpectraData asp => new AspSpectraDataPlot(asp),
+            EspSpectraData esp => new EspSpectraDataPlot(esp),
+            _                  => throw new NotSupportedException(data.GetType().Name + " is not supported"),
+        };
+
+        result.ChangeColor(color);
+
+        return result;
     }
 }

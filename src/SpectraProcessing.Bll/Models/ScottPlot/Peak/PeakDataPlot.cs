@@ -1,4 +1,6 @@
 ﻿using ScottPlot;
+using ScottPlot.Plottables;
+using SpectraProcessing.Bll.Math;
 using SpectraProcessing.Bll.Models.ScottPlot.Plottables;
 using SpectraProcessing.Domain.Collections;
 using SpectraProcessing.Domain.DataTypes;
@@ -6,16 +8,20 @@ using SpectraProcessing.Domain.Models.Peak;
 
 namespace SpectraProcessing.Bll.Models.ScottPlot.Peak;
 
-public sealed class PeakDataPlot(
-    PeakData peak,
-    DraggableMarker leftMarker,
-    DraggableMarker centerMarker,
-    DraggableMarker rightMarker
-) : IDataPlot
+public sealed class PeakDataPlot : IDataPlot
 {
+    private static readonly Color MarkerColor = Colors.Red;
+    private static readonly Color PeakColor = Colors.Green;
+
     private readonly Lock locker = new();
 
-    public PeakData Peak => peak;
+    private readonly DraggableMarker leftMarker;
+    private readonly DraggableMarker centerMarker;
+    private readonly DraggableMarker rightMarker;
+
+    public readonly PeakData Peak;
+
+    public IPlottable Line { get; private set; }
 
     public IReadOnlyCollection<IPlottable> Markers
         =>
@@ -24,6 +30,41 @@ public sealed class PeakDataPlot(
             centerMarker,
             rightMarker,
         ];
+
+    public PeakDataPlot(PeakData data)
+    {
+        const MarkerShape shape = MarkerShape.Cross;
+        const float markerSize = 20f;
+
+        using var builder = new Plot();
+
+        leftMarker = new DraggableMarker(
+            builder.Add.Marker(
+                x: data.Center - data.HalfWidth / 2,
+                y: data.Amplitude / 2,
+                shape,
+                markerSize,
+                MarkerColor));
+
+        centerMarker = new DraggableMarker(
+            builder.Add.Marker(
+                x: data.Center,
+                y: data.Amplitude,
+                shape,
+                markerSize,
+                MarkerColor));
+
+        rightMarker = new DraggableMarker(
+            builder.Add.Marker(
+                x: data.Center + data.HalfWidth / 2,
+                y: data.Amplitude / 2,
+                shape,
+                markerSize,
+                MarkerColor));
+
+        Peak = data;
+        Line = GetPeakLine(builder, data);
+    }
 
     public void UpdatePeakEstimateData(PeakData estimate)
     {
@@ -74,18 +115,18 @@ public sealed class PeakDataPlot(
             OnPeakEstimateDataUpdate(
                 center: center,
                 amplitude: amplitude,
-                halfWidth: peak.HalfWidth,
-                gaussianContribution: peak.GaussianContribution);
+                halfWidth: Peak.HalfWidth,
+                gaussianContribution: Peak.GaussianContribution);
         }
         else if (leftMarker.Dragged || rightMarker.Dragged)
         {
-            var halfWidth = System.Math.Abs(value: (to.X - peak.Center) * 2);
+            var halfWidth = System.Math.Abs(value: (to.X - Peak.Center) * 2);
 
             OnPeakEstimateDataUpdate(
-                center: peak.Center,
-                amplitude: peak.Amplitude,
+                center: Peak.Center,
+                amplitude: Peak.Amplitude,
                 halfWidth: halfWidth,
-                gaussianContribution: peak.GaussianContribution);
+                gaussianContribution: Peak.GaussianContribution);
         }
     }
 
@@ -97,16 +138,20 @@ public sealed class PeakDataPlot(
     {
         locker.Enter();
 
-        peak.Amplitude = amplitude;
-        peak.Center = center;
-        peak.HalfWidth = halfWidth;
-        peak.GaussianContribution = gaussianContribution;
+        Peak.Amplitude = amplitude;
+        Peak.Center = center;
+        Peak.HalfWidth = halfWidth;
+        Peak.GaussianContribution = gaussianContribution;
 
-        var halfHeight = peak.Amplitude / 2;
+        using var builder = new Plot();
 
-        DragMarkerTo(leftMarker, new Coordinates(peak.Center - peak.HalfWidth / 2, halfHeight));
-        DragMarkerTo(centerMarker, new Coordinates(peak.Center, peak.Amplitude));
-        DragMarkerTo(rightMarker, new Coordinates(peak.Center + peak.HalfWidth / 2, halfHeight));
+        Line = GetPeakLine(builder, Peak);
+
+        var halfHeight = Peak.Amplitude / 2;
+
+        DragMarkerTo(leftMarker, new Coordinates(Peak.Center - Peak.HalfWidth / 2, halfHeight));
+        DragMarkerTo(centerMarker, new Coordinates(Peak.Center, Peak.Amplitude));
+        DragMarkerTo(rightMarker, new Coordinates(Peak.Center + Peak.HalfWidth / 2, halfHeight));
 
         locker.Exit();
 
@@ -117,5 +162,12 @@ public sealed class PeakDataPlot(
             marker.StartDrag(marker.Coordinates);
             marker.DragTo(to);
         }
+    }
+
+    private static FunctionPlot GetPeakLine(Plot builder, PeakData data)
+    {
+        var line = builder.Add.Function(x => SpectraModeling.GaussianAndLorentzianMix(x, data));
+        line.LineColor = PeakColor;
+        return line;
     }
 }

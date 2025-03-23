@@ -2,15 +2,21 @@
 
 namespace SpectraProcessing.Domain.Collections.Keys;
 
-public sealed class SpectraKey(SpectraData spectraData) : INamedKey
+public sealed class SpectraKey : INamedKey
 {
-    public string Name { get; } = spectraData.Name;
+    public string Name { get; }
 
-    public readonly SpectraData SpectraData = spectraData;
+    public readonly SpectraData SpectraData;
+
+    public SpectraKey(SpectraData spectraData)
+    {
+        Name = spectraData.Name;
+        SpectraData = spectraData;
+    }
 
     public override string ToString()
     {
-        return SpectraData.Name;
+        return $"Name: {Name}; Id: {GetHashCode()}";
     }
 
     public override bool Equals(object? obj)
@@ -18,5 +24,5 @@ public sealed class SpectraKey(SpectraData spectraData) : INamedKey
         return obj is SpectraKey key && string.Equals(Name, key.Name);
     }
 
-    public override int GetHashCode() => Name.GetHashCode();
+    public override int GetHashCode() => SpectraData.GetHashCode();
 }

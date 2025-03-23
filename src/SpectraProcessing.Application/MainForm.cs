@@ -108,8 +108,8 @@ public partial class MainForm : Form
     {
         dataStorageProvider.OnChange +=
             async () => await dataStorageTreeView.BuildTreeAsync(
-                dataStorageProvider.StorageDataSets
-                    .Concat([dataStorageProvider.DefaultDataSet])
+                dataStorageProvider.Sets.Values
+                    .Concat([dataStorageProvider.DefaultSet])
                     .GetDataNodes);
 
         dataContextMenuClear.Click += (_, _) => dataStorageProvider.Clear();

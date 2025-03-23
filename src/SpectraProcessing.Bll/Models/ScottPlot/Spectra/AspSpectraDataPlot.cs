@@ -5,16 +5,34 @@ using SpectraProcessing.Domain.Models.Spectra;
 
 namespace SpectraProcessing.Bll.Models.ScottPlot.Spectra;
 
-public class AspSpectraDataPlot(AspSpectraData spectraData, Signal plot)
-    : SpectraDataPlot(spectraData, plot)
+public class AspSpectraDataPlot : SpectraDataPlot
 {
-    public override string Name { get; protected set; } = spectraData.Name;
+    private readonly Signal signal;
 
-    public override Color PreviousColor { get; protected set; }
+    public AspSpectraDataPlot(AspSpectraData asp) : base(asp)
+    {
+        using var builder = new Plot();
+
+        signal = builder.Add.Signal(
+            asp.Points.Y.ToArray(),
+            asp.Info.Delta);
+
+        Name = asp.Name;
+
+        PreviousColor = signal.Color;
+
+        Plottable = signal;
+    }
+
+    public sealed override IPlottable Plottable { get; protected set; }
+
+    public sealed override string Name { get; protected set; }
+
+    public sealed override Color PreviousColor { get; protected set; }
 
     public override void ChangeColor(Color color)
     {
-        PreviousColor = plot.Color;
-        plot.Color = color;
+        PreviousColor = signal.Color;
+        signal.Color = color;
     }
 }

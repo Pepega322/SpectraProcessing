@@ -2,17 +2,15 @@ using SpectraProcessing.Domain.DataTypes;
 
 namespace SpectraProcessing.Bll.Providers.Interfaces;
 
-public interface IDataPlotProvider<in TPlottableData, TPlot>
+public interface IDataPlotProvider<in TPlottableData, TDataPlot>
     where TPlottableData : IPlottableData
-    where TPlot : IDataPlot
+    where TDataPlot : IDataPlot
 {
-    Task<TPlot> GetPlot(TPlottableData plottableData);
+    Task<bool> IsDrew(TPlottableData data);
 
-    Task<bool> IsDrew(TPlot plot);
+    Task<IReadOnlyCollection<TDataPlot>> Draw(IReadOnlyCollection<TPlottableData> data);
 
-    Task Draw(TPlot plot);
-
-    Task Erase(TPlot plot);
+    Task<IReadOnlyCollection<TDataPlot>> Erase(IReadOnlyCollection<TPlottableData> data);
 
     Task Resize();
 

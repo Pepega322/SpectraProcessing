@@ -12,13 +12,11 @@ public abstract class SpectraData(string name, SpectraPoints points) : IWriteabl
 
     public string Name { get; set; } = name;
 
-    public SpectraPoints Points { get; } = points;
+    public SpectraPoints Points { get; protected set; } = points;
 
     public abstract string Extension { get; }
 
     protected abstract SpectraFormat Format { get; }
-
-    public abstract SpectraData ChangePoints(SpectraPoints newPoints);
 
     public virtual IEnumerable<string> ToContents() => Points.ToContents();
 

@@ -17,7 +17,16 @@ public sealed class AspSpectraData(
 
     protected override SpectraFormat Format => SpectraFormat.Asp;
 
-    public override SpectraData ChangePoints(SpectraPoints newPoints) => new AspSpectraData(Name, newPoints, Info);
+    public override IEnumerable<string> ToContents()
+        => new[]
+        {
+            Info.PointCount.ToString(CultureInfo.InvariantCulture),
+            Info.StartWavenumber.ToString(CultureInfo.InvariantCulture),
+            Info.EndWavenumber.ToString(CultureInfo.InvariantCulture),
+            Info.FourthLine.ToString(CultureInfo.InvariantCulture),
+            Info.FifthLine.ToString(CultureInfo.InvariantCulture),
+            Info.Delta.ToString(CultureInfo.InvariantCulture),
+        }.Concat(base.ToContents());
 
     public sealed record AspInfo
     {
@@ -27,6 +36,10 @@ public sealed class AspSpectraData(
 
         public float EndWavenumber { get; init; }
 
+        public int FourthLine { get; init; }
+
+        public int FifthLine { get; init; }
+
         public float Delta { get; init; }
 
         public AspInfo(string[] contents)
@@ -34,6 +47,8 @@ public sealed class AspSpectraData(
             PointCount = int.Parse(contents[0]);
             StartWavenumber = float.Parse(contents[1], CultureInfo.InvariantCulture) / (float) (2 * Math.PI);
             EndWavenumber = float.Parse(contents[2], CultureInfo.InvariantCulture) / (float) (2 * Math.PI);
+            FourthLine = int.Parse(contents[3], CultureInfo.InvariantCulture);
+            FifthLine = int.Parse(contents[4], CultureInfo.InvariantCulture);
             Delta = float.Parse(contents[5], CultureInfo.InvariantCulture) / (float) (2 * Math.PI);
         }
     }

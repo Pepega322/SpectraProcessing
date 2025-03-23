@@ -14,7 +14,7 @@ public static class SpectraDataExtensions
 
         var points = spectra.Points.Transform(TransformationRule);
 
-        return new EstimatedSpectraData($"{spectra.Name} -b", points);
+        return new SimpleSpectraData($"{spectra.Name} -b", points);
 
         float TransformationRule(float x, float y) => y - baseline(x);
     }
@@ -55,7 +55,7 @@ public static class SpectraDataExtensions
 
             var points = new SpectraPoints(resultX, resultY);
 
-            return new EstimatedSpectraData("average", points);
+            return new SimpleSpectraData("average", points);
         }
     }
 
@@ -89,7 +89,7 @@ public static class SpectraDataExtensions
 
             var points = new SpectraPoints(resultX, resultY);
 
-            return new EstimatedSpectraData("sum", points);
+            return new SimpleSpectraData("sum", points);
         }
     }
 
@@ -110,7 +110,7 @@ public static class SpectraDataExtensions
 
             var points = new SpectraPoints(xs, ys);
 
-            return (estimate, new EstimatedSpectraData("", points));
+            return (estimate, new SimpleSpectraData("", points));
         }
     }
 

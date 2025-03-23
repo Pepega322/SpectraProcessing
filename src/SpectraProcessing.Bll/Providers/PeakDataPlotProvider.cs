@@ -1,104 +1,89 @@
 ﻿using ScottPlot;
 using SpectraProcessing.Bll.Models.ScottPlot.Peak;
-using SpectraProcessing.Bll.Models.ScottPlot.Plottables;
 using SpectraProcessing.Bll.Providers.Interfaces;
+using SpectraProcessing.Domain.Extensions;
 using SpectraProcessing.Domain.Models.Peak;
 
 namespace SpectraProcessing.Bll.Providers;
 
 internal sealed class PeakDataPlotProvider(Plot plotForm) : IDataPlotProvider<PeakData, PeakDataPlot>
 {
-    public const MarkerShape Shape = MarkerShape.Cross;
+    private readonly IDictionary<PeakData, PeakDataPlot> plotted = new Dictionary<PeakData, PeakDataPlot>();
 
-    public const float MarkerSize = 20f;
-
-    private static readonly Color Color = Colors.Red;
-
-    private readonly Plot builder = new();
-
-    private readonly ISet<PeakDataPlot> plotted = new HashSet<PeakDataPlot>();
-
-    public Task<PeakDataPlot> GetPlot(PeakData plottableData)
-    {
-        var leftMarker = builder.Add.Marker(
-            x: plottableData.Center - plottableData.HalfWidth / 2,
-            y: plottableData.Amplitude / 2,
-            Shape,
-            MarkerSize,
-            Color);
-
-        var centerMarker = builder.Add.Marker(
-            x: plottableData.Center,
-            y: plottableData.Amplitude,
-            Shape,
-            MarkerSize,
-            Color);
-
-        var rightMarker = builder.Add.Marker(
-            x: plottableData.Center + plottableData.HalfWidth / 2,
-            y: plottableData.Amplitude / 2,
-            Shape,
-            MarkerSize,
-            Color);
-
-        var plot = new PeakDataPlot(
-            peak: plottableData,
-            leftMarker: new DraggableMarker(leftMarker),
-            centerMarker: new DraggableMarker(centerMarker),
-            rightMarker: new DraggableMarker(rightMarker));
-
-        //TODO добавить к этой штуке отрисовку всего пика через функцию
-        return Task.FromResult(plot);
-    }
-
-    public Task<bool> IsDrew(PeakDataPlot plot)
+    public Task<bool> IsDrew(PeakData data)
     {
         lock (plotted)
         {
-            return Task.FromResult(plotted.Contains(plot));
+            return Task.FromResult(plotted.ContainsKey(data));
         }
     }
 
-    public Task Draw(PeakDataPlot plt)
+    public Task<IReadOnlyCollection<PeakDataPlot>> Draw(IReadOnlyCollection<PeakData> data)
     {
+        IReadOnlyCollection<PeakDataPlot> plots = data.Select(GetOrCreatePlot).ToArray();
+
+        IReadOnlyCollection<PeakDataPlot> newPlots;
+
         lock (plotted)
         {
-            if (!plotted.Add(plt))
+            newPlots = plots
+                .Where(p => plotted.TryAdd(p.Peak, p))
+                .ToArray();
+
+            if (newPlots.IsEmpty())
             {
-                return Task.CompletedTask;
+                return Task.FromResult(plots);
             }
         }
 
         lock (plotForm)
         {
-            foreach (var marker in plt.Markers)
+            foreach (var plot in newPlots)
             {
-                plotForm.Add.Plottable(marker);
+                foreach (var marker in plot.Markers)
+                {
+                    plotForm.Add.Plottable(marker);
+                }
+
+                plotForm.Add.Plottable(plot.Line);
             }
         }
 
-        return Task.CompletedTask;
+        return Task.FromResult(plots);
     }
 
-    public Task Erase(PeakDataPlot plt)
+    public Task<IReadOnlyCollection<PeakDataPlot>> Erase(IReadOnlyCollection<PeakData> data)
     {
+        IReadOnlyCollection<PeakDataPlot> plots = data.Select(GetOrCreatePlot).ToArray();
+
+        IReadOnlyCollection<PeakDataPlot> removedPlots;
+
         lock (plotted)
         {
-            if (!plotted.Remove(plt))
+            removedPlots = plots
+                .Where(p => plotted.Remove(p.Peak))
+                .ToArray();
+
+            if (removedPlots.IsEmpty())
             {
-                return Task.CompletedTask;
+                return Task.FromResult(plots);
             }
         }
 
         lock (plotForm)
         {
-            foreach (var marker in plt.Markers)
+            foreach (var plot in removedPlots)
             {
-                plotForm.Remove(marker);
+                foreach (var marker in plot.Markers)
+                {
+                    plotForm.Remove(marker);
+                }
+
+                plotForm.Remove(plot.Line);
             }
         }
 
-        return Task.CompletedTask;
+        return Task.FromResult(plots);
     }
 
     public Task Resize()
@@ -114,19 +99,37 @@ internal sealed class PeakDataPlotProvider(Plot plotForm) : IDataPlotProvider<Pe
 
     public Task Clear()
     {
-        lock (plotForm)
-        {
-            foreach (var marker in plotted.SelectMany(p => p.Markers))
-            {
-                plotForm.Remove(marker);
-            }
-        }
-
         lock (plotted)
         {
+            lock (plotForm)
+            {
+                foreach (var plot in plotted.Values)
+                {
+                    foreach (var marker in plot.Markers)
+                    {
+                        plotForm.Remove(marker);
+                    }
+
+                    plotForm.Remove(plot.Line);
+                }
+            }
+
             plotted.Clear();
         }
 
         return Task.CompletedTask;
+    }
+
+    private PeakDataPlot GetOrCreatePlot(PeakData data)
+    {
+        lock (plotted)
+        {
+            if (plotted.TryGetValue(data, out var plot))
+            {
+                return plot;
+            }
+        }
+
+        return new PeakDataPlot(data);
     }
 }

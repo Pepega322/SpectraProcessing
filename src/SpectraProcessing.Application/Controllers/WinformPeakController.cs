@@ -23,8 +23,8 @@ internal sealed class WinformPeakController(
 
         var pixel = plotView.Plot.GetPixel(coordinates);
 
-        var hitPeak = peaksStorage.DefaultDataSet.Data
-            .Concat(peaksStorage.StorageDataSets.SelectMany(x => x.Data))
+        var hitPeak = peaksStorage.DefaultSet.Data
+            .Concat(peaksStorage.Sets.Values.SelectMany(x => x.Data))
             .FirstOrDefault(p => p.TryHit(pixel, 20f));
 
         return Task.FromResult(hitPeak);

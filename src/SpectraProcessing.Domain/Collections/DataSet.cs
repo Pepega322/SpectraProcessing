@@ -4,9 +4,9 @@ namespace SpectraProcessing.Domain.Collections;
 
 public class DataSet<TValue>
 {
-    private readonly HashSet<TValue> set;
+    private readonly ISet<TValue> data;
 
-    private readonly HashSet<DataSet<TValue>> subsets;
+    private readonly ISet<DataSet<TValue>> subsets;
 
     private int DataCount { get; set; }
 
@@ -18,9 +18,9 @@ public class DataSet<TValue>
     {
         get
         {
-            lock (set)
+            lock (data)
             {
-                return set.ToImmutableHashSet();
+                return data.ToImmutableHashSet();
             }
         }
     }
@@ -39,24 +39,24 @@ public class DataSet<TValue>
     public DataSet(string name)
     {
         Name = name;
-        set = [];
-        subsets = [];
+        data = new HashSet<TValue>();
+        subsets = new HashSet<DataSet<TValue>>();
     }
 
     public DataSet(string name, IReadOnlyCollection<TValue> data)
     {
         Name = name;
-        set = [.. data];
-        subsets = [];
+        this.data = new HashSet<TValue>(data);
+        subsets = new HashSet<DataSet<TValue>>();
     }
 
-    public bool AddThreadSafe(TValue data)
+    public bool AddThreadSafe(TValue value)
     {
-        var result = false;
+        bool result;
 
-        lock (set)
+        lock (data)
         {
-            result = set.Add(data);
+            result = data.Add(value);
         }
 
         if (result)
@@ -67,13 +67,13 @@ public class DataSet<TValue>
         return result;
     }
 
-    public bool RemoveThreadSafe(TValue data)
+    public bool RemoveThreadSafe(TValue value)
     {
-        var result = false;
+        bool result;
 
-        lock (set)
+        lock (data)
         {
-            result = set.Remove(data);
+            result = data.Remove(value);
         }
 
         if (result)
@@ -91,7 +91,7 @@ public class DataSet<TValue>
 
     public bool AddSubsetThreadSafe(DataSet<TValue> subset)
     {
-        var result = false;
+        bool result;
 
         lock (subsets)
         {
@@ -109,7 +109,7 @@ public class DataSet<TValue>
 
     private bool RemoveSubsetThreadSafe(DataSet<TValue> subset)
     {
-        var result = false;
+        bool result;
 
         lock (subsets)
         {

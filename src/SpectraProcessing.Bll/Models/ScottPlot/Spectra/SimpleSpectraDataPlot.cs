@@ -1,23 +1,23 @@
-using ScottPlot;
+﻿using ScottPlot;
 using ScottPlot.Plottables;
 using SpectraProcessing.Bll.Models.ScottPlot.Spectra.Abstractions;
 using SpectraProcessing.Domain.Models.Spectra;
 
 namespace SpectraProcessing.Bll.Models.ScottPlot.Spectra;
 
-public class EspSpectraDataPlot : SpectraDataPlot
+public class SimpleSpectraDataPlot : SpectraDataPlot
 {
     private readonly SignalXY signal;
 
-    public EspSpectraDataPlot(EspSpectraData esp) : base(esp)
+    public SimpleSpectraDataPlot(SimpleSpectraData data) : base(data)
     {
         using var builder = new Plot();
 
         signal = builder.Add.SignalXY(
-            esp.Points.X.ToArray(),
-            esp.Points.Y.ToArray());
+            data.Points.X.ToArray(),
+            data.Points.Y.ToArray());
 
-        Name = esp.Name;
+        Name = data.Name;
 
         PreviousColor = signal.Color;
 
