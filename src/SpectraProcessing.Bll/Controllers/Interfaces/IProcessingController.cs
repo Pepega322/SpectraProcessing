@@ -11,5 +11,9 @@ public interface IProcessingController
 
     Task RemovePeak(PeakData peak);
 
-    Task SaveSpectraPeaks(SpectraData spectra);
+    Task<bool> CheckoutSpectra(SpectraData? spectra);
+
+    Task SaveSpectraPeaks();
+
+    Task RemovedSpectraPeaks();
 }
