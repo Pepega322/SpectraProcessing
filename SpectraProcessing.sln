@@ -1,16 +1,24 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Controllers", "Controllers\Controllers.csproj", "{D4B47FC1-EA72-449C-BA52-DF1ABEE7D5A6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpectraProcessing.Bll", "src\SpectraProcessing.Bll\SpectraProcessing.Bll.csproj", "{D4B47FC1-EA72-449C-BA52-DF1ABEE7D5A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataSource", "DataSource\DataSource.csproj", "{97C5821E-57B9-4DA8-860B-DA26766B2727}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpectraProcessing.Dal", "src\SpectraProcessing.Dal\SpectraProcessing.Dal.csproj", "{97C5821E-57B9-4DA8-860B-DA26766B2727}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{57DDC053-45BA-4181-B1D1-278FF42E3230}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpectraProcessing.Domain", "src\SpectraProcessing.Domain\SpectraProcessing.Domain.csproj", "{57DDC053-45BA-4181-B1D1-278FF42E3230}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graphics", "Graphics\Graphics.csproj", "{278E6DA8-FFA8-45DF-9519-078445577B38}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpectraProcessing.Application", "src\SpectraProcessing.Application\SpectraProcessing.Application.csproj", "{F42FBFE2-92F8-43E4-BB34-8FAEE891561D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{F42FBFE2-92F8-43E4-BB34-8FAEE891561D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{456FA009-9D70-4019-8A50-16B7897905A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathStatistics", "MathStatistics\MathStatistics.csproj", "{01323AF3-B14B-450B-A114-C303C381152E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{07F3EE41-88BB-4B01-858B-822BEE05A677}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{E6B3B127-6A19-4AE8-875A-3BA0E5613D2E}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpectraProcessing.Tests", "tests\SpectraProcessing.Tests\SpectraProcessing.Tests.csproj", "{4C09AC1F-AD79-46B6-81D4-7C8D18C53485}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,17 +38,25 @@ Global
 		{57DDC053-45BA-4181-B1D1-278FF42E3230}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57DDC053-45BA-4181-B1D1-278FF42E3230}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57DDC053-45BA-4181-B1D1-278FF42E3230}.Release|Any CPU.Build.0 = Release|Any CPU
-		{278E6DA8-FFA8-45DF-9519-078445577B38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{278E6DA8-FFA8-45DF-9519-078445577B38}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{278E6DA8-FFA8-45DF-9519-078445577B38}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{278E6DA8-FFA8-45DF-9519-078445577B38}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F42FBFE2-92F8-43E4-BB34-8FAEE891561D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F42FBFE2-92F8-43E4-BB34-8FAEE891561D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F42FBFE2-92F8-43E4-BB34-8FAEE891561D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F42FBFE2-92F8-43E4-BB34-8FAEE891561D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{01323AF3-B14B-450B-A114-C303C381152E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{01323AF3-B14B-450B-A114-C303C381152E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{01323AF3-B14B-450B-A114-C303C381152E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{01323AF3-B14B-450B-A114-C303C381152E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C09AC1F-AD79-46B6-81D4-7C8D18C53485}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C09AC1F-AD79-46B6-81D4-7C8D18C53485}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C09AC1F-AD79-46B6-81D4-7C8D18C53485}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C09AC1F-AD79-46B6-81D4-7C8D18C53485}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9FF865F-697B-474D-BA5B-ED62E3A3E2BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9FF865F-697B-474D-BA5B-ED62E3A3E2BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9FF865F-697B-474D-BA5B-ED62E3A3E2BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9FF865F-697B-474D-BA5B-ED62E3A3E2BF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F42FBFE2-92F8-43E4-BB34-8FAEE891561D} = {456FA009-9D70-4019-8A50-16B7897905A5}
+		{D4B47FC1-EA72-449C-BA52-DF1ABEE7D5A6} = {456FA009-9D70-4019-8A50-16B7897905A5}
+		{97C5821E-57B9-4DA8-860B-DA26766B2727} = {456FA009-9D70-4019-8A50-16B7897905A5}
+		{57DDC053-45BA-4181-B1D1-278FF42E3230} = {456FA009-9D70-4019-8A50-16B7897905A5}
+		{4C09AC1F-AD79-46B6-81D4-7C8D18C53485} = {07F3EE41-88BB-4B01-858B-822BEE05A677}
+		{C9FF865F-697B-474D-BA5B-ED62E3A3E2BF} = {456FA009-9D70-4019-8A50-16B7897905A5}
 	EndGlobalSection
 EndGlobal
