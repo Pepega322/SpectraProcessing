@@ -21,7 +21,7 @@ public sealed class SpectraKey : INamedKey
 
     public override bool Equals(object? obj)
     {
-        return obj is SpectraKey key && string.Equals(Name, key.Name);
+        return obj is SpectraKey key && SpectraData.GetHashCode() == key.SpectraData.GetHashCode();
     }
 
     public override int GetHashCode() => SpectraData.GetHashCode();

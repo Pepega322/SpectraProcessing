@@ -143,10 +143,6 @@ public sealed class PeakDataPlot : IDataPlot
         Peak.HalfWidth = halfWidth;
         Peak.GaussianContribution = gaussianContribution;
 
-        using var builder = new Plot();
-
-        Line = GetPeakLine(builder, Peak);
-
         var halfHeight = Peak.Amplitude / 2;
 
         DragMarkerTo(leftMarker, new Coordinates(Peak.Center - Peak.HalfWidth / 2, halfHeight));

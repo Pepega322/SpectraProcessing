@@ -1,3 +1,4 @@
+using System.Reflection.Metadata.Ecma335;
 using ScottPlot;
 using SpectraProcessing.Bll.Models.ScottPlot.Spectra;
 using SpectraProcessing.Bll.Models.ScottPlot.Spectra.Abstractions;
@@ -81,6 +82,25 @@ internal sealed class SpectraDataPlotProvider(
         }
 
         return Task.FromResult(plots);
+    }
+
+    public Task PushOnTop(IReadOnlyCollection<SpectraData> data)
+    {
+        lock (plotForm)
+        {
+            foreach (var d in data)
+            {
+                if (plotted.TryGetValue(d, out var plot) is false)
+                {
+                    continue;
+                }
+
+                plotForm.Remove(plot.Plottable);
+                plotForm.Add.Plottable(plot.Plottable);
+            }
+        }
+
+        return Task.CompletedTask;
     }
 
     public Task Resize()

@@ -8,7 +8,7 @@ public static class SpectraModeling
         => estimate.GaussianContribution * Gaussian(x, estimate)
             + (1 - estimate.GaussianContribution) * Lorentzian(x, estimate);
 
-    public static double GaussianAndLorentzianMix(double x, IReadOnlyCollection<PeakData> estimates)
+    public static double GaussianAndLorentzianMix(double x, ICollection<PeakData> estimates)
         => estimates.Sum(e => GaussianAndLorentzianMix(x, e));
 
     private static double Gaussian(double x, PeakData estimate)

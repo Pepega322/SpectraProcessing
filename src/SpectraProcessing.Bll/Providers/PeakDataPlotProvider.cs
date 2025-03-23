@@ -1,4 +1,5 @@
 ﻿using ScottPlot;
+using SpectraProcessing.Bll.Math;
 using SpectraProcessing.Bll.Models.ScottPlot.Peak;
 using SpectraProcessing.Bll.Providers.Interfaces;
 using SpectraProcessing.Domain.Extensions;
@@ -6,9 +7,17 @@ using SpectraProcessing.Domain.Models.Peak;
 
 namespace SpectraProcessing.Bll.Providers;
 
-internal sealed class PeakDataPlotProvider(Plot plotForm) : IDataPlotProvider<PeakData, PeakDataPlot>
+internal sealed class PeakDataPlotProvider : IDataPlotProvider<PeakData, PeakDataPlot>
 {
+    private readonly Plot plotForm;
+
     private readonly IDictionary<PeakData, PeakDataPlot> plotted = new Dictionary<PeakData, PeakDataPlot>();
+
+    public PeakDataPlotProvider(Plot plotForm)
+    {
+        this.plotForm = plotForm;
+        plotForm.Add.Function(x => SpectraModeling.GaussianAndLorentzianMix(x, plotted.Keys));
+    }
 
     public Task<bool> IsDrew(PeakData data)
     {
@@ -84,6 +93,11 @@ internal sealed class PeakDataPlotProvider(Plot plotForm) : IDataPlotProvider<Pe
         }
 
         return Task.FromResult(plots);
+    }
+
+    public Task PushOnTop(IReadOnlyCollection<PeakData> data)
+    {
+        throw new NotSupportedException();
     }
 
     public Task Resize()

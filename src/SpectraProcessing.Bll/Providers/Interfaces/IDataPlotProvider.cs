@@ -12,6 +12,8 @@ public interface IDataPlotProvider<in TPlottableData, TDataPlot>
 
     Task<IReadOnlyCollection<TDataPlot>> Erase(IReadOnlyCollection<TPlottableData> data);
 
+    Task PushOnTop(IReadOnlyCollection<TPlottableData> data);
+
     Task Resize();
 
     Task Clear();

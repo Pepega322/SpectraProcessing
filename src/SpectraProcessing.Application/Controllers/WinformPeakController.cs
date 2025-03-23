@@ -41,7 +41,11 @@ internal sealed class WinformPeakController(
 
         plotView.Cursor = Cursors.Hand;
         plotView.UserInputProcessor.Disable();
-        MouseEventHandler onMouseMove = (_, _) => { hitPeak.TryMoveTo(coordinateProvider.Coordinates); };
+        MouseEventHandler onMouseMove = (_, _) =>
+        {
+            hitPeak.TryMoveTo(coordinateProvider.Coordinates);
+            OnPeakChanges?.Invoke();
+        };
         plotView.MouseMove += onMouseMove;
 
         var tcs = new TaskCompletionSource();
@@ -49,6 +53,7 @@ internal sealed class WinformPeakController(
         MouseEventHandler onMouseUp = (_, _) =>
         {
             plotView.MouseMove -= onMouseMove;
+            Console.WriteLine("Mouse up");
             hitPeak.ReleaseHit();
             plotView.UserInputProcessor.Enable();
             plotView.Cursor = Cursors.Arrow;

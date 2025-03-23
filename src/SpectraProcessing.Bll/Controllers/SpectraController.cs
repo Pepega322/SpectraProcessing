@@ -24,7 +24,10 @@ internal sealed class SpectraController(
 
     public event Action? OnPlotStorageChanged;
 
-    public IReadOnlyCollection<DataSet<SpectraDataPlot>> Plots => storageProvider.Sets.Values.ToArray();
+    public IReadOnlyCollection<DataSet<SpectraDataPlot>> Plots
+        => new[] { storageProvider.DefaultSet }
+            .Concat(storageProvider.Sets.Values)
+            .ToArray();
 
     public async Task AddToPlotArea(DataSet<SpectraData> set)
     {
@@ -185,9 +188,8 @@ internal sealed class SpectraController(
     {
         if (isHighlighted)
         {
-            await plotProvider.Erase([dataPlot.SpectraData]);
+            await plotProvider.PushOnTop([dataPlot.SpectraData]);
             dataPlot.ChangeColor(HighlightColor);
-            await plotProvider.Draw([dataPlot.SpectraData]);
         }
         else
         {
