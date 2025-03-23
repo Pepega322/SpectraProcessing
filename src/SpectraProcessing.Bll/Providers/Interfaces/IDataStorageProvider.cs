@@ -1,9 +1,9 @@
 using SpectraProcessing.Models.Collections;
 using SpectraProcessing.Models.Collections.Keys;
 
-namespace SpectraProcessing.Bll.Controllers.Interfaces;
+namespace SpectraProcessing.Bll.Providers.Interfaces;
 
-public interface IDataStorageController<in TKey, TData>
+public interface IDataStorageProvider<in TKey, TData>
     where TKey : INamedKey
 {
     event Action? OnChange;

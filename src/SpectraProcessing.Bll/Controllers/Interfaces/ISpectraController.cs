@@ -3,7 +3,7 @@ using SpectraProcessing.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Bll.Controllers.Interfaces;
 
-public interface IPlotController
+public interface ISpectraController
 {
     event Action? OnPlotAreaChanged;
 
@@ -11,7 +11,7 @@ public interface IPlotController
 
     IReadOnlyCollection<DataSet<SpectraDataPlot>> Plots { get; }
 
-    Task ContextDataSetAddToPlotArea(DataSet<SpectraData> set);
+    Task AddToPlotArea(DataSet<SpectraData> set);
 
     Task ContextDataAddToClearPlotArea(DataSet<SpectraData> set);
 

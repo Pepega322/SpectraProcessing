@@ -1,15 +1,17 @@
 using Microsoft.Extensions.Logging;
-using SpectraProcessing.Bll.Controllers.Interfaces;
+using SpectraProcessing.Bll.Providers.Interfaces;
+using SpectraProcessing.Domain.DataTypes;
 using SpectraProcessing.Domain.InputOutput;
 using SpectraProcessing.Models.Collections;
 
-namespace SpectraProcessing.Bll.Controllers;
+namespace SpectraProcessing.Bll.Providers;
 
-public sealed class DirectoryDataSourceController<TData>(
+public sealed class DirectoryDataProvider<TData>(
     IDataReader<TData> reader,
-    ILogger<DirectoryDataSourceController<TData>> logger
-) : IDataSourceController<TData>
-    where TData : class
+    IDataWriter writer,
+    ILogger<DirectoryDataProvider<TData>> logger
+) : IDataProvider<TData>
+    where TData : class, IWriteableData
 {
     public async Task<DataSet<TData>> ReadFolderAsync(string fullName)
     {
@@ -66,6 +68,28 @@ public sealed class DirectoryDataSourceController<TData>(
         return rootSet;
     }
 
+    public Task DataWriteAs(TData data, string path)
+    {
+        return writer.WriteData(data, path);
+    }
+
+    public Task SetOnlyWriteAs(DataSet<TData> set, string path, string extension)
+    {
+        if (!Directory.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
+
+        return Task.WhenAll(set.Data.Select(data => DataWriteAs(data, Path.Combine(path, $"{data.Name}{extension}"))));
+    }
+
+    public async Task SetFullDepthWriteAs(DataSet<TData> root, string path, string extension)
+    {
+        var track = LinkSetAndOutputFolder(root, path);
+
+        await Task.WhenAll(track.Keys.Select(set => SetOnlyWriteAs(set, track[set], extension)));
+    }
+
     private async Task ReadFolder(DirectoryInfo dir, DataSet<TData> node)
     {
         foreach (var file in dir.GetFiles())
@@ -84,5 +108,28 @@ public sealed class DirectoryDataSourceController<TData>(
                     e.Message);
             }
         }
+    }
+
+    private static Dictionary<DataSet<TData>, string> LinkSetAndOutputFolder(DataSet<TData> set, string path)
+    {
+        var track = new Dictionary<DataSet<TData>, string> { [set] = path };
+
+        var queue = new Queue<DataSet<TData>>();
+
+        queue.Enqueue(set);
+
+        while (queue.Count != 0)
+        {
+            var nodeInReference = queue.Dequeue();
+
+            foreach (var subset in nodeInReference.Subsets)
+            {
+                var pathInDestination = Path.Combine(track[nodeInReference], subset.Name);
+                track[subset] = pathInDestination;
+                queue.Enqueue(subset);
+            }
+        }
+
+        return track;
     }
 }

@@ -1,4 +1,5 @@
 using SpectraProcessing.Bll.Controllers.Interfaces;
+using SpectraProcessing.Bll.Providers.Interfaces;
 using SpectraProcessing.Models.Collections;
 using SpectraProcessing.Models.Collections.Keys;
 using SpectraProcessing.Models.Spectra.Abstractions;
@@ -17,13 +18,13 @@ internal static class TreeViewHelpers
     }
 
     public static IReadOnlyCollection<TreeNode> GetDataNodes<TKey, TData>(
-        this IDataStorageController<TKey, TData> dataStorageController)
+        this IDataStorageProvider<TKey, TData> dataStorageProvider)
         where TKey : INamedKey
 
     {
         var nodes = new List<TreeNode>();
 
-        foreach (var set in dataStorageController.StorageDataSets)
+        foreach (var set in dataStorageProvider.StorageDataSets)
         {
             var node = new TreeNode
             {
@@ -73,9 +74,9 @@ internal static class TreeViewHelpers
         }
     }
 
-    public static IReadOnlyCollection<TreeNode> GetPlotNodes(this IPlotController plotController)
+    public static IReadOnlyCollection<TreeNode> GetPlotNodes(this ISpectraController spectraController)
     {
-        return plotController.Plots
+        return spectraController.Plots
             .Where(s => s.Data.Any())
             .Select(ToTreeNode)
             .ToArray();
@@ -89,7 +90,7 @@ internal static class TreeViewHelpers
                     {
                         Text = plot.Name,
                         Tag = plot,
-                        Checked = plotController.IsPlotVisible(plot).Result,
+                        Checked = spectraController.IsPlotVisible(plot).Result,
                     })
                 .ToArray();
 

@@ -11,7 +11,7 @@ namespace SpectraProcessing.Application.Controllers;
 public class PeakController(
     FormsPlot plotView,
     ICoordinateProvider coordinateProvider,
-    IDataStorageController<SpectraKey, PeakDataPlot> peaksStorage
+    IDataStorageProvider<SpectraKey, PeakDataPlot> peaksStorage
 ) : IPeakController
 {
     public event Action? OnPeakChanges;

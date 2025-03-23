@@ -3,7 +3,7 @@ using SpectraProcessing.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Bll.Controllers.Interfaces;
 
-public interface ISpectraProcessingController
+public interface IProcessingController
 {
     event Action? OnPlotAreaChanged;
 

@@ -1,13 +1,13 @@
 using Microsoft.Extensions.Options;
-using SpectraProcessing.Bll.Controllers.Interfaces;
+using SpectraProcessing.Bll.Providers.Interfaces;
 using SpectraProcessing.Bll.Settings;
 using SpectraProcessing.Models.Collections;
 using SpectraProcessing.Models.Collections.Keys;
 
-namespace SpectraProcessing.Bll.Controllers;
+namespace SpectraProcessing.Bll.Providers;
 
-public sealed class DataStorageController<TKey, TData>(IOptions<DataStorageSettings> settings)
-    : IDataStorageController<TKey, TData>
+public sealed class DataStorageProvider<TKey, TData>(IOptions<DataStorageSettings> settings)
+    : IDataStorageProvider<TKey, TData>
     where TKey : INamedKey
 {
     private readonly DataStorage<TKey, TData> storage = new(settings.Value.DefaultDataSetName);
