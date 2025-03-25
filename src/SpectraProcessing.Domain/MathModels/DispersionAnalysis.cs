@@ -1,8 +1,8 @@
-using SpectraProcessing.Bll.Models.Math;
+using SpectraProcessing.Domain.Models.MathModels;
 
-namespace SpectraProcessing.Bll.MathModels;
+namespace SpectraProcessing.Domain.MathModels;
 
-internal static class DispersionAnalysis
+public static class DispersionAnalysis
 {
     public static DispersionStatistics<float> GetDispersionStatistics(
         this IReadOnlyCollection<float> values,

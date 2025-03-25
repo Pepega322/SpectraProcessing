@@ -1,5 +1,5 @@
-using SpectraProcessing.Bll.MathModels;
 using SpectraProcessing.Domain.Collections;
+using SpectraProcessing.Domain.MathModels;
 using SpectraProcessing.Domain.Models.Peak;
 using SpectraProcessing.Domain.Models.Spectra;
 using SpectraProcessing.Domain.Models.Spectra.Abstractions;

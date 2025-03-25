@@ -1,8 +1,8 @@
 ﻿using ScottPlot;
-using SpectraProcessing.Bll.MathModels;
 using SpectraProcessing.Bll.Models.ScottPlot.Plottables;
 using SpectraProcessing.Domain.Collections;
 using SpectraProcessing.Domain.DataTypes;
+using SpectraProcessing.Domain.MathModels;
 using SpectraProcessing.Domain.Models.Peak;
 
 namespace SpectraProcessing.Bll.Models.ScottPlot.Peak;

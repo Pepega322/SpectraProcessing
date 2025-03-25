@@ -1,8 +1,8 @@
-using System.Numerics;
+﻿using System.Numerics;
 
-namespace SpectraProcessing.Bll.Models.Math;
+namespace SpectraProcessing.Domain.Models.MathModels;
 
-public record DispersionStatistics<T>(
+public sealed record DispersionStatistics<T>(
     string ParameterName,
     int ValuesCount,
     T AverageValue,

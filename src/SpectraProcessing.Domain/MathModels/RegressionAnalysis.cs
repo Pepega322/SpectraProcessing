@@ -1,9 +1,9 @@
 using System.Numerics;
 using SpectraProcessing.Domain.Collections;
 
-namespace SpectraProcessing.Bll.MathModels;
+namespace SpectraProcessing.Domain.MathModels;
 
-internal static class RegressionAnalysis
+public static class RegressionAnalysis
 {
     public static Func<float, float> GetLinearRegression(SpectraPoints points)
     {
