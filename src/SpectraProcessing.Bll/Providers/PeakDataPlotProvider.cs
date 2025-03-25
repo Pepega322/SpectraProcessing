@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using ScottPlot;
-using SpectraProcessing.Bll.Math;
+using SpectraProcessing.Bll.MathModels;
 using SpectraProcessing.Bll.Models.ScottPlot.Peak;
 using SpectraProcessing.Bll.Providers.Interfaces;
 using SpectraProcessing.Domain.Extensions;

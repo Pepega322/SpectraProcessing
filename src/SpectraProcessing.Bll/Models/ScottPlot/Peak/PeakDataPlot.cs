@@ -1,5 +1,5 @@
 ﻿using ScottPlot;
-using SpectraProcessing.Bll.Math;
+using SpectraProcessing.Bll.MathModels;
 using SpectraProcessing.Bll.Models.ScottPlot.Plottables;
 using SpectraProcessing.Domain.Collections;
 using SpectraProcessing.Domain.DataTypes;

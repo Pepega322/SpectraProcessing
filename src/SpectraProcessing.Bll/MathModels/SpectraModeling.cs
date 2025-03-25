@@ -1,6 +1,6 @@
 ﻿using SpectraProcessing.Domain.Models.Peak;
 
-namespace SpectraProcessing.Bll.Math;
+namespace SpectraProcessing.Bll.MathModels;
 
 public static class SpectraModeling
 {

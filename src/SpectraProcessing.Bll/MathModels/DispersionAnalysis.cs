@@ -1,6 +1,6 @@
 using SpectraProcessing.Bll.Models.Math;
 
-namespace SpectraProcessing.Bll.Math;
+namespace SpectraProcessing.Bll.MathModels;
 
 internal static class DispersionAnalysis
 {
@@ -33,11 +33,11 @@ internal static class DispersionAnalysis
         var average = values.Sum() / values.Count;
         var standardDeviationSquare = values.Sum(v => (v - average) * (v - average)) / (values.Count - 1);
         averageValue = average;
-        return (float) System.Math.Sqrt(standardDeviationSquare);
+        return (float) Math.Sqrt(standardDeviationSquare);
     }
 
     private static float GetConfidenceInterval(int valuesCount, float standardDeviation)
-        => GetStudentCoefficients(valuesCount) * standardDeviation / (float) System.Math.Sqrt(valuesCount);
+        => GetStudentCoefficients(valuesCount) * standardDeviation / (float) Math.Sqrt(valuesCount);
 
     private static float GetStudentCoefficients(int valuesCount)
     {

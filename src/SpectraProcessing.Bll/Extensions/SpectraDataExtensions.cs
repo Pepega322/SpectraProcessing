@@ -1,4 +1,4 @@
-using SpectraProcessing.Bll.Math;
+using SpectraProcessing.Bll.MathModels;
 using SpectraProcessing.Domain.Collections;
 using SpectraProcessing.Domain.Models.Peak;
 using SpectraProcessing.Domain.Models.Spectra;
@@ -90,27 +90,6 @@ public static class SpectraDataExtensions
             var points = new SpectraPoints(resultX, resultY);
 
             return new SimpleSpectraData("sum", points);
-        }
-    }
-
-    public static async Task<IDictionary<PeakData, SpectraData>> GetPeaksSpectras(
-        this SpectraData spectra,
-        IReadOnlyCollection<PeakData> peakEstimates)
-    {
-        var tasks = peakEstimates
-            .Select(e => Task.Run(() => GetPeakSpectra(spectra.Points.X, e)));
-
-        var results = await Task.WhenAll(tasks);
-
-        return results.ToDictionary(x => x.Item1, x => x.Item2);
-
-        (PeakData, SpectraData) GetPeakSpectra(IReadOnlyList<float> xs, PeakData estimate)
-        {
-            var ys = xs.Select(x => (float) SpectraModeling.GaussianAndLorentzianMix(x, estimate)).ToArray();
-
-            var points = new SpectraPoints(xs, ys);
-
-            return (estimate, new SimpleSpectraData("", points));
         }
     }
 
