@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace SpectraProcessing.Domain.Models.MathModels;
+namespace SpectraProcessing.Domain.Models.MathModeling;
 
 public sealed record DispersionStatistics<T>(
     string ParameterName,

@@ -1,6 +1,6 @@
 using FluentAssertions;
-using SpectraProcessing.Domain.MathModels;
-using SpectraProcessing.Domain.Models.MathModels;
+using SpectraProcessing.Domain.MathModeling;
+using SpectraProcessing.Domain.Models.MathModeling;
 using SpectraProcessing.TestingInfrastructure;
 using Xunit;
 
@@ -8,21 +8,18 @@ namespace SpectraProcessing.Tests.Tests;
 
 public class NeldlerMeadOptimizationTests
 {
-    private static readonly NelderMeadOptimizationSettings Settings = new()
-    {
-    };
+    private static readonly OptimizationSettings Settings = new();
 
     [Theory]
     [MemberData(nameof(GetRosenbrockFuncStarts))]
     public async Task Optimize_RosenbrockFunc_Success(VectorN start)
     {
         //Act
-        var actual = await NelderMeadOptimization.Optimize(start, Func, Settings);
+        var actual = await NelderMead.Optimization(start, Func, Settings);
 
         //Assert
-        var expected = new VectorN([MathFunctions.RosenbrockMinimum.X, MathFunctions.RosenbrockMinimum.Y]);
-
-        (actual == expected).Should().BeTrue();
+        actual[0].Should().BeApproximately(MathFunctions.RosenbrockMinimum.X, 1e-6);
+        actual[1].Should().BeApproximately(MathFunctions.RosenbrockMinimum.Y, 1e-6);
 
         return;
 
@@ -34,10 +31,11 @@ public class NeldlerMeadOptimizationTests
     public async Task Optimize_HimmelblauFunc_Success(VectorN start, VectorN expectedMinimum)
     {
         //Act
-        var actual = await NelderMeadOptimization.Optimize(start, Func, Settings);
+        var actual = await NelderMead.Optimization(start, Func, Settings);
 
         //Assert
-        (actual == expectedMinimum).Should().BeTrue();
+        actual[0].Should().BeApproximately(expectedMinimum[0], 1e-6);
+        actual[1].Should().BeApproximately(expectedMinimum[1], 1e-6);
 
         return;
 

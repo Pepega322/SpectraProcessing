@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using SpectraProcessing.Domain.Extensions;
 
-namespace SpectraProcessing.Domain.Models.MathModels;
+namespace SpectraProcessing.Domain.Models.MathModeling;
 
 public sealed class VectorN
 {

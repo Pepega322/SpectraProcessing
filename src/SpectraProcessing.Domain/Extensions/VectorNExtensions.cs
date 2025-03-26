@@ -1,4 +1,4 @@
-﻿using SpectraProcessing.Domain.Models.MathModels;
+﻿using SpectraProcessing.Domain.Models.MathModeling;
 
 namespace SpectraProcessing.Domain.Extensions;
 

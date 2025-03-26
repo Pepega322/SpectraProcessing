@@ -1,6 +1,6 @@
-using SpectraProcessing.Domain.Models.MathModels;
+using SpectraProcessing.Domain.Models.MathModeling;
 
-namespace SpectraProcessing.Domain.MathModels;
+namespace SpectraProcessing.Domain.MathModeling;
 
 public static class DispersionAnalysis
 {
