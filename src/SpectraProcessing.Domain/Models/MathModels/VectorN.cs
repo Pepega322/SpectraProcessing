@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using SpectraProcessing.Domain.Extensions;
 
 namespace SpectraProcessing.Domain.Models.MathModels;
 
@@ -114,7 +115,7 @@ public sealed class VectorN
         const double delta = 1e-6;
         for (var d = 0; d < left.Dimension; d++)
         {
-            if (Math.Abs(left.Values[d] - right.Values[d]) > delta)
+            if (!left.Values[d].ApproximatelyEqual(right.Values[d], delta))
             {
                 return false;
             }
