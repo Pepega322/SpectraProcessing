@@ -6,7 +6,7 @@ using Xunit;
 
 namespace SpectraProcessing.Tests.Tests;
 
-public class NeldlerMeadOptimizationTests
+public class NeldlerMeadTests
 {
     private static readonly OptimizationSettings Settings = new();
 

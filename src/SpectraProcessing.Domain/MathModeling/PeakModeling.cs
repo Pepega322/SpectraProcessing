@@ -2,7 +2,7 @@
 
 namespace SpectraProcessing.Domain.MathModeling;
 
-public static class SpectraModeling
+public static class PeakModeling
 {
     public static double GaussianAndLorentzianMix(double x, PeakData estimate)
     {
@@ -55,7 +55,7 @@ public static class SpectraModeling
         }
     }
 
-    private static double GaussianAndLorentzianMixSquareRadius(double squarePercentage, PeakData estimate)
+    public static double GaussianAndLorentzianMixSquareRadius(double squarePercentage, PeakData estimate)
     {
         var gaussianWeight = GaussianSquareWeight(estimate.GaussianContribution);
 
@@ -96,7 +96,7 @@ public static class SpectraModeling
         const double constant4 = constant0 * 0.073299079366380859;
         const double constant5 = constant0 * 0.058372500878584518;
 
-        Span<double> coefficients =
+        ReadOnlySpan<double> coefficients =
         [
             constant0,
             constant1,
@@ -129,7 +129,7 @@ public static class SpectraModeling
         const double constant4 = constant0 / 216;
         const double constant5 = -constant0 / 1320;
 
-        Span<double> coefficients =
+        ReadOnlySpan<double> coefficients =
         [
             constant0,
             constant1,

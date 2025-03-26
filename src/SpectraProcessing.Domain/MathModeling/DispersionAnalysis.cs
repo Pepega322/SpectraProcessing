@@ -4,8 +4,8 @@ namespace SpectraProcessing.Domain.MathModeling;
 
 public static class DispersionAnalysis
 {
-    public static DispersionStatistics<float> GetDispersionStatistics(
-        this IReadOnlyCollection<float> values,
+    public static DispersionStatistics<double> GetDispersionStatistics(
+        this IReadOnlyCollection<double> values,
         string parameterName)
     {
         if (values.Count <= 1)
@@ -19,7 +19,7 @@ public static class DispersionAnalysis
 
         var confidenceInterval = GetConfidenceInterval(values.Count, standardDeviation);
 
-        return new DispersionStatistics<float>(
+        return new DispersionStatistics<double>(
             parameterName,
             values.Count,
             averageValue,
@@ -28,18 +28,18 @@ public static class DispersionAnalysis
             confidenceInterval);
     }
 
-    private static float GetStandardDeviation(this IReadOnlyCollection<float> values, out float averageValue)
+    public static double GetStandardDeviation(this IReadOnlyCollection<double> values, out double averageValue)
     {
         var average = values.Sum() / values.Count;
         var standardDeviationSquare = values.Sum(v => (v - average) * (v - average)) / (values.Count - 1);
         averageValue = average;
-        return (float) Math.Sqrt(standardDeviationSquare);
+        return Math.Sqrt(standardDeviationSquare);
     }
 
-    private static float GetConfidenceInterval(int valuesCount, float standardDeviation)
-        => GetStudentCoefficients(valuesCount) * standardDeviation / (float) Math.Sqrt(valuesCount);
+    private static double GetConfidenceInterval(int valuesCount, double standardDeviation)
+        => GetStudentCoefficients(valuesCount) * standardDeviation / Math.Sqrt(valuesCount);
 
-    private static float GetStudentCoefficients(int valuesCount)
+    private static double GetStudentCoefficients(int valuesCount)
     {
         if (valuesCount <= 1)
         {

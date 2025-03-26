@@ -2,7 +2,7 @@
 using SpectraProcessing.Bll.Models.ScottPlot.Plottables;
 using SpectraProcessing.Domain.Collections;
 using SpectraProcessing.Domain.DataTypes;
-using SpectraProcessing.Domain.MathModels;
+using SpectraProcessing.Domain.MathModeling;
 using SpectraProcessing.Domain.Models.Peak;
 
 namespace SpectraProcessing.Bll.Models.ScottPlot.Peak;
@@ -63,7 +63,7 @@ public sealed class PeakDataPlot : IDataPlot
                 markerSize,
                 MarkerColor));
 
-        var line = builder.Add.Function(x => SpectraModeling.GaussianAndLorentzianMix(x, data));
+        var line = builder.Add.Function(x => PeakModeling.GaussianAndLorentzianMix(x, data));
         line.LineColor = PeakColor;
         Line = line;
     }

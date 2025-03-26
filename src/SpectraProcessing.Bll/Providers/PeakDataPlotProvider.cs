@@ -3,7 +3,7 @@ using ScottPlot;
 using SpectraProcessing.Bll.Models.ScottPlot.Peak;
 using SpectraProcessing.Bll.Providers.Interfaces;
 using SpectraProcessing.Domain.Extensions;
-using SpectraProcessing.Domain.MathModels;
+using SpectraProcessing.Domain.MathModeling;
 using SpectraProcessing.Domain.Models.Peak;
 
 namespace SpectraProcessing.Bll.Providers;
@@ -19,7 +19,7 @@ internal sealed class PeakDataPlotProvider : IDataPlotProvider<PeakData, PeakDat
     public PeakDataPlotProvider(Plot plotForm)
     {
         this.plotForm = plotForm;
-        plotForm.Add.Function(x => SpectraModeling.GaussianAndLorentzianMix(x, plotted.Keys));
+        plotForm.Add.Function(x => PeakModeling.GaussianAndLorentzianMix(x, plotted.Keys));
     }
 
     public Task<bool> IsDrew(PeakData data)
