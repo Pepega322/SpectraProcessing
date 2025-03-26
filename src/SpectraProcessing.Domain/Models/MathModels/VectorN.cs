@@ -10,7 +10,11 @@ public sealed class VectorN
 
     public int Dimension => values.Length;
 
-    public double this[int index] => values[index];
+    public double this[int index]
+    {
+        get => values[index];
+        set => values[index] = value;
+    }
 
     public VectorN(IReadOnlyList<double> values)
     {
@@ -104,12 +108,13 @@ public sealed class VectorN
     {
         if (left.Dimension != right.Dimension)
         {
-            throw new ArgumentException("Dimensions don't match");
+            return false;
         }
 
+        const double delta = 1e-6;
         for (var d = 0; d < left.Dimension; d++)
         {
-            if (Math.Abs(left.Values[d] - right.Values[d]) > 1e-6)
+            if (Math.Abs(left.Values[d] - right.Values[d]) > delta)
             {
                 return false;
             }
