@@ -74,8 +74,7 @@ public static class PeakModeling
         {
             // constant = 2 * Math.Sqrt(Math.Log(2));
             const double constant = 1.6651092223153954;
-
-            return ArcErl(squarePercentage) * estimate.HalfWidth / constant;
+            return ErfInv(squarePercentage) * estimate.HalfWidth / constant;
         }
 
         static double LorentzianSquareRadius(double squarePercentage, PeakData estimate)
@@ -86,69 +85,35 @@ public static class PeakModeling
         }
     }
 
-    private static double ArcErl(double x)
+    private static double Erf(double x)
     {
-        // constant0 = Math.Sqrt(Math.PI) / 2;
-        const double constant0 = 0.88622692545275794;
-        const double constant1 = constant0 * 0.26179938779914941;
-        const double constant2 = constant0 * 0.14393173084921979;
-        const double constant3 = constant0 * 0.097663619503920551;
-        const double constant4 = constant0 * 0.073299079366380859;
-        const double constant5 = constant0 * 0.058372500878584518;
+        x = Math.Abs(x);
 
-        ReadOnlySpan<double> coefficients =
-        [
-            constant0,
-            constant1,
-            constant2,
-            constant3,
-            constant4,
-            constant5,
-        ];
+        var t = 1.0 / (1.0 + 0.3275911 * x);
 
-        double result = 0;
+        var y = 1.0 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) *
+            t - 0.284496736) * t + 0.254829592) * t * Math.Exp(-x * x);
 
-        var pow = 1;
-
-        foreach (var c in coefficients)
-        {
-            result += c * Math.Pow(x, pow);
-            pow += 2;
-        }
-
-        return result;
+        return Math.Sign(x) * y;
     }
 
-    private static double Erl(double x)
+    private static double ErfInv(double x)
     {
-        // constant0 = 2 / Math.Sqrt(Math.PI);
-        const double constant0 = 1.1283791670955126;
-        const double constant1 = -constant0 / 3;
-        const double constant2 = constant0 / 10;
-        const double constant3 = -constant0 / 42;
-        const double constant4 = constant0 / 216;
-        const double constant5 = -constant0 / 1320;
-
-        ReadOnlySpan<double> coefficients =
-        [
-            constant0,
-            constant1,
-            constant2,
-            constant3,
-            constant4,
-            constant5,
-        ];
-
-        double result = 0;
-
-        var pow = 1;
-
-        foreach (var c in coefficients)
+        if (x < -1 || x > 1)
         {
-            result += c * Math.Pow(x, pow);
-            pow += 2;
+            throw new ArgumentOutOfRangeException(nameof(x), "Input must be in [-1, 1]");
         }
 
-        return result;
+        if (x == 0)
+        {
+            return 0;
+        }
+
+        const double a = 0.147;
+        var ln = Math.Log(1 - x * x);
+        var part1 = (2 / (Math.PI * a)) + (ln / 2);
+        var part2 = ln / a;
+
+        return Math.Sign(x) * Math.Sqrt(Math.Sqrt(part1 * part1 - part2) - part1);
     }
 }
