@@ -84,6 +84,15 @@ public class DataSet<TValue>
         return result;
     }
 
+    public void ClearThreadSafe()
+    {
+        lock (data)
+        {
+            DecreaseCount(data.Count);
+            data.Clear();
+        }
+    }
+
     public void DisconnectFromParentThreadSafe()
     {
         Parent?.RemoveSubsetThreadSafe(this);

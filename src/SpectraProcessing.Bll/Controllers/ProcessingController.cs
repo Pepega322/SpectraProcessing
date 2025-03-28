@@ -43,6 +43,19 @@ internal sealed class ProcessingController(
         OnPlotAreaChanged?.Invoke();
     }
 
+    public async Task ClearPeaks()
+    {
+        var peaks = CurrentPeaksSet.Data
+            .Select(d => d.Peak)
+            .ToArray();
+
+        await peaksPlotProvider.Erase(peaks);
+
+        CurrentPeaksSet.ClearThreadSafe();
+
+        OnPlotAreaChanged?.Invoke();
+    }
+
     public async Task<bool> CheckoutSpectra(SpectraData? spectra)
     {
         var previousKey = currentSpectraKey;

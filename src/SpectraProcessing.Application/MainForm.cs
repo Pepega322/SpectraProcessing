@@ -295,6 +295,8 @@ public partial class MainForm : Form
             }
         };
 
+        clearPeaksToolStripMenuItem.Click += async (_, _) => await processingController.ClearPeaks();
+
         plotView.SKControl!.MouseDoubleClick += async (_, _) =>
         {
             if (addPeaksToolStripMenuItem.Checked is false)

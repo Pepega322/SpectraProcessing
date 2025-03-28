@@ -20,4 +20,5 @@ public interface IProcessingController
     Task<bool> SaveSpectraPeaks();
 
     Task<bool> RemovedSpectraPeaks();
-}
+
+    Task ClearPeaks(); }
