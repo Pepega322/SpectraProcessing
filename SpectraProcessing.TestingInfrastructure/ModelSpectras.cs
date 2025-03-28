@@ -1,11 +1,13 @@
 ﻿using SpectraProcessing.Domain.Collections;
+using SpectraProcessing.Domain.Models.Peak;
 using SpectraProcessing.Domain.Models.Spectra;
+using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.TestingInfrastructure;
 
 public static class ModelSpectras
 {
-    private static readonly (double X, double Y)[] Gauss =
+    private static readonly (double X, double Y)[] gaussPoints =
     [
         (0, 0.00000),
         (1, 0.00000),
@@ -3510,7 +3512,7 @@ public static class ModelSpectras
         (3500, 0.00000),
     ];
 
-    private static readonly (double X, double Y)[] Lorentz =
+    private static readonly (double X, double Y)[] lorentzPoints =
     [
         (0, 1.04035),
         (1, 1.04425),
@@ -7015,7 +7017,7 @@ public static class ModelSpectras
         (3500, 0.00000),
     ];
 
-    private static readonly (double X, double Y)[] GaussAndLorentz =
+    private static readonly (double X, double Y)[] gaussAndLorentzPoints =
     [
         (0, 0.52018),
         (1, 0.52213),
@@ -10520,25 +10522,69 @@ public static class ModelSpectras
         (3500, 0.00000),
     ];
 
-    public static readonly SimpleSpectraData GaussSpectra
-        = new(
+    public static readonly SpectraData Gauss
+        = new SimpleSpectraData(
             "Gauss",
             new SpectraPoints(
-                Gauss.Select(e => (float) e.X).ToList(),
-                Gauss.Select(e => (float) e.Y).ToList()));
+                gaussPoints.Select(e => (float) e.X).ToList(),
+                gaussPoints.Select(e => (float) e.Y).ToList()));
 
-    public static readonly SimpleSpectraData LorentzSpectra
-        = new(
+    public static readonly IReadOnlyCollection<PeakData> GaussPeaks =
+    [
+        new(200, 30, 50, 1),
+        new(440, 15, 50, 1),
+        new(500, 30, 50, 1),
+        new(740, 10, 50, 1),
+        new(800, 30, 50, 1),
+        new(850, 20, 50, 1),
+        new(1350, 20, 120, 1),
+        new(1450, 30, 25, 1),
+        new(1550, 10, 200, 1),
+        new(2100, 10, 25, 1),
+        new(2115, 20, 100, 1),
+    ];
+
+    public static readonly SpectraData Lorentz
+        = new SimpleSpectraData(
             "Lorentz",
             new SpectraPoints(
-                Lorentz.Select(e => (float) e.X).ToList(),
-                Lorentz.Select(e => (float) e.Y).ToList()));
+                lorentzPoints.Select(e => (float) e.X).ToList(),
+                lorentzPoints.Select(e => (float) e.Y).ToList()));
 
-    public static readonly SimpleSpectraData LorentzAndGaussSpectra
-        = new(
+    public static readonly IReadOnlyCollection<PeakData> LorentzPeaks =
+    [
+        new(200, 30, 50, 0),
+        new(740, 15, 50, 0),
+        new(800, 30, 50, 0),
+        new(1340, 10, 50, 0),
+        new(1400, 30, 50, 0),
+        new(1450, 20, 50, 0),
+        new(2150, 20, 120, 0),
+        new(2250, 30, 25, 0),
+        new(2350, 10, 200, 0),
+        new(3200, 10, 25, 0),
+        new(3215, 20, 100, 0),
+    ];
+
+    public static readonly SpectraData GaussAndLorentz
+        = new SimpleSpectraData(
             "GaussAndLorentz",
             new SpectraPoints(
-                GaussAndLorentz.Select(e => (float) e.X).ToList(),
-                GaussAndLorentz.Select(e => (float) e.Y).ToList()));
+                gaussAndLorentzPoints.Select(e => (float) e.X).ToList(),
+                gaussAndLorentzPoints.Select(e => (float) e.Y).ToList()));
 
+    public static readonly IReadOnlyCollection<PeakData> GaussAndLorentzPeaks =
+    [
+        new(200, 30, 50, 0.5f),
+        new(740, 15, 50, 0.5f),
+        new(800, 30, 50, 0.5f),
+        new(1340, 10, 50, 0.5f),
+        new(1400, 30, 50, 0.5f),
+        new(1450, 20, 50, 0.5f),
+        new(2150, 20, 120, 0.5f),
+        new(2250, 30, 25, 0.5f),
+        new(2350, 10, 200, 0.5f),
+        new(3200, 10, 25, 0.5f),
+        new(3215, 20, 100, 0.5f),
+    ];
 }
