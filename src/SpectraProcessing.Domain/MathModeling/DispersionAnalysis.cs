@@ -1,3 +1,4 @@
+using SpectraProcessing.Domain.Extensions;
 using SpectraProcessing.Domain.Models.MathModeling;
 
 namespace SpectraProcessing.Domain.MathModeling;
@@ -33,6 +34,15 @@ public static class DispersionAnalysis
         var average = values.Sum() / values.Count;
         var standardDeviationSquare = values.Sum(v => (v - average) * (v - average)) / (values.Count - 1);
         averageValue = average;
+        return Math.Sqrt(standardDeviationSquare);
+    }
+
+    public static double GetStandardDeviation(this ref Span<double> values)
+    {
+        var average = values.Sum() / values.Length;
+
+        var standardDeviationSquare = values.Sum(v => (v - average) * (v - average)) / (values.Length - 1);
+
         return Math.Sqrt(standardDeviationSquare);
     }
 

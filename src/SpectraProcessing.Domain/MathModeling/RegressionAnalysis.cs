@@ -34,7 +34,7 @@ public static class RegressionAnalysis
         return x => a * x + b;
     }
 
-    public static int ClosestIndexBinarySearch<T>(IReadOnlyList<T> arr, T element) where T : INumber<T>
+    public static int ClosestIndexBinarySearch<T>(this IReadOnlyList<T> arr, T element) where T : INumber<T>
     {
         var left = 0;
         var right = arr.Count - 1;

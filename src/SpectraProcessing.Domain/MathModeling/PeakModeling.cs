@@ -29,7 +29,7 @@ public static class PeakModeling
         }
     }
 
-    public static double GetPeaksValueAt(this ICollection<PeakData> peaks, double x)
+    public static double GetPeaksValueAt(this IEnumerable<PeakData> peaks, double x)
     {
         return peaks.Sum(p => p.GetPeakValueAt(x));
     }
