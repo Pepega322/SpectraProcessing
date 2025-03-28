@@ -3,6 +3,7 @@ using SpectraProcessing.Bll.Providers.Interfaces;
 using SpectraProcessing.Dal.Repositories.Interfaces;
 using SpectraProcessing.Domain.Collections;
 using SpectraProcessing.Domain.DataTypes;
+using SpectraProcessing.Domain.Extensions;
 
 namespace SpectraProcessing.Bll.Providers;
 
@@ -48,7 +49,7 @@ internal sealed class DirectoryDataProvider<TData>(
 
         queue.Enqueue((rootSet, folder));
 
-        while (queue.Count > 0)
+        while (queue.IsEmpty() is false)
         {
             var (node, dir) = queue.Dequeue();
 
@@ -117,7 +118,7 @@ internal sealed class DirectoryDataProvider<TData>(
 
         queue.Enqueue(set);
 
-        while (queue.Count != 0)
+        while (queue.IsEmpty() is false)
         {
             var nodeInReference = queue.Dequeue();
 

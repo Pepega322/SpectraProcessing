@@ -19,7 +19,7 @@ internal sealed class PeakDataPlotProvider : IDataPlotProvider<PeakData, PeakDat
     public PeakDataPlotProvider(Plot plotForm)
     {
         this.plotForm = plotForm;
-        plotForm.Add.Function(x => PeakModeling.GaussianAndLorentzianMix(x, plotted.Keys));
+        plotForm.Add.Function(x => plotted.Keys.GetPeaksValueAt(x));
     }
 
     public Task<bool> IsDrew(PeakData data)

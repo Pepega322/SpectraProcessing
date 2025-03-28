@@ -8,14 +8,12 @@ namespace SpectraProcessing.Tests.Tests;
 
 public class NeldlerMeadTests
 {
-    private static readonly OptimizationSettings Settings = new();
-
     [Theory]
     [MemberData(nameof(GetRosenbrockFuncStarts))]
     public async Task Optimize_RosenbrockFunc_Success(VectorN start)
     {
         //Act
-        var actual = await NelderMead.Optimization(start, Func, Settings);
+        var actual = await NelderMead.Optimization(start, Func, OptimizationSettings.Default);
 
         //Assert
         actual[0].Should().BeApproximately(MathFunctions.RosenbrockMinimum.X, 1e-6);
@@ -31,7 +29,7 @@ public class NeldlerMeadTests
     public async Task Optimize_HimmelblauFunc_Success(VectorN start, VectorN expectedMinimum)
     {
         //Act
-        var actual = await NelderMead.Optimization(start, Func, Settings);
+        var actual = await NelderMead.Optimization(start, Func, OptimizationSettings.Default);
 
         //Assert
         actual[0].Should().BeApproximately(expectedMinimum[0], 1e-6);

@@ -63,7 +63,7 @@ public sealed class PeakDataPlot : IDataPlot
                 markerSize,
                 MarkerColor));
 
-        var line = builder.Add.Function(x => PeakModeling.GaussianAndLorentzianMix(x, data));
+        var line = builder.Add.Function(data.GetPeakValueAt);
         line.LineColor = PeakColor;
         Line = line;
     }

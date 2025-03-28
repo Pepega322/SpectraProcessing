@@ -4,10 +4,10 @@ namespace SpectraProcessing.Domain.MathModeling;
 
 public static class PeakModeling
 {
-    public static double GaussianAndLorentzianMix(double x, PeakData estimate)
+    public static double GetPeakValueAt(this PeakData peak, double x)
     {
-        return estimate.GaussianContribution * Gaussian(x, estimate)
-            + (1 - estimate.GaussianContribution) * Lorentzian(x, estimate);
+        return peak.GaussianContribution * Gaussian(x, peak)
+            + (1 - peak.GaussianContribution) * Lorentzian(x, peak);
 
         static double Gaussian(double x, PeakData estimate)
         {
@@ -29,59 +29,59 @@ public static class PeakModeling
         }
     }
 
-    public static double GaussianAndLorentzianMix(double x, ICollection<PeakData> estimates)
+    public static double GetPeaksValueAt(this ICollection<PeakData> peaks, double x)
     {
-        return estimates.Sum(e => GaussianAndLorentzianMix(x, e));
+        return peaks.Sum(p => p.GetPeakValueAt(x));
     }
 
-    public static double GaussianAndLorentzianMixSquare(PeakData estimate)
+    public static double GetPeakArea(this PeakData peak)
     {
-        return estimate.GaussianContribution * GaussianSquare(estimate)
-            + (1 - estimate.GaussianContribution) * LorentzianSquare(estimate);
+        return peak.GaussianContribution * GaussianSquare(peak)
+            + (1 - peak.GaussianContribution) * LorentzianSquare(peak);
 
-        static double GaussianSquare(PeakData estimate)
+        static double GaussianSquare(PeakData peak)
         {
             // constant = 2 * Math.Sqrt(Math.PI / Math.Log(2));
             const double constant = 4.2578680777249049;
 
-            return constant * estimate.Amplitude * estimate.HalfWidth;
+            return constant * peak.Amplitude * peak.HalfWidth;
         }
 
-        static double LorentzianSquare(PeakData estimate)
+        static double LorentzianSquare(PeakData peak)
         {
             const double constant = Math.PI / 2;
 
-            return constant * estimate.Amplitude * estimate.HalfWidth;
+            return constant * peak.Amplitude * peak.HalfWidth;
         }
     }
 
-    public static double GaussianAndLorentzianMixSquareRadius(double squarePercentage, PeakData estimate)
+    public static double GetPeakEffectiveRadius(this PeakData peak, double areaPercentage)
     {
-        var gaussianWeight = GaussianSquareWeight(estimate.GaussianContribution);
+        var gaussianWeight = GaussianAreaWeight(peak.GaussianContribution);
 
-        return gaussianWeight * GaussianSquareRadius(squarePercentage, estimate) +
-            (1 - gaussianWeight) * LorentzianSquareRadius(squarePercentage, estimate);
+        return gaussianWeight * GaussianSquareRadius(peak, areaPercentage) +
+            (1 - gaussianWeight) * LorentzianSquareRadius(peak, areaPercentage);
 
-        static double GaussianSquareWeight(double gaussianContribution)
+        static double GaussianAreaWeight(double gaussianContribution)
         {
             //gaussSquareDividedLorentzSquare = Math.Sqrt(Math.PI / Math.Log(2)) / Math.PI;
             const double gaussSquareDividedLorentzSquare = 0.67766075160310502;
-            var gaussianSquare = gaussianContribution * gaussSquareDividedLorentzSquare;
-            return gaussianSquare / (gaussianSquare + (1 - gaussianContribution));
+            var gaussianArea = gaussianContribution * gaussSquareDividedLorentzSquare;
+            return gaussianArea / (gaussianArea + (1 - gaussianContribution));
         }
 
-        static double GaussianSquareRadius(double squarePercentage, PeakData estimate)
+        static double GaussianSquareRadius(PeakData peak, double areaPercentage)
         {
             // constant = 2 * Math.Sqrt(Math.Log(2));
             const double constant = 1.6651092223153954;
-            return ErfInv(squarePercentage) * estimate.HalfWidth / constant;
+            return ErfInv(areaPercentage) * peak.HalfWidth / constant;
         }
 
-        static double LorentzianSquareRadius(double squarePercentage, PeakData estimate)
+        static double LorentzianSquareRadius(PeakData peak, double areaPercentage)
         {
             const double constant = Math.PI / 2;
 
-            return estimate.HalfWidth * Math.Tan(constant * squarePercentage);
+            return peak.HalfWidth * Math.Tan(constant * areaPercentage);
         }
     }
 

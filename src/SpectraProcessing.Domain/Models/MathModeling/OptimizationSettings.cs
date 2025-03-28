@@ -2,32 +2,44 @@ namespace SpectraProcessing.Domain.Models.MathModeling;
 
 public sealed record OptimizationSettings
 {
-    public int MaxIterationsCount { get; init; } = 100000;
+    public static readonly OptimizationSettings Default = new()
+    {
+        MaxIterationsCount = 10000,
+        Coefficients = new IterationCoefficients
+        {
+            Reflection = 1,
+            Expansion = 2,
+            Contraction = 0.5,
+            Shrink = 0.5,
+        },
+        SimplexSettings = new SimplexSettings
+        {
+            InitialShift = 0.01,
+        },
+        Сriteria = new CompletionСriteria
+        {
+            AbsoluteValue = null,
+        },
+    };
 
-    public SimplexSettings SimplexSettings { get; init; } = new();
+    public required int MaxIterationsCount { get; init; }
 
-    public IterationCoefficients Coefficients { get; init; } = new();
+    public required IterationCoefficients Coefficients { get; init; }
 
-    public CompletionСriteria Сriteria { get; init; } = new();
+    public required CompletionСriteria Сriteria { get; init; }
+
+    public required SimplexSettings SimplexSettings { get; init; }
+
+    public sealed record IterationCoefficients
+    {
+        public required double Reflection { get; init; }
+        public required double Expansion { get; init; }
+        public required double Contraction { get; init; }
+        public required double Shrink { get; init; }
+    }
 
     public sealed record CompletionСriteria
     {
         public double? AbsoluteValue { get; init; }
     }
-
-    public sealed record IterationCoefficients
-    {
-        public double Reflection { get; init; } = 1;
-
-        public double Expansion { get; init; } = 2;
-
-        public double Contraction { get; init; } = 0.5;
-
-        public double Shrink { get; init; } = 0.5;
-    }
-}
-
-public sealed record SimplexSettings
-{
-    public double InitialShift { get; init; } = 0.01;
 }
