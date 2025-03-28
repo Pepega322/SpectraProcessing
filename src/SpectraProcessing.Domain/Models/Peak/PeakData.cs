@@ -1,4 +1,5 @@
 ﻿using SpectraProcessing.Domain.DataTypes;
+using SpectraProcessing.Domain.Extensions;
 
 namespace SpectraProcessing.Domain.Models.Peak;
 
@@ -41,7 +42,12 @@ public sealed class PeakData : IPlottableData
             halfWidth: HalfWidth,
             gaussianContribution: GaussianContribution);
 
-    public override bool Equals(object? obj) => obj is PeakData data && data.id == id;
+    public override bool Equals(object? obj)
+        => obj is PeakData data
+            && Amplitude.ApproximatelyEqual(data.Amplitude)
+            && Center.ApproximatelyEqual(data.Center)
+            && HalfWidth.ApproximatelyEqual(data.HalfWidth)
+            && GaussianContribution.ApproximatelyEqual(data.GaussianContribution);
 
     public override int GetHashCode() => id.GetHashCode();
 }

@@ -53,7 +53,7 @@ public sealed class Simplex
         {
             var newVector = new VectorN(start.Values);
 
-            newVector[d] = newVector[d].ApproximatelyEqual(0, 1e-6)
+            newVector[d] = newVector[d].ApproximatelyEqual(0)
                 ? settings.InitialShift
                 : newVector[d] * (1 + settings.InitialShift);
 

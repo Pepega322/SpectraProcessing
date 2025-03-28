@@ -1,4 +1,5 @@
 using FluentAssertions;
+using SpectraProcessing.Domain.Extensions;
 using SpectraProcessing.Domain.MathModeling;
 using SpectraProcessing.Domain.Models.MathModeling;
 using SpectraProcessing.TestingInfrastructure;
@@ -16,8 +17,8 @@ public class NeldlerMeadTests
         var actual = await NelderMead.Optimization(start, Func, OptimizationSettings.Default);
 
         //Assert
-        actual[0].Should().BeApproximately(MathFunctions.RosenbrockMinimum.X, 1e-6);
-        actual[1].Should().BeApproximately(MathFunctions.RosenbrockMinimum.Y, 1e-6);
+        actual[0].Should().BeApproximately(MathFunctions.RosenbrockMinimum.X, ComparisonsExtensions.DoubleTolerance);
+        actual[1].Should().BeApproximately(MathFunctions.RosenbrockMinimum.Y, ComparisonsExtensions.DoubleTolerance);
 
         return;
 
@@ -32,8 +33,8 @@ public class NeldlerMeadTests
         var actual = await NelderMead.Optimization(start, Func, OptimizationSettings.Default);
 
         //Assert
-        actual[0].Should().BeApproximately(expectedMinimum[0], 1e-6);
-        actual[1].Should().BeApproximately(expectedMinimum[1], 1e-6);
+        actual[0].Should().BeApproximately(expectedMinimum[0], ComparisonsExtensions.DoubleTolerance);
+        actual[1].Should().BeApproximately(expectedMinimum[1], ComparisonsExtensions.DoubleTolerance);
 
         return;
 

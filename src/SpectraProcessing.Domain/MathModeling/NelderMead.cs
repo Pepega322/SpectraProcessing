@@ -38,7 +38,7 @@ public static class NelderMead
         OptimizationSettings.CompletionСriteria criteria)
     {
         return criteria.AbsoluteValue is not null
-            && simplex.BestValue.ApproximatelyEqual(criteria.AbsoluteValue.Value, 1e-6);
+            && simplex.BestValue.ApproximatelyEqual(criteria.AbsoluteValue.Value);
     }
 
     private static void Iteration(

@@ -112,10 +112,9 @@ public sealed class VectorN
             return false;
         }
 
-        const double delta = 1e-6;
         for (var d = 0; d < left.Dimension; d++)
         {
-            if (!left.Values[d].ApproximatelyEqual(right.Values[d], delta))
+            if (!left.Values[d].ApproximatelyEqual(right.Values[d]))
             {
                 return false;
             }
