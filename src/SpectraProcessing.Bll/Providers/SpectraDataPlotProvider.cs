@@ -12,7 +12,7 @@ namespace SpectraProcessing.Bll.Providers;
 internal sealed class SpectraDataPlotProvider(
     Plot plotForm,
     IPalette palette
-) : IDataPlotProvider<SpectraData, SpectraDataPlot>
+) : ISpectraDataPlotProvider
 {
     private static readonly ConcurrentDictionary<SpectraData, SpectraDataPlot> SpectraDataPlots = new();
 
@@ -28,11 +28,11 @@ internal sealed class SpectraDataPlotProvider(
         }
     }
 
-    public Task<IReadOnlyCollection<SpectraDataPlot>> Draw(IReadOnlyCollection<SpectraData> data)
+    public Task<IReadOnlyList<SpectraDataPlot>> Draw(IReadOnlyList<SpectraData> data)
     {
-        IReadOnlyCollection<SpectraDataPlot> plots = data.Select(GetOrCreatePlot).ToArray();
+        var plots = data.Select(GetOrCreatePlot).ToArray();
 
-        IReadOnlyCollection<SpectraDataPlot> newPlots;
+        SpectraDataPlot[] newPlots;
 
         lock (plotted)
         {
@@ -42,7 +42,7 @@ internal sealed class SpectraDataPlotProvider(
 
             if (newPlots.IsEmpty())
             {
-                return Task.FromResult(plots);
+                return Task.FromResult<IReadOnlyList<SpectraDataPlot>>(plots);
             }
         }
 
@@ -54,14 +54,14 @@ internal sealed class SpectraDataPlotProvider(
             }
         }
 
-        return Task.FromResult(plots);
+        return Task.FromResult<IReadOnlyList<SpectraDataPlot>>(plots);
     }
 
-    public Task<IReadOnlyCollection<SpectraDataPlot>> Erase(IReadOnlyCollection<SpectraData> data)
+    public Task<IReadOnlyList<SpectraDataPlot>> Erase(IReadOnlyList<SpectraData> data)
     {
-        IReadOnlyCollection<SpectraDataPlot> plots = data.Select(GetOrCreatePlot).ToArray();
+        var plots = data.Select(GetOrCreatePlot).ToArray();
 
-        IReadOnlyCollection<SpectraDataPlot> removedPlots;
+        SpectraDataPlot[] removedPlots;
 
         lock (plotted)
         {
@@ -71,7 +71,7 @@ internal sealed class SpectraDataPlotProvider(
 
             if (removedPlots.IsEmpty())
             {
-                return Task.FromResult(plots);
+                return Task.FromResult<IReadOnlyList<SpectraDataPlot>>(plots);
             }
         }
 
@@ -83,7 +83,7 @@ internal sealed class SpectraDataPlotProvider(
             }
         }
 
-        return Task.FromResult(plots);
+        return Task.FromResult<IReadOnlyList<SpectraDataPlot>>(plots);
     }
 
     public Task PushOnTop(IReadOnlyCollection<SpectraData> data)

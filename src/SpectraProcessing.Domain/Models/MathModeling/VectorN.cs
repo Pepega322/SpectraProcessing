@@ -3,7 +3,7 @@ using SpectraProcessing.Domain.Extensions;
 
 namespace SpectraProcessing.Domain.Models.MathModeling;
 
-public sealed class VectorN
+public sealed class VectorN : IReadOnlyVectorN
 {
     private readonly double[] values;
 

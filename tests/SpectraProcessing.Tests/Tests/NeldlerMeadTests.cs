@@ -17,12 +17,17 @@ public class NeldlerMeadTests
         var actual = await NelderMead.Optimization(start, Func, OptimizationSettings.Default);
 
         //Assert
-        actual[0].Should().BeApproximately(MathFunctions.RosenbrockMinimum.X, ComparisonsExtensions.DoubleTolerance);
-        actual[1].Should().BeApproximately(MathFunctions.RosenbrockMinimum.Y, ComparisonsExtensions.DoubleTolerance);
+        actual.Values[0].Should().BeApproximately(
+            MathFunctions.RosenbrockMinimum.X,
+            ComparisonsExtensions.DoubleTolerance);
+
+        actual.Values[1].Should().BeApproximately(
+            MathFunctions.RosenbrockMinimum.Y,
+            ComparisonsExtensions.DoubleTolerance);
 
         return;
 
-        double Func(VectorN vector) => MathFunctions.RosenbrockFunc(vector[0], vector[1]);
+        double Func(IReadOnlyVectorN vector) => MathFunctions.RosenbrockFunc(vector.Values[0], vector.Values[1]);
     }
 
     [Theory]
@@ -33,12 +38,17 @@ public class NeldlerMeadTests
         var actual = await NelderMead.Optimization(start, Func, OptimizationSettings.Default);
 
         //Assert
-        actual[0].Should().BeApproximately(expectedMinimum[0], ComparisonsExtensions.DoubleTolerance);
-        actual[1].Should().BeApproximately(expectedMinimum[1], ComparisonsExtensions.DoubleTolerance);
+        actual.Values[0].Should().BeApproximately(
+            expectedMinimum[0],
+            ComparisonsExtensions.DoubleTolerance);
+
+        actual.Values[1].Should().BeApproximately(
+            expectedMinimum[1],
+            ComparisonsExtensions.DoubleTolerance);
 
         return;
 
-        double Func(VectorN vector) => MathFunctions.HimmelblauFunc(vector[0], vector[1]);
+        double Func(IReadOnlyVectorN vector) => MathFunctions.HimmelblauFunc(vector.Values[0], vector.Values[1]);
     }
 
     public static TheoryData<VectorN> GetRosenbrockFuncStarts()

@@ -1,9 +1,8 @@
-﻿using SpectraProcessing.Domain.DataTypes;
-using SpectraProcessing.Domain.Extensions;
+﻿using SpectraProcessing.Domain.Extensions;
 
 namespace SpectraProcessing.Domain.Models.Peak;
 
-public sealed class PeakData : IPlottableData
+public sealed class PeakData : IReadOnlyPeakData
 {
     private static long _counter;
 

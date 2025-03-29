@@ -9,17 +9,17 @@ public static class SpectraModeling
 {
     private const double areaPercentage = 0.95;
 
-    public static Task<IReadOnlyCollection<PeakData>> FitPeaks(
+    public static Task<IReadOnlyList<IReadOnlyPeakData>> FitPeaks(
         this SpectraData spectra,
-        IReadOnlyCollection<PeakData> peaks,
+        IReadOnlyList<IReadOnlyPeakData> peaks,
         OptimizationSettings settings)
     {
         return Task.Run(() => spectra.FitPeaksInternal(peaks, settings));
     }
 
-    private static async Task<IReadOnlyCollection<PeakData>> FitPeaksInternal(
+    private static async Task<IReadOnlyList<IReadOnlyPeakData>> FitPeaksInternal(
         this SpectraData spectra,
-        IReadOnlyCollection<PeakData> peaks,
+        IReadOnlyList<IReadOnlyPeakData> peaks,
         OptimizationSettings settings)
     {
         if (peaks.IsEmpty())
@@ -27,9 +27,9 @@ public static class SpectraModeling
             throw new ArgumentException("Peaks cannot be empty");
         }
 
-        var groups = GetPeakGroups(peaks);
+        var groups = GetPeakGroups(spectra, peaks);
 
-        var fittedGroups = await Task.WhenAll(groups.Select(g => GetFittedGroup(spectra, g, settings)));
+        var fittedGroups = await Task.WhenAll(groups.Select(g => g.FitGroup(spectra, settings)));
 
         return fittedGroups
             .OrderBy(g => g.Order)
@@ -37,13 +37,14 @@ public static class SpectraModeling
             .ToArray();
     }
 
-    private static async Task<PeaksGroup> GetFittedGroup(
+    private static async Task<PeaksGroup> FitGroup(
+        this PeaksGroup group,
         SpectraData spectra,
-        PeaksGroup group,
         OptimizationSettings settings)
     {
         var startVector = new VectorN(
-            group.Peaks.SelectMany(
+            group.Peaks
+                .SelectMany(
                     p => new double[]
                     {
                         p.Center,
@@ -58,26 +59,23 @@ public static class SpectraModeling
             OptimizationFunc(spectra, group),
             settings);
 
-        var fittedPeaks = ToPeaks(fittedVector);
+        UpdatePeaks(group, fittedVector);
 
-        return group with { Peaks = fittedPeaks };
+        return group;
 
-        static Func<VectorN, double> OptimizationFunc(SpectraData spectra, PeaksGroup group)
+        static Func<IReadOnlyVectorN, double> OptimizationFunc(SpectraData spectra, PeaksGroup group)
         {
-            var startIndex = spectra.Points.X.ClosestIndexBinarySearch(group.StartX);
-            var endIndex = spectra.Points.X.ClosestIndexBinarySearch(group.EndX);
-
             return OptimizationFunc;
 
-            double OptimizationFunc(VectorN vector)
+            double OptimizationFunc(IReadOnlyVectorN vector)
             {
-                var peaks = ToPeaks(vector);
+                UpdatePeaks(group, vector);
 
                 Span<double> span = [];
 
-                for (var i = startIndex; i < endIndex; i++)
+                for (var i = group.StartIndex; i < group.EndIndex; i++)
                 {
-                    var delta = spectra.Points.Y[i] - peaks.GetPeaksValueAt(spectra.Points.X[i]);
+                    var delta = spectra.Points.Y[i] - group.Peaks.GetPeaksValueAt(spectra.Points.X[i]);
                     span.Fill(delta);
                 }
 
@@ -85,34 +83,29 @@ public static class SpectraModeling
             }
         }
 
-        static IReadOnlyCollection<PeakData> ToPeaks(VectorN vector)
+        static void UpdatePeaks(PeaksGroup group, IReadOnlyVectorN vector)
         {
             const int peakParametersCont = 4;
 
-            if (vector.Dimension % peakParametersCont != 0)
+            if (vector.Dimension % peakParametersCont != group.Peaks.Count)
             {
                 throw new ArgumentException("Vector length must be divisible by peak parameters.");
             }
 
-            var peaksCount = vector.Dimension / peakParametersCont;
-
-            var result = new List<PeakData>();
-            for (var index = 0; index < vector.Dimension; index += peakParametersCont)
+            for (var i = 0; i < group.Peaks.Count; i++)
             {
-                var peak = new PeakData(
-                    (float) vector[index],
-                    (float) vector[index + 1],
-                    (float) vector[index + 2],
-                    (float) vector[index + 3]);
-
-                result.Add(peak);
+                var peak = group.Peaks[i];
+                peak.Center = (float) vector.Values[4 * i];
+                peak.Amplitude = (float) vector.Values[4 * i + 1];
+                peak.HalfWidth = (float) vector.Values[4 * i + 2];
+                peak.GaussianContribution = (float) vector.Values[4 * i + 3];
             }
-
-            return result;
         }
     }
 
-    private static IReadOnlyCollection<PeaksGroup> GetPeakGroups(IReadOnlyCollection<PeakData> peaks)
+    private static IReadOnlyCollection<PeaksGroup> GetPeakGroups(
+        SpectraData spectra,
+        IReadOnlyCollection<IReadOnlyPeakData> peaks)
     {
         var effectiveRadius = peaks.ToDictionary(
             p => p,
@@ -124,7 +117,7 @@ public static class SpectraModeling
 
         var groups = new List<List<PeakData>>()
         {
-            new() { peaksByLeftBorder.First() },
+            new() { peaksByLeftBorder.First().Copy() },
         };
 
         foreach (var currentPeak in peaksByLeftBorder.Skip(1))
@@ -137,11 +130,11 @@ public static class SpectraModeling
 
             if (lastPeakRightBorder <= currentPeakLeftBorder)
             {
-                groups.Add([currentPeak]);
+                groups.Add([currentPeak.Copy()]);
             }
             else
             {
-                lastSet.Add(currentPeak);
+                lastSet.Add(currentPeak.Copy());
             }
         }
 
@@ -151,18 +144,21 @@ public static class SpectraModeling
                 var leftPeak = g.First();
                 var rightPeak = g.Last();
 
+                var startX = (float) (leftPeak.Center - effectiveRadius[leftPeak]);
+                var endX = (float) (rightPeak.Center + effectiveRadius[rightPeak]);
+
                 return new PeaksGroup(
                     Order: order,
                     Peaks: g,
-                    StartX: (float) (leftPeak.Center - effectiveRadius[leftPeak]),
-                    EndX: (float) (rightPeak.Center + effectiveRadius[rightPeak]));
+                    StartIndex: spectra.Points.X.ClosestIndexBinarySearch(startX),
+                    EndIndex: spectra.Points.X.ClosestIndexBinarySearch(endX));
             }).ToArray();
     }
 
     private sealed record PeaksGroup(
         int Order,
-        IReadOnlyCollection<PeakData> Peaks,
-        float StartX,
-        float EndX
+        IReadOnlyList<PeakData> Peaks,
+        int StartIndex,
+        int EndIndex
     );
 }

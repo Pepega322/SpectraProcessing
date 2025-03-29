@@ -5,17 +5,17 @@ namespace SpectraProcessing.Domain.MathModeling;
 
 public static class NelderMead
 {
-    public static Task<VectorN> Optimization(
-        VectorN start,
-        Func<VectorN, double> func,
+    public static Task<IReadOnlyVectorN> Optimization(
+        IReadOnlyVectorN start,
+        Func<IReadOnlyVectorN, double> func,
         OptimizationSettings settings)
     {
         return Task.Run(() => OptimizeInternal(start, func, settings));
     }
 
-    private static VectorN OptimizeInternal(
-        VectorN start,
-        Func<VectorN, double> func,
+    private static IReadOnlyVectorN OptimizeInternal(
+        IReadOnlyVectorN start,
+        Func<IReadOnlyVectorN, double> func,
         OptimizationSettings settings)
     {
         var simplex = new Simplex(start, func, settings.SimplexSettings);

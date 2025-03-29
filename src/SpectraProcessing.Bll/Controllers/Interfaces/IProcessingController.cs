@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using SpectraProcessing.Bll.Models.ScottPlot.Peak;
+﻿using SpectraProcessing.Bll.Models.ScottPlot.Peak;
 using SpectraProcessing.Domain.Models.Peak;
 using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
@@ -9,7 +8,7 @@ public interface IProcessingController
 {
     event Action? OnPlotAreaChanged;
 
-    IImmutableSet<PeakDataPlot> CurrentPeaks { get; }
+    IReadOnlyList<PeakDataPlot> CurrentPeaks { get; }
 
     Task AddPeak(PeakData peak);
 

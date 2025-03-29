@@ -4,12 +4,12 @@ namespace SpectraProcessing.Domain.MathModeling;
 
 public static class PeakModeling
 {
-    public static double GetPeakValueAt(this PeakData peak, double x)
+    public static double GetPeakValueAt(this IReadOnlyPeakData peak, double x)
     {
         return peak.GaussianContribution * Gaussian(x, peak)
             + (1 - peak.GaussianContribution) * Lorentzian(x, peak);
 
-        static double Gaussian(double x, PeakData estimate)
+        static double Gaussian(double x, IReadOnlyPeakData estimate)
         {
             // constant = -4 * Math.Log(2)
             const double constant = -2.7725887222397811;
@@ -21,7 +21,7 @@ public static class PeakModeling
             return estimate.Amplitude * Math.Exp(constant * b * b / c);
         }
 
-        static double Lorentzian(double x, PeakData estimate)
+        static double Lorentzian(double x, IReadOnlyPeakData estimate)
         {
             var a = 2 * (x - estimate.Center) / estimate.HalfWidth;
 
@@ -29,17 +29,17 @@ public static class PeakModeling
         }
     }
 
-    public static double GetPeaksValueAt(this IEnumerable<PeakData> peaks, double x)
+    public static double GetPeaksValueAt(this IEnumerable<IReadOnlyPeakData> peaks, double x)
     {
         return peaks.Sum(p => p.GetPeakValueAt(x));
     }
 
-    public static double GetPeakArea(this PeakData peak)
+    public static double GetPeakArea(this IReadOnlyPeakData peak)
     {
         return peak.GaussianContribution * GaussianSquare(peak)
             + (1 - peak.GaussianContribution) * LorentzianSquare(peak);
 
-        static double GaussianSquare(PeakData peak)
+        static double GaussianSquare(IReadOnlyPeakData peak)
         {
             // constant = 2 * Math.Sqrt(Math.PI / Math.Log(2));
             const double constant = 4.2578680777249049;
@@ -47,7 +47,7 @@ public static class PeakModeling
             return constant * peak.Amplitude * peak.HalfWidth;
         }
 
-        static double LorentzianSquare(PeakData peak)
+        static double LorentzianSquare(IReadOnlyPeakData peak)
         {
             const double constant = Math.PI / 2;
 
@@ -55,7 +55,7 @@ public static class PeakModeling
         }
     }
 
-    public static double GetPeakEffectiveRadius(this PeakData peak, double areaPercentage)
+    public static double GetPeakEffectiveRadius(this IReadOnlyPeakData peak, double areaPercentage)
     {
         var gaussianWeight = GaussianAreaWeight(peak.GaussianContribution);
 
@@ -70,14 +70,14 @@ public static class PeakModeling
             return gaussianArea / (gaussianArea + (1 - gaussianContribution));
         }
 
-        static double GaussianSquareRadius(PeakData peak, double areaPercentage)
+        static double GaussianSquareRadius(IReadOnlyPeakData peak, double areaPercentage)
         {
             // constant = 2 * Math.Sqrt(Math.Log(2));
             const double constant = 1.6651092223153954;
             return ErfInv(areaPercentage) * peak.HalfWidth / constant;
         }
 
-        static double LorentzianSquareRadius(PeakData peak, double areaPercentage)
+        static double LorentzianSquareRadius(IReadOnlyPeakData peak, double areaPercentage)
         {
             const double constant = Math.PI / 2;
 

@@ -4,6 +4,8 @@ using SpectraProcessing.Bll.Models.ScottPlot.Peak;
 using SpectraProcessing.Bll.Providers.Interfaces;
 using SpectraProcessing.Domain.Collections;
 using SpectraProcessing.Domain.Collections.Keys;
+using SpectraProcessing.Domain.MathModeling;
+using SpectraProcessing.Domain.Models.MathModeling;
 using SpectraProcessing.Domain.Models.Peak;
 using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
@@ -14,6 +16,8 @@ internal sealed class ProcessingController(
     IDataPlotProvider<PeakData, PeakDataPlot> peaksPlotProvider
 ) : IProcessingController
 {
+    private static readonly OptimizationSettings OptimizationSettings = OptimizationSettings.Default;
+
     private SpectraKey? currentSpectraKey;
 
     private DataSet<PeakDataPlot> CurrentPeaksSet

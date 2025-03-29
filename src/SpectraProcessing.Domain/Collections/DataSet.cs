@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace SpectraProcessing.Domain.Collections;
 
 public class DataSet<TValue>
@@ -14,24 +12,24 @@ public class DataSet<TValue>
 
     public string Name { get; protected set; }
 
-    public IImmutableSet<TValue> Data
+    public IReadOnlyList<TValue> Data
     {
         get
         {
             lock (data)
             {
-                return data.ToImmutableHashSet();
+                return data.ToArray();
             }
         }
     }
 
-    public IImmutableSet<DataSet<TValue>> Subsets
+    public IReadOnlyList<DataSet<TValue>> Subsets
     {
         get
         {
             lock (subsets)
             {
-                return subsets.ToImmutableHashSet();
+                return subsets.ToArray();
             }
         }
     }

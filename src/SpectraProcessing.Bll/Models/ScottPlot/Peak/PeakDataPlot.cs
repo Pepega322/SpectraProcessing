@@ -18,7 +18,7 @@ public sealed class PeakDataPlot : IDataPlot
     private readonly DraggableMarker centerMarker;
     private readonly DraggableMarker rightMarker;
 
-    public readonly PeakData Peak;
+    public PeakData Peak { get; private set; }
 
     public IPlottable Line { get; private set; }
 
@@ -30,45 +30,45 @@ public sealed class PeakDataPlot : IDataPlot
             rightMarker,
         ];
 
-    public PeakDataPlot(PeakData data)
+    public PeakDataPlot(PeakData peak)
     {
         const MarkerShape shape = MarkerShape.Cross;
         const float markerSize = 20f;
 
-        Peak = data;
+        Peak = peak;
 
         using var builder = new Plot();
 
         leftMarker = new DraggableMarker(
             builder.Add.Marker(
-                x: data.Center - data.HalfWidth / 2,
-                y: data.Amplitude / 2,
+                x: peak.Center - peak.HalfWidth / 2,
+                y: peak.Amplitude / 2,
                 shape,
                 markerSize,
                 MarkerColor));
 
         centerMarker = new DraggableMarker(
             builder.Add.Marker(
-                x: data.Center,
-                y: data.Amplitude,
+                x: peak.Center,
+                y: peak.Amplitude,
                 shape,
                 markerSize,
                 MarkerColor));
 
         rightMarker = new DraggableMarker(
             builder.Add.Marker(
-                x: data.Center + data.HalfWidth / 2,
-                y: data.Amplitude / 2,
+                x: peak.Center + peak.HalfWidth / 2,
+                y: peak.Amplitude / 2,
                 shape,
                 markerSize,
                 MarkerColor));
 
-        var line = builder.Add.Function(data.GetPeakValueAt);
+        var line = builder.Add.Function(peak.GetPeakValueAt);
         line.LineColor = PeakColor;
         Line = line;
     }
 
-    public void UpdatePeakEstimateData(PeakData estimate)
+    public void UpdatePeakEstimateData(IReadOnlyPeakData estimate)
     {
         OnPeakEstimateDataUpdate(
             center: estimate.Center,

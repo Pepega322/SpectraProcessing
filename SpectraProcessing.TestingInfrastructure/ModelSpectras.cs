@@ -10529,19 +10529,19 @@ public static class ModelSpectras
                 gaussPoints.Select(e => (float) e.X).ToList(),
                 gaussPoints.Select(e => (float) e.Y).ToList()));
 
-    public static readonly IReadOnlyCollection<PeakData> GaussPeaks =
+    public static readonly IReadOnlyList<IReadOnlyPeakData> GaussPeaks =
     [
-        new(200, 30, 50, 1),
-        new(440, 15, 50, 1),
-        new(500, 30, 50, 1),
-        new(740, 10, 50, 1),
-        new(800, 30, 50, 1),
-        new(850, 20, 50, 1),
-        new(1350, 20, 120, 1),
-        new(1450, 30, 25, 1),
-        new(1550, 10, 200, 1),
-        new(2100, 10, 25, 1),
-        new(2115, 20, 100, 1),
+        new PeakData(200, 30, 50, 1),
+        new PeakData(440, 15, 50, 1),
+        new PeakData(500, 30, 50, 1),
+        new PeakData(740, 10, 50, 1),
+        new PeakData(800, 30, 50, 1),
+        new PeakData(850, 20, 50, 1),
+        new PeakData(1350, 20, 120, 1),
+        new PeakData(1450, 30, 25, 1),
+        new PeakData(1550, 10, 200, 1),
+        new PeakData(2100, 10, 25, 1),
+        new PeakData(2115, 20, 100, 1),
     ];
 
     public static readonly SpectraData Lorentz
@@ -10551,19 +10551,19 @@ public static class ModelSpectras
                 lorentzPoints.Select(e => (float) e.X).ToList(),
                 lorentzPoints.Select(e => (float) e.Y).ToList()));
 
-    public static readonly IReadOnlyCollection<PeakData> LorentzPeaks =
+    public static readonly IReadOnlyList<IReadOnlyPeakData> LorentzPeaks =
     [
-        new(200, 30, 50, 0),
-        new(740, 15, 50, 0),
-        new(800, 30, 50, 0),
-        new(1340, 10, 50, 0),
-        new(1400, 30, 50, 0),
-        new(1450, 20, 50, 0),
-        new(2150, 20, 120, 0),
-        new(2250, 30, 25, 0),
-        new(2350, 10, 200, 0),
-        new(3200, 10, 25, 0),
-        new(3215, 20, 100, 0),
+        new PeakData(200, 30, 50, 0),
+        new PeakData(740, 15, 50, 0),
+        new PeakData(800, 30, 50, 0),
+        new PeakData(1340, 10, 50, 0),
+        new PeakData(1400, 30, 50, 0),
+        new PeakData(1450, 20, 50, 0),
+        new PeakData(2150, 20, 120, 0),
+        new PeakData(2250, 30, 25, 0),
+        new PeakData(2350, 10, 200, 0),
+        new PeakData(3200, 10, 25, 0),
+        new PeakData(3215, 20, 100, 0),
     ];
 
     public static readonly SpectraData GaussAndLorentz
@@ -10573,18 +10573,18 @@ public static class ModelSpectras
                 gaussAndLorentzPoints.Select(e => (float) e.X).ToList(),
                 gaussAndLorentzPoints.Select(e => (float) e.Y).ToList()));
 
-    public static readonly IReadOnlyCollection<PeakData> GaussAndLorentzPeaks =
+    public static readonly IReadOnlyList<IReadOnlyPeakData> GaussAndLorentzPeaks =
     [
-        new(200, 30, 50, 0.5f),
-        new(740, 15, 50, 0.5f),
-        new(800, 30, 50, 0.5f),
-        new(1340, 10, 50, 0.5f),
-        new(1400, 30, 50, 0.5f),
-        new(1450, 20, 50, 0.5f),
-        new(2150, 20, 120, 0.5f),
-        new(2250, 30, 25, 0.5f),
-        new(2350, 10, 200, 0.5f),
-        new(3200, 10, 25, 0.5f),
-        new(3215, 20, 100, 0.5f),
+        new PeakData(200, 30, 50, 0.5f),
+        new PeakData(740, 15, 50, 0.5f),
+        new PeakData(800, 30, 50, 0.5f),
+        new PeakData(1340, 10, 50, 0.5f),
+        new PeakData(1400, 30, 50, 0.5f),
+        new PeakData(1450, 20, 50, 0.5f),
+        new PeakData(2150, 20, 120, 0.5f),
+        new PeakData(2250, 30, 25, 0.5f),
+        new PeakData(2350, 10, 200, 0.5f),
+        new PeakData(3200, 10, 25, 0.5f),
+        new PeakData(3215, 20, 100, 0.5f),
     ];
 }

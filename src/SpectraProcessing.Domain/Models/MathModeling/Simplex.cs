@@ -7,7 +7,7 @@ public sealed class Simplex
     private static readonly Comparer<SimplexPoint> Comparer
         = Comparer<SimplexPoint>.Create((x, y) => x.Value.CompareTo(y.Value));
 
-    private readonly Func<VectorN, double> funcForMin;
+    private readonly Func<IReadOnlyVectorN, double> funcForMin;
     private readonly List<SimplexPoint> values;
 
     public double WorstValue => values[^1].Value;
@@ -29,8 +29,6 @@ public sealed class Simplex
 
     public double SecondWorstValue => values[^2].Value;
 
-    public VectorN SecondWorst => values[^2].Vector;
-
     public VectorN Center
         => values
             .Take(values.Count - 1)
@@ -39,14 +37,14 @@ public sealed class Simplex
             .Sum() / (values.Count - 1);
 
     public Simplex(
-        VectorN start,
-        Func<VectorN, double> func,
+        IReadOnlyVectorN start,
+        Func<IReadOnlyVectorN, double> func,
         SimplexSettings settings)
     {
         funcForMin = func;
         values = new List<SimplexPoint>(start.Dimension + 1)
         {
-            new() { Vector = start, Value = func(start) },
+            new() { Vector = new VectorN(start.Values), Value = func(start) },
         };
 
         for (var d = 0; d < start.Dimension; d++)
@@ -63,7 +61,7 @@ public sealed class Simplex
         values.Sort(Comparer);
     }
 
-    public double GetFuncValue(VectorN vector) => funcForMin(vector);
+    public double GetFuncValue(IReadOnlyVectorN vector) => funcForMin(vector);
 
     public void Shrink(double shrinkCoefficient)
     {
