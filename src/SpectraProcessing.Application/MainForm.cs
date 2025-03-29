@@ -347,6 +347,20 @@ public partial class MainForm : Form
 
             await HighlightNodeUntilNextClick(node);
         };
+
+        fitPeaksToolStripMenuItem.Click += async (sender, _) =>
+        {
+            var plot = TreeViewExtensions.GetContextData<SpectraDataPlot>(sender);
+
+            await processingController.FitPeaks([plot.SpectraData]);
+        };
+
+        fitSetPeaksToolStripMenuItem.Click += async (sender, _) =>
+        {
+            var set = TreeViewExtensions.GetContextSet<SpectraDataPlot>(sender);
+
+            await processingController.FitPeaks(set.Data.Select(d => d.SpectraData).ToArray());
+        };
     }
 
     // private void SetupSpectraProcessingController()

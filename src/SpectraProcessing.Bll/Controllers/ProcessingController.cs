@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using SpectraProcessing.Bll.Controllers.Interfaces;
+﻿using SpectraProcessing.Bll.Controllers.Interfaces;
 using SpectraProcessing.Bll.Models.ScottPlot.Peak;
 using SpectraProcessing.Bll.Providers.Interfaces;
 using SpectraProcessing.Domain.Collections;
@@ -13,7 +12,7 @@ namespace SpectraProcessing.Bll.Controllers;
 
 internal sealed class ProcessingController(
     IDataStorageProvider<SpectraKey, PeakDataPlot> peaksStorage,
-    IDataPlotProvider<PeakData, PeakDataPlot> peaksPlotProvider
+    IPeakDataPlotProvider peakDataPlotProvider
 ) : IProcessingController
 {
     private static readonly OptimizationSettings OptimizationSettings = OptimizationSettings.Default;
@@ -25,13 +24,13 @@ internal sealed class ProcessingController(
             ? peaksStorage.DefaultSet
             : peaksStorage.Sets[currentSpectraKey];
 
-    public IImmutableSet<PeakDataPlot> CurrentPeaks => CurrentPeaksSet.Data;
+    public IReadOnlyList<PeakDataPlot> CurrentPeaks => CurrentPeaksSet.Data;
 
     public event Action? OnPlotAreaChanged;
 
     public async Task AddPeak(PeakData peak)
     {
-        var plot = (await peaksPlotProvider.Draw([peak])).Single();
+        var plot = (await peakDataPlotProvider.Draw([peak])).Single();
 
         CurrentPeaksSet.AddThreadSafe(plot);
 
@@ -40,7 +39,7 @@ internal sealed class ProcessingController(
 
     public async Task RemovePeak(PeakData peak)
     {
-        var plot = (await peaksPlotProvider.Erase([peak])).Single();
+        var plot = (await peakDataPlotProvider.Erase([peak])).Single();
 
         CurrentPeaksSet.RemoveThreadSafe(plot);
 
@@ -53,7 +52,7 @@ internal sealed class ProcessingController(
             .Select(d => d.Peak)
             .ToArray();
 
-        await peaksPlotProvider.Erase(peaks);
+        await peakDataPlotProvider.Erase(peaks);
 
         CurrentPeaksSet.ClearThreadSafe();
 
@@ -68,7 +67,7 @@ internal sealed class ProcessingController(
         {
             if (previousKey is not null && peaksStorage.Sets.ContainsKey(previousKey))
             {
-                await peaksPlotProvider.Clear();
+                await peakDataPlotProvider.Clear();
                 await DrawPeaksSet(peaksStorage.DefaultSet);
                 OnPlotAreaChanged?.Invoke();
             }
@@ -90,11 +89,66 @@ internal sealed class ProcessingController(
             ? (true, customPeaks)
             : (false, peaksStorage.DefaultSet);
 
-        await peaksPlotProvider.Clear();
+        await peakDataPlotProvider.Clear();
         await DrawPeaksSet(peaksToDraw);
         OnPlotAreaChanged?.Invoke();
 
         return isCustom;
+    }
+
+    public async Task FitPeaks(IReadOnlyCollection<SpectraData> spectras)
+    {
+        foreach (var spectra in spectras)
+        {
+            await FitPeaksInternal(spectra);
+        }
+
+        OnPlotAreaChanged?.Invoke();
+
+        return;
+
+        async Task FitPeaksInternal(SpectraData spectra)
+        {
+            var key = new SpectraKey(spectra);
+
+            PeakData[] currentPeaks;
+            if (peaksStorage.Sets.TryGetValue(key, out var customPeaks))
+            {
+                currentPeaks = customPeaks.Data
+                    .Select(d => d.Peak)
+                    .ToArray();
+
+                var fittedPeaks = await spectra.FitPeaks(
+                    currentPeaks,
+                    OptimizationSettings);
+
+                for (var i = 0; i < fittedPeaks.Count; i++)
+                {
+                    customPeaks.Data[i].UpdatePeakEstimateData(fittedPeaks[i]);
+                }
+            }
+            else
+            {
+                currentPeaks = peaksStorage.DefaultSet.Data
+                    .Select(d => d.Peak.Copy())
+                    .ToArray();
+
+                var peaksPlots = await peakDataPlotProvider.GetPlots(currentPeaks);
+
+                var fittedPeaks = await spectra.FitPeaks(
+                    currentPeaks,
+                    OptimizationSettings);
+
+                for (var i = 0; i < fittedPeaks.Count; i++)
+                {
+                    peaksPlots[i].UpdatePeakEstimateData(fittedPeaks[i]);
+                }
+
+                await peaksStorage.AddDataSet(
+                    key,
+                    new DataSet<PeakDataPlot>(key.Name, peaksPlots));
+            }
+        }
     }
 
     public async Task<bool> SaveSpectraPeaks()
@@ -104,13 +158,13 @@ internal sealed class ProcessingController(
             return false;
         }
 
-        await peaksPlotProvider.Clear();
+        await peakDataPlotProvider.Clear();
 
         var peaksCopy = peaksStorage.DefaultSet.Data
             .Select(d => d.Peak.Copy())
             .ToArray();
 
-        var plotsCopy = await peaksPlotProvider.Draw(peaksCopy);
+        var plotsCopy = await peakDataPlotProvider.Draw(peaksCopy);
 
         await peaksStorage.AddDataSet(currentSpectraKey, new DataSet<PeakDataPlot>(currentSpectraKey.Name, plotsCopy));
 
@@ -128,7 +182,7 @@ internal sealed class ProcessingController(
 
         await peaksStorage.DeleteDataSet(currentSpectraKey);
 
-        await peaksPlotProvider.Clear();
+        await peakDataPlotProvider.Clear();
 
         await DrawPeaksSet(peaksStorage.DefaultSet);
 
@@ -143,6 +197,6 @@ internal sealed class ProcessingController(
             .Select(x => x.Peak)
             .ToArray();
 
-        return peaksPlotProvider.Draw(data);
+        return peakDataPlotProvider.Draw(data);
     }
 }

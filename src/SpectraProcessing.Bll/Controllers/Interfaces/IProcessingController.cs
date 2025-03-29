@@ -16,8 +16,11 @@ public interface IProcessingController
 
     Task<bool> CheckoutSpectra(SpectraData? spectra);
 
+    Task FitPeaks(IReadOnlyCollection<SpectraData> spectras);
+
     Task<bool> SaveSpectraPeaks();
 
     Task<bool> RemovedSpectraPeaks();
 
-    Task ClearPeaks(); }
+    Task ClearPeaks();
+}
