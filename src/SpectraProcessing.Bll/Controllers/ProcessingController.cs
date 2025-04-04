@@ -29,6 +29,15 @@ internal sealed class ProcessingController(
 
     public event Action? OnPlotAreaChanged;
 
+    public async Task SmoothSpectras(IReadOnlyCollection<SpectraData> spectras)
+    {
+        var smoothingTasks = spectras.Select(s => Task.Run(() => s.Points.Smooth()));
+
+        await Task.WhenAll(smoothingTasks);
+
+        OnPlotAreaChanged?.Invoke();
+    }
+
     public async Task AddPeak(PeakData peak)
     {
         var plot = (await peakDataPlotProvider.Draw([peak])).Single();

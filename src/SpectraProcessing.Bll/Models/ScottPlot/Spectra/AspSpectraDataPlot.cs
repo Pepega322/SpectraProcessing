@@ -14,7 +14,7 @@ public class AspSpectraDataPlot : SpectraDataPlot
         using var builder = new Plot();
 
         signal = builder.Add.Signal(
-            asp.Points.Y.ToArray(),
+            asp.Points.Y,
             asp.Info.Delta);
 
         Name = asp.Name;

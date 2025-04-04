@@ -62,19 +62,21 @@ partial class MainForm
         dataSetContextMenuDelete = new ToolStripMenuItem();
         dataSetContextMenuClear = new ToolStripMenuItem();
         plotContextMenu = new ContextMenuStrip(components);
-        plotContextMenuDelete = new ToolStripMenuItem();
         plotContextMenuSubstractBaseline = new ToolStripMenuItem();
+        fitPeaksToolStripMenuItem = new ToolStripMenuItem();
+        plotContextMenuDelete = new ToolStripMenuItem();
         plotContextMenuProcessPeaks = new ToolStripMenuItem();
         plotContextMenuClear = new ToolStripMenuItem();
         plotSetContextMenu = new ContextMenuStrip(components);
         plotSetContextMenuHighlight = new ToolStripMenuItem();
-        plotSetContextMenuDelete = new ToolStripMenuItem();
         plotSetContextMenuSubstactBaseline = new ToolStripMenuItem();
-        plotSetContextMenuProcessPeaks = new ToolStripMenuItem();
         plotSetContextMenuGetAverage = new ToolStripMenuItem();
-        plotSetContextMenuClear = new ToolStripMenuItem();
-        fitPeaksToolStripMenuItem = new ToolStripMenuItem();
         fitSetPeaksToolStripMenuItem = new ToolStripMenuItem();
+        plotSetContextMenuDelete = new ToolStripMenuItem();
+        plotSetContextMenuProcessPeaks = new ToolStripMenuItem();
+        plotSetContextMenuClear = new ToolStripMenuItem();
+        plotContextMenuSmooth = new ToolStripMenuItem();
+        plotSetContextMenuSmooth = new ToolStripMenuItem();
         tableLayoutPanel1.SuspendLayout();
         tableLayoutPanel2.SuspendLayout();
         tableLayoutPanel3.SuspendLayout();
@@ -355,21 +357,27 @@ partial class MainForm
         // plotContextMenu
         // 
         plotContextMenu.ImageScalingSize = new Size(32, 32);
-        plotContextMenu.Items.AddRange(new ToolStripItem[] { plotContextMenuSubstractBaseline, fitPeaksToolStripMenuItem, plotContextMenuDelete, plotContextMenuProcessPeaks, plotContextMenuClear });
+        plotContextMenu.Items.AddRange(new ToolStripItem[] { plotContextMenuSmooth, plotContextMenuSubstractBaseline, fitPeaksToolStripMenuItem, plotContextMenuDelete, plotContextMenuProcessPeaks, plotContextMenuClear });
         plotContextMenu.Name = "plotContextMenu";
-        plotContextMenu.Size = new Size(282, 194);
-        // 
-        // plotContextMenuDelete
-        // 
-        plotContextMenuDelete.Name = "plotContextMenuDelete";
-        plotContextMenuDelete.Size = new Size(281, 38);
-        plotContextMenuDelete.Text = "Delete";
+        plotContextMenu.Size = new Size(282, 232);
         // 
         // plotContextMenuSubstractBaseline
         // 
         plotContextMenuSubstractBaseline.Name = "plotContextMenuSubstractBaseline";
         plotContextMenuSubstractBaseline.Size = new Size(281, 38);
         plotContextMenuSubstractBaseline.Text = "Substract baseline";
+        // 
+        // fitPeaksToolStripMenuItem
+        // 
+        fitPeaksToolStripMenuItem.Name = "fitPeaksToolStripMenuItem";
+        fitPeaksToolStripMenuItem.Size = new Size(281, 38);
+        fitPeaksToolStripMenuItem.Text = "Fit peaks";
+        // 
+        // plotContextMenuDelete
+        // 
+        plotContextMenuDelete.Name = "plotContextMenuDelete";
+        plotContextMenuDelete.Size = new Size(281, 38);
+        plotContextMenuDelete.Text = "Delete";
         // 
         // plotContextMenuProcessPeaks
         // 
@@ -386,9 +394,9 @@ partial class MainForm
         // plotSetContextMenu
         // 
         plotSetContextMenu.ImageScalingSize = new Size(32, 32);
-        plotSetContextMenu.Items.AddRange(new ToolStripItem[] { plotSetContextMenuHighlight, plotSetContextMenuSubstactBaseline, plotSetContextMenuGetAverage, fitSetPeaksToolStripMenuItem, plotSetContextMenuDelete, plotSetContextMenuProcessPeaks, plotSetContextMenuClear });
+        plotSetContextMenu.Items.AddRange(new ToolStripItem[] { plotSetContextMenuHighlight, plotSetContextMenuSmooth, plotSetContextMenuSubstactBaseline, plotSetContextMenuGetAverage, fitSetPeaksToolStripMenuItem, plotSetContextMenuDelete, plotSetContextMenuProcessPeaks, plotSetContextMenuClear });
         plotSetContextMenu.Name = "plotSetContextMenu";
-        plotSetContextMenu.Size = new Size(301, 314);
+        plotSetContextMenu.Size = new Size(301, 352);
         // 
         // plotSetContextMenuHighlight
         // 
@@ -396,23 +404,11 @@ partial class MainForm
         plotSetContextMenuHighlight.Size = new Size(300, 38);
         plotSetContextMenuHighlight.Text = "Highlight";
         // 
-        // plotSetContextMenuDelete
-        // 
-        plotSetContextMenuDelete.Name = "plotSetContextMenuDelete";
-        plotSetContextMenuDelete.Size = new Size(300, 38);
-        plotSetContextMenuDelete.Text = "Delete";
-        // 
         // plotSetContextMenuSubstactBaseline
         // 
         plotSetContextMenuSubstactBaseline.Name = "plotSetContextMenuSubstactBaseline";
         plotSetContextMenuSubstactBaseline.Size = new Size(300, 38);
         plotSetContextMenuSubstactBaseline.Text = "Substact baseline";
-        // 
-        // plotSetContextMenuProcessPeaks
-        // 
-        plotSetContextMenuProcessPeaks.Name = "plotSetContextMenuProcessPeaks";
-        plotSetContextMenuProcessPeaks.Size = new Size(300, 38);
-        plotSetContextMenuProcessPeaks.Text = "Process peaks";
         // 
         // plotSetContextMenuGetAverage
         // 
@@ -420,23 +416,41 @@ partial class MainForm
         plotSetContextMenuGetAverage.Size = new Size(300, 38);
         plotSetContextMenuGetAverage.Text = "Get average spectra";
         // 
+        // fitSetPeaksToolStripMenuItem
+        // 
+        fitSetPeaksToolStripMenuItem.Name = "fitSetPeaksToolStripMenuItem";
+        fitSetPeaksToolStripMenuItem.Size = new Size(300, 38);
+        fitSetPeaksToolStripMenuItem.Text = "Fit peaks";
+        // 
+        // plotSetContextMenuDelete
+        // 
+        plotSetContextMenuDelete.Name = "plotSetContextMenuDelete";
+        plotSetContextMenuDelete.Size = new Size(300, 38);
+        plotSetContextMenuDelete.Text = "Delete";
+        // 
+        // plotSetContextMenuProcessPeaks
+        // 
+        plotSetContextMenuProcessPeaks.Name = "plotSetContextMenuProcessPeaks";
+        plotSetContextMenuProcessPeaks.Size = new Size(300, 38);
+        plotSetContextMenuProcessPeaks.Text = "Process peaks";
+        // 
         // plotSetContextMenuClear
         // 
         plotSetContextMenuClear.Name = "plotSetContextMenuClear";
         plotSetContextMenuClear.Size = new Size(300, 38);
         plotSetContextMenuClear.Text = "Clear";
         // 
-        // fitPeaksToolStripMenuItem
+        // plotContextMenuSmooth
         // 
-        fitPeaksToolStripMenuItem.Name = "fitPeaksToolStripMenuItem";
-        fitPeaksToolStripMenuItem.Size = new Size(281, 38);
-        fitPeaksToolStripMenuItem.Text = "Fit peaks";
+        plotContextMenuSmooth.Name = "plotContextMenuSmooth";
+        plotContextMenuSmooth.Size = new Size(281, 38);
+        plotContextMenuSmooth.Text = "Smooth";
         // 
-        // fitSetPeaksToolStripMenuItem
+        // plotSetContextMenuSmooth
         // 
-        fitSetPeaksToolStripMenuItem.Name = "fitSetPeaksToolStripMenuItem";
-        fitSetPeaksToolStripMenuItem.Size = new Size(300, 38);
-        fitSetPeaksToolStripMenuItem.Text = "Fit peaks";
+        plotSetContextMenuSmooth.Name = "plotSetContextMenuSmooth";
+        plotSetContextMenuSmooth.Size = new Size(300, 38);
+        plotSetContextMenuSmooth.Text = "Smooth";
         // 
         // MainForm
         // 
@@ -518,4 +532,6 @@ partial class MainForm
     private ToolStripMenuItem clearPeaksToolStripMenuItem;
     private ToolStripMenuItem fitPeaksToolStripMenuItem;
     private ToolStripMenuItem fitSetPeaksToolStripMenuItem;
+    private ToolStripMenuItem plotContextMenuSmooth;
+    private ToolStripMenuItem plotSetContextMenuSmooth;
 }

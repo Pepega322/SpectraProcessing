@@ -70,7 +70,7 @@ public static class NelderMead
                     .Multiply(settings.Coefficients.Reflection)
                     .Add(center);
 
-                var reflectedValue = funcForMin(reflected);
+                var reflectedValue = funcForMin(CheckConstraints(reflected));
 
                 //ReflectedBetterThanBest
                 if (reflectedValue < best.Value)
@@ -79,7 +79,7 @@ public static class NelderMead
                         .Multiply(settings.Coefficients.Expansion)
                         .Add(center);
 
-                    var expandedValue = funcForMin(expanded);
+                    var expandedValue = funcForMin(CheckConstraints(expanded));
 
                     if (expandedValue < reflectedValue)
                     {
@@ -111,7 +111,7 @@ public static class NelderMead
                     .Multiply(settings.Coefficients.Contraction)
                     .Add(center);
 
-                var contractedValue = funcForMin(contracted);
+                var contractedValue = funcForMin(CheckConstraints(contracted));
 
                 //Contraction
                 if (contractedValue < worst.Value)
@@ -132,7 +132,7 @@ public static class NelderMead
                         .Multiply(settings.Coefficients.Shrink)
                         .Add(best.Vector);
 
-                    point.Value = funcForMin(point.Vector);
+                    point.Value = funcForMin(CheckConstraints(point.Vector));
                 }
             }
         }
@@ -145,7 +145,7 @@ public static class NelderMead
     {
         var simplexPoints = new List<SimplexPoint>(start.Dimension + 1)
         {
-            new() { Vector = start, Value = funcForMin(start) },
+            new() { Vector = start, Value = funcForMin(CheckConstraints(start)) },
         };
 
         for (var d = 0; d < start.Dimension; d++)
@@ -156,12 +156,31 @@ public static class NelderMead
                 ? settings.InitialShift
                 : newVector[d] * (1 + settings.InitialShift);
 
-            simplexPoints.Add(new SimplexPoint { Vector = newVector, Value = funcForMin(newVector) });
+            newVector[d] *= (1
+                + Random.Shared.NextDouble() * settings.InitialShift / 3 *
+                (Random.Shared.Next() % 2 == 0 ? -1 : 1));
+
+            simplexPoints.Add(new SimplexPoint { Vector = newVector, Value = funcForMin(CheckConstraints(newVector)) });
         }
 
         simplexPoints.Sort(Comparer);
 
         return simplexPoints;
+    }
+
+    private static VectorN CheckConstraints(VectorN vectorN)
+    {
+        // for (var i = 3; i < vectorN.Dimension; i += 4)
+        // {
+        //     vectorN[i] = vectorN[i] switch
+        //     {
+        //         > 1 => 1,
+        //         < 0 => 0,
+        //         _   => vectorN[i]
+        //     };
+        // }
+
+        return vectorN;
     }
 
     private sealed record SimplexPoint

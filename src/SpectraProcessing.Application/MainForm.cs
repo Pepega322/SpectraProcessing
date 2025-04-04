@@ -307,7 +307,8 @@ public partial class MainForm : Form
             var estimate = new PeakData(
                 center: coordinateProvider.Coordinates.X,
                 amplitude: coordinateProvider.Coordinates.Y,
-                halfWidth: 30f);
+                halfWidth: 30f,
+                gaussianContribution: 1);
 
             await processingController.AddPeak(estimate);
         };
@@ -348,6 +349,22 @@ public partial class MainForm : Form
             await HighlightNodeUntilNextClick(node);
         };
 
+        plotContextMenuSmooth.Click += async (sender, _) =>
+        {
+            var plot = TreeViewExtensions.GetContextData<SpectraDataPlot>(sender);
+
+            await processingController.SmoothSpectras([plot.SpectraData]);
+        };
+
+        plotSetContextMenuSmooth.Click += async (sender, _) =>
+        {
+            var set = TreeViewExtensions.GetContextSet<SpectraDataPlot>(sender);
+
+            var spectras = set.Data.Select(d => d.SpectraData).ToArray();
+
+            await processingController.SmoothSpectras(spectras);
+        };
+
         fitPeaksToolStripMenuItem.Click += async (sender, _) =>
         {
             var plot = TreeViewExtensions.GetContextData<SpectraDataPlot>(sender);
@@ -359,7 +376,9 @@ public partial class MainForm : Form
         {
             var set = TreeViewExtensions.GetContextSet<SpectraDataPlot>(sender);
 
-            await processingController.FitPeaks(set.Data.Select(d => d.SpectraData).ToArray());
+            var spectras = set.Data.Select(d => d.SpectraData).ToArray();
+
+            await processingController.FitPeaks(spectras);
         };
     }
 

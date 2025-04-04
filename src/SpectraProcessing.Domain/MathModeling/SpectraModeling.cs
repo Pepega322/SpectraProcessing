@@ -97,6 +97,7 @@ public static class SpectraModeling
             startValues.Add(peak.Center);
             startValues.Add(peak.Amplitude);
             startValues.Add(peak.HalfWidth);
+            // startValues.Add(peak.GaussianContribution);
         }
 
         var optimizedVector = await NelderMead.GetOptimized(
@@ -142,6 +143,7 @@ public static class SpectraModeling
                 peak.Center = (float) vector.Values[peakParametersCount * i];
                 peak.Amplitude = (float) vector.Values[peakParametersCount * i + 1];
                 peak.HalfWidth = (float) vector.Values[peakParametersCount * i + 2];
+                // peak.GaussianContribution = (float) vector.Values[peakParametersCount * i + 3];
             }
         }
     }

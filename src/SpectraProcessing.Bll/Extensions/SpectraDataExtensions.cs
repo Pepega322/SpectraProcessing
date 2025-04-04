@@ -7,27 +7,27 @@ namespace SpectraProcessing.Bll.Extensions;
 
 public static class SpectraDataExtensions
 {
-    public static SpectraData SubstractBaseLine(this SpectraData spectra)
+    public static void SubstractBaseLine(this SpectraData spectra)
     {
         var baseline = RegressionAnalysis.GetLinearRegression(spectra.Points);
 
-        var points = spectra.Points.Transform(TransformationRule);
+        spectra.Points.Transform(TransformationRule);
 
-        return new SimpleSpectraData($"{spectra.Name} -b", points);
+        return;
 
         float TransformationRule(float x, float y) => y - baseline(x);
     }
 
     public static Task<SpectraData> GetAverageSpectra(this IReadOnlyCollection<SpectraData> spectras)
     {
-        return Task.Run(() => GetAverageSpectraInternal(spectras));
+        return Task.Run(GetAverageSpectraInternal);
 
-        SpectraData GetAverageSpectraInternal(IReadOnlyCollection<SpectraData> s)
+        SpectraData GetAverageSpectraInternal()
         {
             var spectraCountPerX = new Dictionary<float, int>();
             var spectraYSumForX = new Dictionary<float, float>();
 
-            foreach (var spectra in s)
+            foreach (var spectra in spectras)
             {
                 for (var i = 0; i < spectra.Points.Count; i++)
                 {
@@ -60,13 +60,13 @@ public static class SpectraDataExtensions
 
     public static Task<SpectraData> GetSumSpectra(this IReadOnlyCollection<SpectraData> spectras)
     {
-        return Task.Run(() => GetSumSpectraInternal(spectras));
+        return Task.Run(GetSumSpectraInternal);
 
-        SpectraData GetSumSpectraInternal(IReadOnlyCollection<SpectraData> s)
+        SpectraData GetSumSpectraInternal()
         {
             var spectraYSumForX = new Dictionary<float, float>();
 
-            foreach (var spectra in s)
+            foreach (var spectra in spectras)
             {
                 for (var i = 0; i < spectra.Points.Count; i++)
                 {

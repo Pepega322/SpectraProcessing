@@ -14,8 +14,8 @@ public class EspSpectraDataPlot : SpectraDataPlot
         using var builder = new Plot();
 
         signal = builder.Add.SignalXY(
-            esp.Points.X.ToArray(),
-            esp.Points.Y.ToArray());
+            esp.Points.X,
+            esp.Points.Y);
 
         Name = esp.Name;
 

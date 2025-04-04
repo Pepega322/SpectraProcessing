@@ -4,7 +4,7 @@ public sealed record OptimizationSettings
 {
     public static readonly OptimizationSettings Default = new()
     {
-        MaxIterationsCount = 1000,
+        MaxIterationsCount = 10000,
         InitialShift = 0.01,
         Coefficients = new IterationCoefficients
         {

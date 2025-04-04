@@ -10,6 +10,8 @@ public interface IProcessingController
 
     IReadOnlyList<PeakDataPlot> CurrentPeaks { get; }
 
+    Task SmoothSpectras(IReadOnlyCollection<SpectraData> spectras);
+
     Task AddPeak(PeakData peak);
 
     Task RemovePeak(PeakData peak);

@@ -14,8 +14,8 @@ public class SimpleSpectraDataPlot : SpectraDataPlot
         using var builder = new Plot();
 
         signal = builder.Add.SignalXY(
-            data.Points.X.ToArray(),
-            data.Points.Y.ToArray());
+            data.Points.X,
+            data.Points.Y);
 
         Name = data.Name;
 
