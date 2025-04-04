@@ -14,12 +14,12 @@ public class SpectraModelingTests
         //Arrange
         var spectra = ModelSpectras.Gauss;
 
-        var estimates = ModelSpectras.GaussPeaks;
-
         var expected = ModelSpectras.GaussPeaks;
 
+        var actual = ModelSpectras.GaussPeaks.Select(x => x.Copy()).ToArray();
+
         //Act
-        var actual = await spectra.FitPeaks(estimates, OptimizationSettings.Default);
+        await spectra.FitPeaks(actual, OptimizationSettings.Default);
 
         //Assert
         actual.Should().BeEquivalentTo(expected);
@@ -31,12 +31,12 @@ public class SpectraModelingTests
         //Arrange
         var spectra = ModelSpectras.Lorentz;
 
-        var estimates = ModelSpectras.LorentzPeaks;
-
         var expected = ModelSpectras.LorentzPeaks;
 
+        var actual = ModelSpectras.LorentzPeaks.Select(x => x.Copy()).ToArray();
+
         //Act
-        var actual = await spectra.FitPeaks(estimates, OptimizationSettings.Default);
+        await spectra.FitPeaks(actual, OptimizationSettings.Default);
 
         //Assert
         actual.Should().BeEquivalentTo(expected);
@@ -48,12 +48,12 @@ public class SpectraModelingTests
         //Arrange
         var spectra = ModelSpectras.GaussAndLorentz;
 
-        var estimates = ModelSpectras.GaussAndLorentzPeaks;
-
         var expected = ModelSpectras.GaussAndLorentzPeaks;
 
+        var actual = ModelSpectras.GaussAndLorentzPeaks.Select(x => x.Copy()).ToArray();
+
         //Act
-        var actual = await spectra.FitPeaks(estimates, OptimizationSettings.Default);
+        await spectra.FitPeaks(actual, OptimizationSettings.Default);
 
         //Assert
         actual.Should().BeEquivalentTo(expected);

@@ -3,6 +3,7 @@ using SpectraProcessing.Bll.Models.ScottPlot.Peak;
 using SpectraProcessing.Bll.Providers.Interfaces;
 using SpectraProcessing.Domain.Collections;
 using SpectraProcessing.Domain.Collections.Keys;
+using SpectraProcessing.Domain.Extensions;
 using SpectraProcessing.Domain.MathModeling;
 using SpectraProcessing.Domain.Models.MathModeling;
 using SpectraProcessing.Domain.Models.Peak;
@@ -103,6 +104,7 @@ internal sealed class ProcessingController(
             await FitPeaksInternal(spectra);
         }
 
+        await CheckoutSpectra(spectras.Last());
         OnPlotAreaChanged?.Invoke();
 
         return;
@@ -111,42 +113,47 @@ internal sealed class ProcessingController(
         {
             var key = new SpectraKey(spectra);
 
-            PeakData[] currentPeaks;
             if (peaksStorage.Sets.TryGetValue(key, out var customPeaks))
             {
-                currentPeaks = customPeaks.Data
+                var peaks = customPeaks!.Data
                     .Select(d => d.Peak)
                     .ToArray();
 
-                var fittedPeaks = await spectra.FitPeaks(
-                    currentPeaks,
-                    OptimizationSettings);
-
-                for (var i = 0; i < fittedPeaks.Count; i++)
+                if (peaks.IsEmpty())
                 {
-                    customPeaks.Data[i].UpdatePeakEstimateData(fittedPeaks[i]);
+                    return;
+                }
+
+                var plots = customPeaks.Data;
+
+                await spectra.FitPeaks(peaks, OptimizationSettings);
+
+                foreach (var peakPlot in plots)
+                {
+                    peakPlot.UpdateMarkers();
                 }
             }
             else
             {
-                currentPeaks = peaksStorage.DefaultSet.Data
+                var peaks = peaksStorage.DefaultSet.Data
                     .Select(d => d.Peak.Copy())
                     .ToArray();
 
-                var peaksPlots = await peakDataPlotProvider.GetPlots(currentPeaks);
-
-                var fittedPeaks = await spectra.FitPeaks(
-                    currentPeaks,
-                    OptimizationSettings);
-
-                for (var i = 0; i < fittedPeaks.Count; i++)
+                if (peaks.IsEmpty())
                 {
-                    peaksPlots[i].UpdatePeakEstimateData(fittedPeaks[i]);
+                    return;
                 }
 
-                await peaksStorage.AddDataSet(
-                    key,
-                    new DataSet<PeakDataPlot>(key.Name, peaksPlots));
+                var plots = await peakDataPlotProvider.GetPlots(peaks);
+
+                await spectra.FitPeaks(peaks, OptimizationSettings);
+
+                foreach (var peakPlot in plots)
+                {
+                    peakPlot.UpdateMarkers();
+                }
+
+                await peaksStorage.AddDataSet(key, new DataSet<PeakDataPlot>(key.Name, plots));
             }
         }
     }

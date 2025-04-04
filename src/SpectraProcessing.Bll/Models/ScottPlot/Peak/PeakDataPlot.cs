@@ -68,13 +68,13 @@ public sealed class PeakDataPlot : IDataPlot
         Line = line;
     }
 
-    public void UpdatePeakEstimateData(IReadOnlyPeakData estimate)
+    public void UpdateMarkers()
     {
         OnPeakEstimateDataUpdate(
-            center: estimate.Center,
-            amplitude: estimate.Amplitude,
-            halfWidth: estimate.HalfWidth,
-            gaussianContribution: estimate.GaussianContribution);
+            center: Peak.Center,
+            amplitude: Peak.Amplitude,
+            halfWidth: Peak.HalfWidth,
+            gaussianContribution: Peak.GaussianContribution);
     }
 
     public bool TryHit(Pixel pixel, float radius)
@@ -122,7 +122,7 @@ public sealed class PeakDataPlot : IDataPlot
         }
         else if (leftMarker.Dragged || rightMarker.Dragged)
         {
-            var halfWidth = System.Math.Abs(value: (to.X - Peak.Center) * 2);
+            var halfWidth = Math.Abs(value: (to.X - Peak.Center) * 2);
 
             OnPeakEstimateDataUpdate(
                 center: Peak.Center,
@@ -155,7 +155,7 @@ public sealed class PeakDataPlot : IDataPlot
 
         return;
 
-        void DragMarkerTo(DraggableMarker marker, Coordinates to)
+        static void DragMarkerTo(DraggableMarker marker, Coordinates to)
         {
             marker.StartDrag(marker.Coordinates);
             marker.DragTo(to);

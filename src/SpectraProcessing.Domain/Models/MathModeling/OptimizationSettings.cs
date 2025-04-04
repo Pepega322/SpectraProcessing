@@ -5,6 +5,7 @@ public sealed record OptimizationSettings
     public static readonly OptimizationSettings Default = new()
     {
         MaxIterationsCount = 1000,
+        InitialShift = 0.01,
         Coefficients = new IterationCoefficients
         {
             Reflection = 1,
@@ -12,23 +13,21 @@ public sealed record OptimizationSettings
             Contraction = 0.5,
             Shrink = 0.5,
         },
-        SimplexSettings = new SimplexSettings
-        {
-            InitialShift = 0.01,
-        },
-        Сriteria = new CompletionСriteria
+        Criteria = new CompletionСriteria
         {
             AbsoluteValue = null,
+            MaxConsecutiveShrinks = 50,
         },
     };
 
     public required int MaxIterationsCount { get; init; }
 
+    public required double InitialShift { get; init; }
+
     public required IterationCoefficients Coefficients { get; init; }
 
-    public required CompletionСriteria Сriteria { get; init; }
+    public required CompletionСriteria Criteria { get; init; }
 
-    public required SimplexSettings SimplexSettings { get; init; }
 
     public sealed record IterationCoefficients
     {
@@ -41,5 +40,7 @@ public sealed record OptimizationSettings
     public sealed record CompletionСriteria
     {
         public double? AbsoluteValue { get; init; }
+
+        public int? MaxConsecutiveShrinks { get; init; }
     }
 }

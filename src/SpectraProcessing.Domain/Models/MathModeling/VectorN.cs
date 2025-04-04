@@ -22,6 +22,56 @@ public sealed class VectorN : IReadOnlyVectorN
         this.values = values.ToArray();
     }
 
+    public VectorN Add(VectorN other)
+    {
+        if (Dimension != other.Dimension)
+        {
+            throw new ArgumentException("Dimensions don't match");
+        }
+
+        for (var d = 0; d < Dimension; d++)
+        {
+            values[d] += other.Values[d];
+        }
+
+        return this;
+    }
+
+    public VectorN Substract(VectorN other)
+    {
+        if (Dimension != other.Dimension)
+        {
+            throw new ArgumentException("Dimensions don't match");
+        }
+
+        for (var d = 0; d < Dimension; d++)
+        {
+            values[d] -= other.Values[d];
+        }
+
+        return this;
+    }
+
+    public VectorN Multiply(double multiplier)
+    {
+        for (var d = 0; d < Dimension; d++)
+        {
+            values[d] *= multiplier;
+        }
+
+        return this;
+    }
+
+    public VectorN Divide(double divider)
+    {
+        for (var d = 0; d < Dimension; d++)
+        {
+            values[d] /= divider;
+        }
+
+        return this;
+    }
+
     public override bool Equals(object? obj) => obj is VectorN vectorN && vectorN == this;
 
     public override int GetHashCode() => values.GetHashCode();
