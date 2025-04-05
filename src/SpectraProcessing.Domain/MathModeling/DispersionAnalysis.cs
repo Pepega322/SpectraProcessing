@@ -29,6 +29,11 @@ public static class DispersionAnalysis
             confidenceInterval);
     }
 
+    public static double GetRelativeDeviation(double value, double realValue)
+    {
+        return Math.Abs((value - realValue) / realValue);
+    }
+
     public static double GetStandardDeviation(this IReadOnlyCollection<double> values, out double averageValue)
     {
         var average = values.Sum() / values.Count;

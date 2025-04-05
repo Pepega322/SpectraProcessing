@@ -20,7 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{E6B3B1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpectraProcessing.Tests", "tests\SpectraProcessing.Tests\SpectraProcessing.Tests.csproj", "{4C09AC1F-AD79-46B6-81D4-7C8D18C53485}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpectraProcessing.TestingInfrastructure", "SpectraProcessing.TestingInfrastructure\SpectraProcessing.TestingInfrastructure.csproj", "{A71F043F-25B1-4425-B321-D61820B4F037}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpectraProcessing.TestingInfrastructure", "tests\SpectraProcessing.TestingInfrastructure\SpectraProcessing.TestingInfrastructure.csproj", "{A71F043F-25B1-4425-B321-D61820B4F037}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

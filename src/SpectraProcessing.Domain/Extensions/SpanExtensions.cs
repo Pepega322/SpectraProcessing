@@ -27,4 +27,19 @@ public static class SpanExtensions
 
         return sum;
     }
+
+    public static int Count<T>(this ref Span<T> values, Func<T, bool> selector) where T : struct, INumber<T>
+    {
+        var count = 0;
+
+        foreach (var value in values)
+        {
+            if (selector(value))
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
 }

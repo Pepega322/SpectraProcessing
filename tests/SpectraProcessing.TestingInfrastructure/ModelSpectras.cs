@@ -1,4 +1,4 @@
-﻿using SpectraProcessing.Domain.Collections;
+using SpectraProcessing.Domain.Collections;
 using SpectraProcessing.Domain.Models.Peak;
 using SpectraProcessing.Domain.Models.Spectra;
 using SpectraProcessing.Domain.Models.Spectra.Abstractions;

@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\SpectraProcessing.Domain\SpectraProcessing.Domain.csproj" />
+    <ProjectReference Include="..\..\src\SpectraProcessing.Domain\SpectraProcessing.Domain.csproj" />
   </ItemGroup>
 
 </Project>
