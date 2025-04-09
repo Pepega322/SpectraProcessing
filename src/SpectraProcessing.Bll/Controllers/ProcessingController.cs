@@ -19,10 +19,11 @@ internal sealed class ProcessingController(
     private static readonly OptimizationSettings OptimizationSettings = OptimizationSettings.Default
         with
         {
+            MaxIterationsCount = 100000,
             Criteria = new OptimizationSettings.CompletionСriteria
             {
                 AbsoluteValue = 0.01f,
-                MaxConsecutiveShrinks = 50,
+                // MaxConsecutiveShrinks = 50,
             },
         };
 

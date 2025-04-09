@@ -6,13 +6,14 @@ public static class VectorNExtensions
 {
     public static VectorNRefStruct Sum(this IEnumerable<VectorN> vectors, Span<float> buffer)
     {
-        var vectorsArray = vectors.ToArray();
+        buffer.Clear();
 
-        var dimension = vectorsArray.Select(x => x.Dimension).Distinct().Single();
-
-        for (var d = 0; d < dimension; d++)
+        foreach (var vector in vectors)
         {
-            buffer[d] = vectorsArray.Sum(v => v[d]);
+            for (var d = 0; d < buffer.Length; d++)
+            {
+                buffer[d] += vector[d];
+            }
         }
 
         return new VectorNRefStruct(buffer);

@@ -22,11 +22,14 @@ public static class SpectraModeling
 
         var groups = peaks.GroupPeaksByEffectiveRadius();
 
-        return Task.WhenAll(groups.Select(g => g.FitPeaksGroup(spectra, settings)));
+        return Parallel.ForEachAsync(
+            groups,
+            (group, ct) => group.FitPeaksGroup(spectra, settings));
+
+        // return Task.WhenAll(groups.Select(g => g.FitPeaksGroup(spectra, settings)));
     }
 
-    private static IReadOnlyCollection<IReadOnlyList<PeakData>> GroupPeaksByEffectiveRadius(
-        this IReadOnlyCollection<PeakData> peaks)
+    private static List<List<PeakData>> GroupPeaksByEffectiveRadius(this IReadOnlyCollection<PeakData> peaks)
     {
         var effectiveRadius = peaks.ToDictionary(
             p => p,
@@ -62,8 +65,8 @@ public static class SpectraModeling
         return groups;
     }
 
-    private static async Task FitPeaksGroup(
-        this IReadOnlyList<PeakData> group,
+    private static async ValueTask FitPeaksGroup(
+        this List<PeakData> group,
         SpectraData spectra,
         OptimizationSettings settings)
     {
@@ -73,38 +76,38 @@ public static class SpectraModeling
         {
             var peak = group[i];
             startValues[peakParametersCount * i] = peak.Center;
-            startValues[peakParametersCount * i + 1] = peak.Amplitude;
-            startValues[peakParametersCount * i + 2] = peak.HalfWidth;
+            startValues[peakParametersCount * i + 1] = peak.HalfWidth;
+            startValues[peakParametersCount * i + 2] = peak.Amplitude;
             // startValues[peakParametersCount * i + 3] = group[i].GaussianContribution;
         }
 
         var optimizedVector = await NelderMead.GetOptimized(
             new VectorN(startValues),
-            OptimizationFunc(spectra),
+            GetOptimizationFunc(),
             settings);
 
-        for (var i = 0; i < group.Count; i++)
-        {
-            var peak = group[i];
-            peak.Center = optimizedVector.Values[peakParametersCount * i];
-            peak.Amplitude = optimizedVector.Values[peakParametersCount * i + 1];
-            peak.HalfWidth = optimizedVector.Values[peakParametersCount * i + 2];
-            // peak.GaussianContribution = (float) vector.Values[peakParametersCount * i + 3];
-        }
+        UpdatePeaks(optimizedVector);
 
         return;
 
-        static Func<VectorNRefStruct, float> OptimizationFunc(SpectraData spectra)
+        void UpdatePeaks(VectorN vector)
+        {
+            for (var i = 0; i < group.Count; i++)
+            {
+                var peak = group[i];
+                peak.Center = vector.Values[peakParametersCount * i];
+                peak.HalfWidth = vector.Values[peakParametersCount * i + 1];
+                peak.Amplitude = vector.Values[peakParametersCount * i + 2];
+                // peak.GaussianContribution = (float) vector.Values[peakParametersCount * i + 3];
+            }
+        }
+
+        Func<VectorNRefStruct, float> GetOptimizationFunc()
         {
             return OptimizationFunc;
 
             float OptimizationFunc(VectorNRefStruct vector)
             {
-                if (vector.Dimension % peakParametersCount != 0)
-                {
-                    throw new ArgumentException("Vector length must be divisible by peak parameters.");
-                }
-
                 var (startValue, endValue) = vector.GetBorders();
                 var startIndex = spectra.Points.X.ClosestIndexBinarySearch(startValue);
                 var endIndex = spectra.Points.X.ClosestIndexBinarySearch(endValue);
@@ -146,8 +149,8 @@ public static class SpectraModeling
         for (var i = 0; i < peaksCount; i++)
         {
             var center = peaksVector.Values[peakParametersCount * i];
-            var halfWidth = peaksVector.Values[peakParametersCount * i + 2];
-            var amplitude = peaksVector.Values[peakParametersCount * i + 1];
+            var halfWidth = peaksVector.Values[peakParametersCount * i + 1];
+            var amplitude = peaksVector.Values[peakParametersCount * i + 2];
             const int gaussianContribution = 1;
 
             value += PeakModeling.GetPeakValueAt(
@@ -171,7 +174,7 @@ public static class SpectraModeling
         for (var i = 0; i < peaksCount; i++)
         {
             var center = peaksVector.Values[peakParametersCount * i];
-            var halfWidth = peaksVector.Values[peakParametersCount * i + 2];
+            var halfWidth = peaksVector.Values[peakParametersCount * i + 1];
             const int gaussianContribution = 1;
 
             var effectiveRadius = PeakModeling.GetPeakEffectiveRadius(

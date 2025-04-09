@@ -30,43 +30,43 @@ public static class NelderMead
         while (iteration < settings.MaxIterationsCount && !IsCriteriaReached())
         {
             MoveSimplex();
-            simplexPoints.Sort(Comparer);
+            Array.Sort(simplexPoints, Comparer);
             iteration++;
         }
 
         return simplexPoints[0].Vector;
 
-        List<SimplexPoint> GetSimplexPoints()
+        SimplexPoint[] GetSimplexPoints()
         {
             Span<float> buffer = stackalloc float[start.Dimension];
 
-            var points = new List<SimplexPoint>(start.Dimension + 1)
+            var points = new SimplexPoint[start.Dimension + 1];
+
+            points[0] = new SimplexPoint
             {
-                new()
-                {
-                    Vector = start,
-                    Value = funcForMin(start.ToVectorNRefStruct(buffer))
-                },
+                Vector = start,
+                Value = funcForMin(start.ToVectorNRefStruct(buffer))
             };
 
             for (var d = 0; d < start.Dimension; d++)
             {
                 var newVector = new VectorN(start.Values.ToArray());
 
+                var m = Random.Shared.Next() % 2 == 0 ? -1 : 1;
+
                 newVector[d] = newVector[d].ApproximatelyEqual(0)
-                    ? settings.InitialShift
-                    : newVector[d] * (1 + settings.InitialShift);
+                    ? settings.InitialShift * m
+                    : newVector[d] * (1 + settings.InitialShift * m);
 
-                newVector[d] *= 1
-                    + (float) Random.Shared.NextDouble() * settings.InitialShift / 3f *
-                    (Random.Shared.Next() % 2 == 0 ? -1 : 1);
 
-                points.Add(
-                    new SimplexPoint
-                        { Vector = newVector, Value = funcForMin(newVector.ToVectorNRefStruct(buffer)) });
+                points[d + 1] = new SimplexPoint
+                {
+                    Vector = newVector,
+                    Value = funcForMin(newVector.ToVectorNRefStruct(buffer))
+                };
             }
 
-            points.Sort(Comparer);
+            Array.Sort(points, Comparer);
 
             return points;
         }
@@ -94,10 +94,10 @@ public static class NelderMead
             var worst = simplexPoints[^1];
 
             var center = simplexPoints
-                .Take(simplexPoints.Count - 1)
+                .Take(simplexPoints.Length - 1)
                 .Select(x => x.Vector)
                 .Sum(stackalloc float[dimensions])
-                .Divide(simplexPoints.Count - 1);
+                .Divide(simplexPoints.Length - 1);
 
             var reflected = VectorNRefStruct.Difference(center, worst.Vector, stackalloc float[dimensions])
                 .Multiply(settings.Coefficients.Reflection)
