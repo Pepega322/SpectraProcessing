@@ -19,7 +19,7 @@ internal sealed class PeakDataPlotProvider : IPeakDataPlotProvider
     public PeakDataPlotProvider(Plot plotForm)
     {
         this.plotForm = plotForm;
-        plotForm.Add.Function(x => plotted.Keys.GetPeaksValueAt(x));
+        plotForm.Add.Function(x => plotted.Keys.GetPeaksValueAt((float) x));
     }
 
     public Task<bool> IsDrew(PeakData data)

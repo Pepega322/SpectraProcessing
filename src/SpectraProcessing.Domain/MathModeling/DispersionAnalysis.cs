@@ -5,8 +5,8 @@ namespace SpectraProcessing.Domain.MathModeling;
 
 public static class DispersionAnalysis
 {
-    public static DispersionStatistics<double> GetDispersionStatistics(
-        this IReadOnlyCollection<double> values,
+    public static DispersionStatistics<float> GetDispersionStatistics(
+        this IReadOnlyCollection<float> values,
         string parameterName)
     {
         if (values.Count <= 1)
@@ -20,7 +20,7 @@ public static class DispersionAnalysis
 
         var confidenceInterval = GetConfidenceInterval(values.Count, standardDeviation);
 
-        return new DispersionStatistics<double>(
+        return new DispersionStatistics<float>(
             parameterName,
             values.Count,
             averageValue,
@@ -29,32 +29,32 @@ public static class DispersionAnalysis
             confidenceInterval);
     }
 
-    public static double GetRelativeDeviation(double value, double realValue)
+    public static float GetRelativeDeviation(float value, float realValue)
     {
         return Math.Abs((value - realValue) / realValue);
     }
 
-    public static double GetStandardDeviation(this IReadOnlyCollection<double> values, out double averageValue)
+    public static float GetStandardDeviation(this IReadOnlyCollection<float> values, out float averageValue)
     {
         var average = values.Sum() / values.Count;
         var standardDeviationSquare = values.Sum(v => (v - average) * (v - average)) / (values.Count - 1);
         averageValue = average;
-        return Math.Sqrt(standardDeviationSquare);
+        return (float) Math.Sqrt(standardDeviationSquare);
     }
 
-    public static double GetStandardDeviation(this ref Span<double> values)
+    public static float GetStandardDeviation(this Span<float> values)
     {
         var average = values.Sum() / values.Length;
 
         var standardDeviationSquare = values.Sum(v => (v - average) * (v - average)) / (values.Length - 1);
 
-        return Math.Sqrt(standardDeviationSquare);
+        return (float) Math.Sqrt(standardDeviationSquare);
     }
 
-    private static double GetConfidenceInterval(int valuesCount, double standardDeviation)
-        => GetStudentCoefficients(valuesCount) * standardDeviation / Math.Sqrt(valuesCount);
+    private static float GetConfidenceInterval(int valuesCount, float standardDeviation)
+        => GetStudentCoefficients(valuesCount) * standardDeviation / (float) Math.Sqrt(valuesCount);
 
-    private static double GetStudentCoefficients(int valuesCount)
+    private static float GetStudentCoefficients(int valuesCount)
     {
         if (valuesCount <= 1)
         {
@@ -74,5 +74,35 @@ public static class DispersionAnalysis
             10 => 2.26f,
             _  => 1.96f,
         };
+    }
+
+    public static float GetR2Coefficient(
+        in Span<float> realValues,
+        in Span<float> predictedValues)
+    {
+        if (realValues.Length != predictedValues.Length)
+        {
+            throw new IndexOutOfRangeException("Real-time values and predicted values do not match");
+        }
+
+        var residualSumOfSquares = 0f;
+
+        for (var i = 0; i < realValues.Length; i++)
+        {
+            var delta = realValues[i] - predictedValues[i];
+            residualSumOfSquares += delta * delta;
+        }
+
+        var average = realValues.Sum() / realValues.Length;
+
+        var totalSumOfSquares = 0f;
+
+        for (var i = 0; i < realValues.Length; i++)
+        {
+            var delta = average - predictedValues[i];
+            totalSumOfSquares += delta * delta;
+        }
+
+        return 1 - residualSumOfSquares / totalSumOfSquares;
     }
 }

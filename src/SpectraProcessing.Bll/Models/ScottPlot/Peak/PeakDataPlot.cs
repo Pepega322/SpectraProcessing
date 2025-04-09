@@ -63,7 +63,7 @@ public sealed class PeakDataPlot : IDataPlot
                 markerSize,
                 MarkerColor));
 
-        var line = builder.Add.Function(peak.GetPeakValueAt);
+        var line = builder.Add.Function(x => peak.GetPeakValueAt((float) x));
         line.LineColor = PeakColor;
         Line = line;
     }
