@@ -16,7 +16,15 @@ internal sealed class ProcessingController(
     IPeakDataPlotProvider peakDataPlotProvider
 ) : IProcessingController
 {
-    private static readonly OptimizationSettings OptimizationSettings = OptimizationSettings.Default;
+    private static readonly OptimizationSettings OptimizationSettings = OptimizationSettings.Default
+        with
+        {
+            Criteria = new OptimizationSettings.CompletionСriteria
+            {
+                AbsoluteValue = 0.01f,
+                MaxConsecutiveShrinks = 50,
+            },
+        };
 
     private SpectraKey? currentSpectraKey;
 

@@ -99,7 +99,7 @@ public static class NelderMead
                 .Sum(stackalloc float[dimensions])
                 .Divide(simplexPoints.Count - 1);
 
-            var reflected = VectorNRefStruct.Difference(center, best.Vector, stackalloc float[dimensions])
+            var reflected = VectorNRefStruct.Difference(center, worst.Vector, stackalloc float[dimensions])
                 .Multiply(settings.Coefficients.Reflection)
                 .Add(center);
 

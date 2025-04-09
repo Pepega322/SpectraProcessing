@@ -19,7 +19,7 @@ public sealed class VectorN
         set => values[index] = value;
     }
 
-    public VectorNRefStruct ToVectorNRefStruct(Span<float> buffer)
+    public VectorNRefStruct ToVectorNRefStruct(in Span<float> buffer)
     {
         for (var d = 0; d < Dimension; d++)
         {

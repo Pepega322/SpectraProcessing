@@ -5,7 +5,6 @@ public sealed record OptimizationSettings
     public static readonly OptimizationSettings Default = new()
     {
         MaxIterationsCount = 10000,
-        MaxAcceptableRelativeDeviation = 0.001f,
         InitialShift = 0.01f,
         Coefficients = new IterationCoefficients
         {
@@ -22,8 +21,6 @@ public sealed record OptimizationSettings
     };
 
     public required int MaxIterationsCount { get; init; }
-
-    public required float MaxAcceptableRelativeDeviation { get; init; }
 
     public required float InitialShift { get; init; }
 

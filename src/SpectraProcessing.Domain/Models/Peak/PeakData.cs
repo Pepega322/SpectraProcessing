@@ -8,11 +8,11 @@ public sealed class PeakData : IReadOnlyPeakData
 
     private readonly long id;
 
-    public float Amplitude { get; set; }
-
     public float Center { get; set; }
 
     public float HalfWidth { get; set; }
+
+    public float Amplitude { get; set; }
 
     public float GaussianContribution { get; set; }
 
@@ -28,9 +28,9 @@ public sealed class PeakData : IReadOnlyPeakData
         }
 
         id = Interlocked.Increment(ref _counter);
-        Amplitude = amplitude;
         Center = center;
         HalfWidth = halfWidth;
+        Amplitude = amplitude;
         GaussianContribution = gaussianContribution;
     }
 

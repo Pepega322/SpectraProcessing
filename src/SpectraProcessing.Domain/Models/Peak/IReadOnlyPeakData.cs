@@ -4,11 +4,11 @@ namespace SpectraProcessing.Domain.Models.Peak;
 
 public interface IReadOnlyPeakData : IPlottableData
 {
-    float Amplitude { get; }
-
     float Center { get; }
 
     float HalfWidth { get; }
+
+    float Amplitude { get; }
 
     float GaussianContribution { get; }
 
