@@ -164,8 +164,10 @@ public static class NelderMead
                     .Multiply(settings.Coefficients.Shrink)
                     .Add(best.Vector);
 
-                point.Vector.Update(shrinked);
                 point.Value = funcForMin(shrinked);
+                point.Vector.Update(shrinked);
+
+                buffer.Clear();
             }
 
             consecutiveShrinks++;
@@ -177,5 +179,10 @@ public static class NelderMead
         public required VectorN Vector { get; init; }
 
         public required float Value { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Vector}, {Value}";
+        }
     }
 }
