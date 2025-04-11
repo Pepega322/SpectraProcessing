@@ -9,22 +9,19 @@ public class AspSpectraDataPlot : SpectraDataPlot
 {
     private readonly Signal signal;
 
-    public AspSpectraDataPlot(AspSpectraData asp) : base(asp)
+    public AspSpectraDataPlot(AspSpectraData asp, Color color) : base(asp)
     {
-        using var builder = new Plot();
-
-        signal = builder.Add.Signal(
+        signal = PlottableCreator.CreateSignal(
             asp.Points.Y,
-            asp.Info.Delta);
+            asp.Info.Delta,
+            color);
 
         Name = asp.Name;
 
-        PreviousColor = signal.Color;
-
-        Plottable = signal;
+        PreviousColor = color;
     }
 
-    public sealed override IPlottable Plottable { get; protected set; }
+    public sealed override IPlottable Plottable => signal;
 
     public sealed override string Name { get; protected set; }
 

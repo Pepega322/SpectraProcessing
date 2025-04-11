@@ -8,7 +8,7 @@ public abstract class SpectraDataPlot(SpectraData spectraData) : IDataPlot
 {
     public SpectraData SpectraData { get; } = spectraData;
 
-    public abstract IPlottable Plottable { get; protected set; }
+    public abstract IPlottable Plottable { get; }
 
     public abstract string Name { get; protected set; }
 

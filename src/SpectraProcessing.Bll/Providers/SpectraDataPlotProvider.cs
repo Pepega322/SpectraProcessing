@@ -145,12 +145,10 @@ internal sealed class SpectraDataPlotProvider(
 
         SpectraDataPlot newPlot = data switch
         {
-            AspSpectraData asp => new AspSpectraDataPlot(asp),
-            EspSpectraData esp => new EspSpectraDataPlot(esp),
+            AspSpectraData asp => new AspSpectraDataPlot(asp, color),
+            EspSpectraData esp => new EspSpectraDataPlot(esp, color),
             _                  => throw new NotSupportedException(data.GetType().Name + " is not supported"),
         };
-
-        newPlot.ChangeColor(color);
 
         SpectraDataPlots.TryAdd(data, newPlot);
 

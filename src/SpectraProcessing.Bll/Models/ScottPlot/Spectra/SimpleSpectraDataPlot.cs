@@ -7,24 +7,21 @@ namespace SpectraProcessing.Bll.Models.ScottPlot.Spectra;
 
 public class SimpleSpectraDataPlot : SpectraDataPlot
 {
-    private readonly SignalXY signal;
+    private readonly SignalXY signalXY;
 
-    public SimpleSpectraDataPlot(SimpleSpectraData data) : base(data)
+    public SimpleSpectraDataPlot(SimpleSpectraData data, Color color) : base(data)
     {
-        using var builder = new Plot();
-
-        signal = builder.Add.SignalXY(
+        signalXY = PlottableCreator.CreateSignalXY(
             data.Points.X,
-            data.Points.Y);
+            data.Points.Y,
+            color);
 
         Name = data.Name;
 
-        PreviousColor = signal.Color;
-
-        Plottable = signal;
+        PreviousColor = color;
     }
 
-    public sealed override IPlottable Plottable { get; protected set; }
+    public sealed override IPlottable Plottable => signalXY;
 
     public sealed override string Name { get; protected set; }
 
@@ -32,7 +29,7 @@ public class SimpleSpectraDataPlot : SpectraDataPlot
 
     public override void ChangeColor(Color color)
     {
-        PreviousColor = signal.Color;
-        signal.Color = color;
+        PreviousColor = signalXY.Color;
+        signalXY.Color = color;
     }
 }

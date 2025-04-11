@@ -19,7 +19,8 @@ internal sealed class PeakDataPlotProvider : IPeakDataPlotProvider
     public PeakDataPlotProvider(Plot plotForm)
     {
         this.plotForm = plotForm;
-        plotForm.Add.Function(x => plotted.Keys.GetPeaksValueAt((float) x));
+        var sumPeaksLine = PlottableCreator.CreateFunction(x => plotted.Keys.GetPeaksValueAt((float) x), Colors.Red);
+        plotForm.Add.Plottable(sumPeaksLine);
     }
 
     public Task<bool> IsDrew(PeakData data)

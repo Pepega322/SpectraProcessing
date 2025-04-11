@@ -33,39 +33,27 @@ public sealed class PeakDataPlot : IDataPlot
     public PeakDataPlot(PeakData peak)
     {
         const MarkerShape shape = MarkerShape.Cross;
-        const float markerSize = 20f;
-
         Peak = peak;
 
-        using var builder = new Plot();
+        leftMarker = PlottableCreator.CreateDraggableMarker(
+            x: peak.Center - peak.HalfWidth / 2,
+            y: peak.Amplitude / 2,
+            shape,
+            MarkerColor);
 
-        leftMarker = new DraggableMarker(
-            builder.Add.Marker(
-                x: peak.Center - peak.HalfWidth / 2,
-                y: peak.Amplitude / 2,
-                shape,
-                markerSize,
-                MarkerColor));
+        centerMarker = PlottableCreator.CreateDraggableMarker(
+            x: peak.Center,
+            y: peak.Amplitude,
+            shape,
+            MarkerColor);
 
-        centerMarker = new DraggableMarker(
-            builder.Add.Marker(
-                x: peak.Center,
-                y: peak.Amplitude,
-                shape,
-                markerSize,
-                MarkerColor));
+        rightMarker = PlottableCreator.CreateDraggableMarker(
+            x: peak.Center + peak.HalfWidth / 2,
+            y: peak.Amplitude / 2,
+            shape,
+            MarkerColor);
 
-        rightMarker = new DraggableMarker(
-            builder.Add.Marker(
-                x: peak.Center + peak.HalfWidth / 2,
-                y: peak.Amplitude / 2,
-                shape,
-                markerSize,
-                MarkerColor));
-
-        var line = builder.Add.Function(x => peak.GetPeakValueAt((float) x));
-        line.LineColor = PeakColor;
-        Line = line;
+        Line = PlottableCreator.CreateFunction(x => peak.GetPeakValueAt((float) x), PeakColor);
     }
 
     public void UpdateMarkers()
