@@ -10,33 +10,37 @@ public static class NelderMead
 
     public static Task<VectorN> GetOptimized(
         VectorN start,
-        Func<VectorNRefStruct, float> funcForMin,
+        Func<VectorNRefStruct, Span<float>, float> funcForMin,
+        int bufferSize,
         OptimizationSettings settings)
     {
-        return Task.Run(() => GetOptimizedInternal(start, funcForMin, settings));
+        return Task.Run(() => GetOptimizedInternal(start, funcForMin, bufferSize, settings));
     }
 
     private static VectorN GetOptimizedInternal(
         VectorN start,
-        Func<VectorNRefStruct, float> funcForMin,
+        Func<VectorNRefStruct, Span<float>, float> funcForMin,
+        int bufferSize,
         OptimizationSettings settings)
     {
+        Span<float> funcBuffer = stackalloc float[bufferSize];
+
         var dimensions = start.Dimension;
 
-        var simplexPoints = GetSimplexPoints();
+        var simplexPoints = GetSimplexPoints(funcBuffer);
 
         var iteration = 0;
         var consecutiveShrinks = 0;
         while (iteration < settings.MaxIterationsCount && !IsCriteriaReached())
         {
-            MoveSimplex();
+            MoveSimplex(funcBuffer);
             Array.Sort(simplexPoints, Comparer);
             iteration++;
         }
 
         return simplexPoints[0].Vector;
 
-        SimplexPoint[] GetSimplexPoints()
+        SimplexPoint[] GetSimplexPoints(in Span<float> funcBuffer)
         {
             Span<float> buffer = stackalloc float[start.Dimension];
 
@@ -45,7 +49,7 @@ public static class NelderMead
             points[0] = new SimplexPoint
             {
                 Vector = start,
-                Value = funcForMin(start.ToVectorNRefStruct(buffer))
+                Value = funcForMin(start.ToVectorNRefStruct(buffer), funcBuffer),
             };
 
             for (var d = 0; d < start.Dimension; d++)
@@ -62,7 +66,7 @@ public static class NelderMead
                 points[d + 1] = new SimplexPoint
                 {
                     Vector = newVector,
-                    Value = funcForMin(newVector.ToVectorNRefStruct(buffer))
+                    Value = funcForMin(newVector.ToVectorNRefStruct(buffer), funcBuffer),
                 };
             }
 
@@ -88,7 +92,7 @@ public static class NelderMead
             return false;
         }
 
-        void MoveSimplex()
+        void MoveSimplex(in Span<float> funcBuffer)
         {
             var best = simplexPoints[0];
             var worst = simplexPoints[^1];
@@ -103,7 +107,7 @@ public static class NelderMead
                 .Multiply(settings.Coefficients.Reflection)
                 .Add(center);
 
-            var reflectedValue = funcForMin(reflected);
+            var reflectedValue = funcForMin(reflected, funcBuffer);
 
             //ReflectedBetterThanBest
             if (reflectedValue < best.Value)
@@ -112,7 +116,7 @@ public static class NelderMead
                     .Multiply(settings.Coefficients.Expansion)
                     .Add(center);
 
-                var expandedValue = funcForMin(expanded);
+                var expandedValue = funcForMin(expanded, funcBuffer);
 
                 if (expandedValue < reflectedValue)
                 {
@@ -144,7 +148,7 @@ public static class NelderMead
                 .Multiply(settings.Coefficients.Contraction)
                 .Add(center);
 
-            var contractedValue = funcForMin(contracted);
+            var contractedValue = funcForMin(contracted, funcBuffer);
 
             //Contraction
             if (contractedValue < worst.Value)
@@ -164,7 +168,7 @@ public static class NelderMead
                     .Multiply(settings.Coefficients.Shrink)
                     .Add(best.Vector);
 
-                point.Value = funcForMin(shrinked);
+                point.Value = funcForMin(shrinked, funcBuffer);
                 point.Vector.Update(shrinked);
 
                 buffer.Clear();

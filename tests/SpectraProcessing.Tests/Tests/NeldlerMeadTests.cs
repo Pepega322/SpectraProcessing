@@ -14,7 +14,7 @@ public class NeldlerMeadTests
     public async Task Optimize_RosenbrockFunc_Success(VectorN start)
     {
         //Act
-        var actual = await NelderMead.GetOptimized(start, Func, OptimizationSettings.Default);
+        var actual = await NelderMead.GetOptimized(start, Func, 0, OptimizationSettings.Default);
 
         //Assert
         actual.Values[0].Should().BeApproximately(
@@ -27,7 +27,8 @@ public class NeldlerMeadTests
 
         return;
 
-        float Func(VectorNRefStruct vector) => MathFunctions.RosenbrockFunc(vector.Values[0], vector.Values[1]);
+        float Func(VectorNRefStruct vector, Span<float> buffer)
+            => MathFunctions.RosenbrockFunc(vector.Values[0], vector.Values[1]);
     }
 
     [Theory]
@@ -35,7 +36,7 @@ public class NeldlerMeadTests
     public async Task Optimize_HimmelblauFunc_Success(VectorN start, VectorN expectedMinimum)
     {
         //Act
-        var actual = await NelderMead.GetOptimized(start, Func, OptimizationSettings.Default);
+        var actual = await NelderMead.GetOptimized(start, Func, 0, OptimizationSettings.Default);
 
         //Assert
         actual.Values[0].Should().BeApproximately(
@@ -48,7 +49,8 @@ public class NeldlerMeadTests
 
         return;
 
-        float Func(VectorNRefStruct vector) => MathFunctions.HimmelblauFunc(vector.Values[0], vector.Values[1]);
+        float Func(VectorNRefStruct vector, Span<float> buffer)
+            => MathFunctions.HimmelblauFunc(vector.Values[0], vector.Values[1]);
     }
 
     public static TheoryData<VectorN> GetRosenbrockFuncStarts()
