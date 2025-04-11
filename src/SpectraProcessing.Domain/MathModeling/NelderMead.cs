@@ -9,23 +9,21 @@ public static class NelderMead
         = Comparer<SimplexPoint>.Create((x, y) => x.Value.CompareTo(y.Value));
 
     public static Task<VectorN> GetOptimized(
-        VectorN start,
-        Func<VectorNRefStruct, Span<float>, float> funcForMin,
-        int bufferSize,
-        OptimizationSettings settings)
+        NedlerMeadOptimizationModel model,
+        Func<VectorNRefStruct, Span<float>, float> funcForMin)
     {
-        return Task.Run(() => GetOptimizedInternal(start, funcForMin, bufferSize, settings));
+        return Task.Run(() => GetOptimizedInternal(model, funcForMin));
     }
 
     private static VectorN GetOptimizedInternal(
-        VectorN start,
-        Func<VectorNRefStruct, Span<float>, float> funcForMin,
-        int bufferSize,
-        OptimizationSettings settings)
+        NedlerMeadOptimizationModel model,
+        Func<VectorNRefStruct, Span<float>, float> funcForMin)
     {
-        Span<float> funcBuffer = stackalloc float[bufferSize];
+        Span<float> funcBuffer = stackalloc float[model.BufferSize];
 
-        var dimensions = start.Dimension;
+        var dimension = model.Start.Dimension;
+        var settings = model.Settings;
+        var constraints = model.Constraints;
 
         var simplexPoints = GetSimplexPoints(funcBuffer);
 
@@ -38,13 +36,16 @@ public static class NelderMead
             iteration++;
         }
 
-        return simplexPoints[0].Vector;
+        return simplexPoints.First().Vector;
+
 
         SimplexPoint[] GetSimplexPoints(in Span<float> funcBuffer)
         {
-            Span<float> buffer = stackalloc float[start.Dimension];
+            Span<float> buffer = stackalloc float[dimension];
 
-            var points = new SimplexPoint[start.Dimension + 1];
+            var start = model.Start.WithConstraints(constraints);
+
+            var points = new SimplexPoint[dimension + 1];
 
             points[0] = new SimplexPoint
             {
@@ -52,16 +53,18 @@ public static class NelderMead
                 Value = funcForMin(start.ToVectorNRefStruct(buffer), funcBuffer),
             };
 
-            for (var d = 0; d < start.Dimension; d++)
+            for (var d = 0; d < dimension; d++)
             {
-                var newVector = new VectorN(start.Values.ToArray());
+                var newValues = start.Values.ToArray();
 
                 var m = Random.Shared.Next() % 2 == 0 ? -1 : 1;
 
-                newVector[d] = newVector[d].ApproximatelyEqual(0)
+                newValues[d] = newValues[d].ApproximatelyEqual(0)
                     ? settings.InitialShift * m
-                    : newVector[d] * (1 + settings.InitialShift * m);
+                    : newValues[d] * (1 + settings.InitialShift * m);
 
+                var newVector = new VectorN(newValues)
+                    .WithConstraints(constraints);
 
                 points[d + 1] = new SimplexPoint
                 {
@@ -100,21 +103,23 @@ public static class NelderMead
             var center = simplexPoints
                 .Take(simplexPoints.Length - 1)
                 .Select(x => x.Vector)
-                .Sum(stackalloc float[dimensions])
+                .Sum(stackalloc float[dimension])
                 .Divide(simplexPoints.Length - 1);
 
-            var reflected = VectorNRefStruct.Difference(center, worst.Vector, stackalloc float[dimensions])
+            var reflected = VectorNRefStruct.Difference(center, worst.Vector, stackalloc float[dimension])
                 .Multiply(settings.Coefficients.Reflection)
-                .Add(center);
+                .Add(center)
+                .WithConstraints(constraints);
 
             var reflectedValue = funcForMin(reflected, funcBuffer);
 
             //ReflectedBetterThanBest
             if (reflectedValue < best.Value)
             {
-                var expanded = VectorNRefStruct.Difference(reflected, center, stackalloc float[dimensions])
+                var expanded = VectorNRefStruct.Difference(reflected, center, stackalloc float[dimension])
                     .Multiply(settings.Coefficients.Expansion)
-                    .Add(center);
+                    .Add(center)
+                    .WithConstraints(constraints);
 
                 var expandedValue = funcForMin(expanded, funcBuffer);
 
@@ -144,9 +149,10 @@ public static class NelderMead
                 return;
             }
 
-            var contracted = VectorNRefStruct.Difference(worst.Vector, center, stackalloc float[dimensions])
+            var contracted = VectorNRefStruct.Difference(worst.Vector, center, stackalloc float[dimension])
                 .Multiply(settings.Coefficients.Contraction)
-                .Add(center);
+                .Add(center)
+                .WithConstraints(constraints);
 
             var contractedValue = funcForMin(contracted, funcBuffer);
 
@@ -161,12 +167,13 @@ public static class NelderMead
             }
 
             //Shrink
-            Span<float> buffer = stackalloc float[dimensions];
+            Span<float> buffer = stackalloc float[dimension];
             foreach (var point in simplexPoints.Skip(1))
             {
                 var shrinked = VectorNRefStruct.Difference(point.Vector, best.Vector, buffer)
                     .Multiply(settings.Coefficients.Shrink)
-                    .Add(best.Vector);
+                    .Add(best.Vector)
+                    .WithConstraints(constraints);
 
                 point.Value = funcForMin(shrinked, funcBuffer);
                 point.Vector.Update(shrinked);
@@ -176,6 +183,36 @@ public static class NelderMead
 
             consecutiveShrinks++;
         }
+    }
+
+    private static VectorN WithConstraints(
+        this VectorN vector,
+        Dictionary<int, ValueConstraint> constraints)
+    {
+        for (var d = 0; d < vector.Dimension; d++)
+        {
+            if (constraints.TryGetValue(d, out var constraint))
+            {
+                constraint.ApplyWithReflection(ref vector.Values[d]);
+            }
+        }
+
+        return vector;
+    }
+
+    private static VectorNRefStruct WithConstraints(
+        this in VectorNRefStruct vector,
+        Dictionary<int, ValueConstraint> constraints)
+    {
+        for (var d = 0; d < vector.Dimension; d++)
+        {
+            if (constraints.TryGetValue(d, out var constraint))
+            {
+                constraint.ApplyWithReflection(ref vector.Values[d]);
+            }
+        }
+
+        return vector;
     }
 
     private sealed class SimplexPoint

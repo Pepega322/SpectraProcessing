@@ -29,7 +29,7 @@ public sealed record SpectraPoints
         {
             nearPoints[centerIndex] = Y[i];
 
-            for (int j = 1; j < 3; j++)
+            for (var j = 1; j < 3; j++)
             {
                 var leftIndex = i - j < 0
                     ? i + j
@@ -47,7 +47,7 @@ public sealed record SpectraPoints
                 3 * nearPoints[5] + nearPoints[6]) / 27;
         }
 
-        for (int i = 0; i < Count; i++)
+        for (var i = 0; i < Count; i++)
         {
             Y[i] = tempY[i];
         }

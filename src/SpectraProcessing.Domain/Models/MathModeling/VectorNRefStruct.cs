@@ -2,22 +2,20 @@ namespace SpectraProcessing.Domain.Models.MathModeling;
 
 public readonly ref struct VectorNRefStruct
 {
-    private readonly Span<float> values;
+    public readonly Span<float> Values;
 
-    public ReadOnlySpan<float> Values => values;
-
-    public int Dimension => values.Length;
+    public int Dimension => Values.Length;
 
     public VectorNRefStruct(Span<float> values)
     {
-        this.values = values;
+        Values = values;
     }
 
     public VectorNRefStruct Add(in VectorNRefStruct other)
     {
         for (var d = 0; d < Dimension; d++)
         {
-            values[d] += other.Values[d];
+            Values[d] += other.Values[d];
         }
 
         return this;
@@ -27,7 +25,7 @@ public readonly ref struct VectorNRefStruct
     {
         for (var d = 0; d < Dimension; d++)
         {
-            values[d] += other.Values[d];
+            Values[d] += other.Values[d];
         }
 
         return this;
@@ -37,7 +35,7 @@ public readonly ref struct VectorNRefStruct
     {
         for (var d = 0; d < Dimension; d++)
         {
-            values[d] -= other.Values[d];
+            Values[d] -= other.Values[d];
         }
 
         return this;
@@ -47,7 +45,7 @@ public readonly ref struct VectorNRefStruct
     {
         for (var d = 0; d < Dimension; d++)
         {
-            values[d] -= other.Values[d];
+            Values[d] -= other.Values[d];
         }
 
         return this;
@@ -57,7 +55,7 @@ public readonly ref struct VectorNRefStruct
     {
         for (var d = 0; d < Dimension; d++)
         {
-            values[d] *= multiplier;
+            Values[d] *= multiplier;
         }
 
         return this;
@@ -67,7 +65,7 @@ public readonly ref struct VectorNRefStruct
     {
         for (var d = 0; d < Dimension; d++)
         {
-            values[d] /= divider;
+            Values[d] /= divider;
         }
 
         return this;

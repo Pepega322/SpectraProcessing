@@ -16,7 +16,7 @@ public sealed record OptimizationSettings
         Criteria = new CompletionСriteria
         {
             AbsoluteValue = null,
-            MaxConsecutiveShrinks = 50,
+            MaxConsecutiveShrinks = 100,
         },
     };
 

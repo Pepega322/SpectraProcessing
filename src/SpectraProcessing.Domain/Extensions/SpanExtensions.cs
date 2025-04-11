@@ -4,7 +4,7 @@ namespace SpectraProcessing.Domain.Extensions;
 
 public static class SpanExtensions
 {
-    public static T Sum<T>(this Span<T> values) where T : struct, INumber<T>
+    public static T Sum<T>(this in Span<T> values) where T : struct, INumber<T>
     {
         T sum = default;
 
@@ -16,7 +16,7 @@ public static class SpanExtensions
         return sum;
     }
 
-    public static T Sum<T>(this Span<T> values, Func<T, T> selector) where T : struct, INumber<T>
+    public static T Sum<T>(this in Span<T> values, Func<T, T> selector) where T : struct, INumber<T>
     {
         T sum = default;
 
@@ -28,7 +28,7 @@ public static class SpanExtensions
         return sum;
     }
 
-    public static int Count<T>(this Span<T> values, Func<T, bool> selector) where T : struct, INumber<T>
+    public static int Count<T>(this in Span<T> values, Func<T, bool> selector) where T : struct, INumber<T>
     {
         var count = 0;
 

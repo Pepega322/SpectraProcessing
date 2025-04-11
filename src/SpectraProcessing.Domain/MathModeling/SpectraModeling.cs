@@ -7,7 +7,7 @@ namespace SpectraProcessing.Domain.MathModeling;
 
 public static class SpectraModeling
 {
-    private const int peakParametersCount = 3;
+    private const int peakParametersCount = 4;
     private const float areaPercentage = 0.95f;
 
     public static Task FitPeaks(
@@ -24,7 +24,7 @@ public static class SpectraModeling
 
         return Parallel.ForEachAsync(
             groups,
-            (group, ct) => group.FitPeaksGroup(spectra, settings));
+            (group, _) => group.FitPeaksGroup(spectra, settings));
 
         // return Task.WhenAll(groups.Select(g => g.FitPeaksGroup(spectra, settings)));
     }
@@ -66,175 +66,226 @@ public static class SpectraModeling
     }
 
     private static async ValueTask FitPeaksGroup(
-        this List<PeakData> group,
+        this List<PeakData> peaks,
         SpectraData spectra,
         OptimizationSettings settings)
     {
-        var startValues = new float[group.Count * peakParametersCount];
+        var startValues = new float[peaks.Count * peakParametersCount];
+        var constraints = new Dictionary<int, ValueConstraint>();
 
-        for (var i = 0; i < group.Count; i++)
+        for (var i = 0; i < peaks.Count; i++)
         {
-            var peak = group[i];
-            startValues[peakParametersCount * i] = peak.Center;
-            startValues[peakParametersCount * i + 1] = peak.HalfWidth;
-            startValues[peakParametersCount * i + 2] = peak.Amplitude;
-            // startValues[peakParametersCount * i + 3] = group[i].GaussianContribution;
+            var center = peaks[i].Center;
+            var halfWidth = peaks[i].HalfWidth;
+
+            var centerIndex = peakParametersCount * i;
+            startValues[centerIndex] = center;
+            constraints[centerIndex] = new ValueConstraint(center - halfWidth, center + halfWidth);
+
+            startValues[peakParametersCount * i + 1] = halfWidth;
+
+            startValues[peakParametersCount * i + 2] = peaks[i].Amplitude;
+
+            var gaussianContributionIndex = peakParametersCount * i + 3;
+            startValues[gaussianContributionIndex] = peaks[i].GaussianContribution;
+            constraints[gaussianContributionIndex] = new ValueConstraint(0, 1);
         }
 
+        var startVector = new VectorN(startValues);
+
+        var optimizationModel = new NedlerMeadOptimizationModel
+        {
+            Start = startVector,
+            Constraints = constraints,
+            BufferSize = spectra.Points.Count,
+            Settings = settings,
+        };
+
+        var (startValue, endValue) = GetBorders(startVector);
+
         var optimizedVector = await NelderMead.GetOptimized(
-            start: new VectorN(startValues),
-            funcForMin: GetOptimizationFuncThroughAICc(spectra),
-            // funcForMin: GetOptimizationFuncThroughAIC(spectra),
-            // funcForMin: GetOptimizationFuncThroughR2(spectra),
-            // funcForMin: GetOptimizationFuncThroughS2(spectra),
-            bufferSize: spectra.Points.Count,
-            settings: settings);
+            model: optimizationModel,
+            funcForMin: GetOptimizationFuncThroughAICc(spectra, startValue, endValue)
+            // funcForMin: GetOptimizationFuncThroughAIC(spectra, startValue, endValue)
+            // funcForMin: GetOptimizationFuncThroughR2(spectra, startValue, endValue)
+            // funcForMin: GetOptimizationFuncThroughS2(spectra, startValue, endValue)
+        );
 
         UpdatePeaks(optimizedVector);
 
         return;
 
+        static (float StartValue, float EndValue) GetBorders(VectorN peaksVector)
+        {
+            var peaksCount = peaksVector.Dimension / peakParametersCount;
+
+            var startValue = float.MaxValue;
+            var endValue = float.MinValue;
+
+            for (var i = 0; i < peaksCount; i++)
+            {
+                var center = peaksVector.Values[peakParametersCount * i];
+                var halfWidth = peaksVector.Values[peakParametersCount * i + 1];
+                var gaussianContribution = peaksVector.Values[peakParametersCount * i + 3];
+
+                var effectiveRadius = PeakModeling.GetPeakEffectiveRadius(
+                    halfWidth: halfWidth,
+                    gaussianContribution: gaussianContribution,
+                    areaPercentage: areaPercentage);
+
+                startValue = Math.Min(startValue, center - effectiveRadius);
+                endValue = Math.Max(endValue, center + effectiveRadius);
+            }
+
+            return (startValue, endValue);
+        }
+
         void UpdatePeaks(VectorN vector)
         {
-            for (var i = 0; i < group.Count; i++)
+            for (var i = 0; i < peaks.Count; i++)
             {
-                var peak = group[i];
-                peak.Center = vector.Values[peakParametersCount * i];
-                peak.HalfWidth = vector.Values[peakParametersCount * i + 1];
-                peak.Amplitude = vector.Values[peakParametersCount * i + 2];
-                // peak.GaussianContribution = (float) vector.Values[peakParametersCount * i + 3];
+                peaks[i].Center = vector.Values[peakParametersCount * i];
+                peaks[i].HalfWidth = vector.Values[peakParametersCount * i + 1];
+                peaks[i].Amplitude = vector.Values[peakParametersCount * i + 2];
+                peaks[i].GaussianContribution = vector.Values[peakParametersCount * i + 3];
             }
         }
     }
 
-    private static Func<VectorNRefStruct, Span<float>, float> GetOptimizationFuncThroughR2(SpectraData spectra)
+    private static Func<VectorNRefStruct, Span<float>, float> GetOptimizationFuncThroughR2(
+        SpectraData spectra,
+        float startValue,
+        float endValue)
     {
+        var startIndex = spectra.Points.X.ClosestIndexBinarySearch(startValue);
+        var endIndex = spectra.Points.X.ClosestIndexBinarySearch(endValue);
+        var length = endIndex - startIndex + 1;
+
         return OptimizationFunc;
 
         float OptimizationFunc(VectorNRefStruct vector, Span<float> buffer)
         {
-            var (startValue, endValue) = vector.GetBorders();
-            var startIndex = spectra.Points.X.ClosestIndexBinarySearch(startValue);
-            var endIndex = spectra.Points.X.ClosestIndexBinarySearch(endValue);
+            var deltas = buffer.Slice(startIndex, length);
 
-            var average = 0f;
-            var residualSumOfSquares = 0f;
-
-            for (var i = startIndex; i < endIndex; i++)
+            for (var i = 0; i < length; i++)
             {
-                average += spectra.Points.Y[i];
-
-                var delta = spectra.Points.Y[i] - vector.GetPeaksValueAt(spectra.Points.X[i]);
-                residualSumOfSquares += delta * delta;
+                var pointIndex = startIndex + i;
+                deltas[i] = spectra.Points.Y[pointIndex] - vector.GetPeaksValueAt(spectra.Points.X[pointIndex]);
             }
 
-            average /= endIndex - startIndex;
+            var averageDelta = deltas.Sum() / length;
+            var residualSumOfSquares = deltas.Sum(delta => delta * delta);
 
-            var totalSumOfSquares = 0f;
-
-            for (var i = startIndex; i < endIndex; i++)
+            for (var i = 0; i < length; i++)
             {
-                var delta = spectra.Points.Y[i] - average;
-                totalSumOfSquares += delta * delta;
+                deltas[i] = averageDelta - spectra.Points.Y[startIndex + i];
             }
 
-            var r2Coefficient = 1 - residualSumOfSquares / totalSumOfSquares;
+            var totalSumOfSquares = deltas.Sum(delta => delta * delta);
 
-            return 1 - r2Coefficient;
+            var rSquare = 1 - residualSumOfSquares / totalSumOfSquares;
+
+            return 1 - rSquare;
         }
     }
 
-    private static Func<VectorNRefStruct, Span<float>, float> GetOptimizationFuncThroughS2(SpectraData spectra)
+    private static Func<VectorNRefStruct, Span<float>, float> GetOptimizationFuncThroughS2(
+        SpectraData spectra,
+        float startValue,
+        float endValue)
     {
+        var startIndex = spectra.Points.X.ClosestIndexBinarySearch(startValue);
+        var endIndex = spectra.Points.X.ClosestIndexBinarySearch(endValue);
+        var length = endIndex - startIndex + 1;
+
         return OptimizationFunc;
 
         float OptimizationFunc(VectorNRefStruct vector, Span<float> buffer)
         {
-            buffer.Clear();
+            var deltas = buffer.Slice(startIndex, length);
 
-            var (startValue, endValue) = vector.GetBorders();
-            var startIndex = spectra.Points.X.ClosestIndexBinarySearch(startValue);
-            var endIndex = spectra.Points.X.ClosestIndexBinarySearch(endValue);
-
-            var length = endIndex - startIndex;
-
-            var averageDelta = 0f;
-            for (var i = startIndex; i < endIndex; i++)
+            for (var i = 0; i < length; i++)
             {
-                buffer[i] = spectra.Points.Y[i] - vector.GetPeaksValueAt(spectra.Points.X[i]);
-                averageDelta += buffer[i];
+                var pointIndex = startIndex + i;
+                deltas[i] = spectra.Points.Y[pointIndex] - vector.GetPeaksValueAt(spectra.Points.X[pointIndex]);
             }
 
-            averageDelta /= length;
+            var averageDelta = deltas.Sum() / length;
 
-            var deltasDeltas = 0f;
-            for (var i = startIndex; i < endIndex; i++)
+            for (var i = 0; i < length; i++)
             {
-                var deltaDelta = buffer[i] - averageDelta;
-                deltasDeltas += deltaDelta * deltaDelta;
+                deltas[i] -= averageDelta;
             }
 
-            var standardDeviationSquare = deltasDeltas / (length - 1);
+            var deltaDeltaSumSquares = deltas.Sum(delta => delta * delta);
+
+            var standardDeviationSquare = deltaDeltaSumSquares / (length - 1);
 
             return standardDeviationSquare;
         }
     }
 
-    private static Func<VectorNRefStruct, Span<float>, float> GetOptimizationFuncThroughAIC(SpectraData spectra)
+    private static Func<VectorNRefStruct, Span<float>, float> GetOptimizationFuncThroughAIC(
+        SpectraData spectra,
+        float startValue,
+        float endValue)
     {
+        var startIndex = spectra.Points.X.ClosestIndexBinarySearch(startValue);
+        var endIndex = spectra.Points.X.ClosestIndexBinarySearch(endValue);
+        var length = endIndex - startIndex + 1;
+
         return OptimizationFunc;
 
         float OptimizationFunc(VectorNRefStruct vector, Span<float> buffer)
         {
-            buffer.Clear();
+            var deltas = buffer.Slice(startIndex, length);
 
-            var (startValue, endValue) = vector.GetBorders();
-            var startIndex = spectra.Points.X.ClosestIndexBinarySearch(startValue);
-            var endIndex = spectra.Points.X.ClosestIndexBinarySearch(endValue);
-            var n = endIndex - startIndex;
-
-            var sumOfResidualsSquares = 0f;
-            for (var i = startIndex; i < endIndex; i++)
+            for (var i = 0; i < length; i++)
             {
-                var delta = spectra.Points.Y[i] - vector.GetPeaksValueAt(spectra.Points.X[i]);
-                sumOfResidualsSquares += delta * delta;
+                var pointIndex = startIndex + i;
+                deltas[i] = spectra.Points.Y[pointIndex] - vector.GetPeaksValueAt(spectra.Points.X[pointIndex]);
             }
 
-            var lnL = 0.5f * -n * (float) (Math.Log(2 * Math.PI) + 1 - Math.Log(n) + Math.Log(sumOfResidualsSquares));
+            var sumOfResidualsSquares = deltas.Sum(delta => delta * delta);
 
-            var aic = 2 * vector.Dimension - 2 * lnL;
-
-            return aic;
+            return GetAic(
+                sumOfResidualsSquares: sumOfResidualsSquares,
+                valuesCount: length,
+                paramsCount: vector.Dimension);
         }
     }
 
-    private static Func<VectorNRefStruct, Span<float>, float> GetOptimizationFuncThroughAICc(SpectraData spectra)
+    private static Func<VectorNRefStruct, Span<float>, float> GetOptimizationFuncThroughAICc(
+        SpectraData spectra,
+        float startValue,
+        float endValue)
     {
+        var startIndex = spectra.Points.X.ClosestIndexBinarySearch(startValue);
+        var endIndex = spectra.Points.X.ClosestIndexBinarySearch(endValue);
+        var length = endIndex - startIndex + 1;
+
         return OptimizationFunc;
 
         float OptimizationFunc(VectorNRefStruct vector, Span<float> buffer)
         {
-            buffer.Clear();
+            var deltas = buffer.Slice(startIndex, length);
 
-            var (startValue, endValue) = vector.GetBorders();
-            var startIndex = spectra.Points.X.ClosestIndexBinarySearch(startValue);
-            var endIndex = spectra.Points.X.ClosestIndexBinarySearch(endValue);
-            var n = endIndex - startIndex;
-
-            var sumOfResidualsSquares = 0f;
-            for (var i = startIndex; i < endIndex; i++)
+            for (var i = 0; i < length; i++)
             {
-                var delta = spectra.Points.Y[i] - vector.GetPeaksValueAt(spectra.Points.X[i]);
-                sumOfResidualsSquares += delta * delta;
+                var pointIndex = startIndex + i;
+                deltas[i] = spectra.Points.Y[pointIndex] - vector.GetPeaksValueAt(spectra.Points.X[pointIndex]);
             }
 
-            var lnL = 0.5f * -n * (float) (Math.Log(2 * Math.PI) + 1 - Math.Log(n) + Math.Log(sumOfResidualsSquares));
+            var sumOfResidualsSquares = deltas.Sum(delta => delta * delta);
 
             var paramCount = vector.Dimension;
 
-            var aic = 2 * paramCount - 2 * lnL;
+            var aic = GetAic(
+                sumOfResidualsSquares: sumOfResidualsSquares,
+                valuesCount: length,
+                paramsCount: paramCount);
 
-            var aicC = aic + 2 * paramCount * (paramCount - 1) / (n - paramCount - 1f);
+            var aicC = aic + 2f * paramCount * (paramCount - 1) / (length - paramCount - 1);
 
             return aicC;
         }
@@ -264,28 +315,18 @@ public static class SpectraModeling
         return value;
     }
 
-    private static (float StartValue, float EndValue) GetBorders(this in VectorNRefStruct peaksVector)
+    private static float GetAic(
+        float sumOfResidualsSquares,
+        int valuesCount,
+        int paramsCount)
     {
-        var peaksCount = peaksVector.Dimension / peakParametersCount;
+        // var const1 = Math.Log(2 * Math.PI) + 1;
+        const double const1 = 2.8378770664093453f;
 
-        var startValue = float.MaxValue;
-        var endValue = float.MinValue;
+        var lnL = 0.5f * -valuesCount * (const1 - Math.Log(valuesCount) + Math.Log(sumOfResidualsSquares));
 
-        for (var i = 0; i < peaksCount; i++)
-        {
-            var center = peaksVector.Values[peakParametersCount * i];
-            var halfWidth = peaksVector.Values[peakParametersCount * i + 1];
-            const int gaussianContribution = 1;
+        var aic = 2 * paramsCount - 2 * lnL;
 
-            var effectiveRadius = PeakModeling.GetPeakEffectiveRadius(
-                halfWidth: halfWidth,
-                gaussianContribution: gaussianContribution,
-                areaPercentage: areaPercentage);
-
-            startValue = Math.Min(startValue, center - effectiveRadius);
-            endValue = Math.Max(endValue, center + effectiveRadius);
-        }
-
-        return (startValue, endValue);
+        return (float) aic;
     }
 }
