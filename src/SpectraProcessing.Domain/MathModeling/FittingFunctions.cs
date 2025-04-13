@@ -17,6 +17,7 @@ public static class FittingFunctions
         var endIndex = spectra.Points.X.ClosestIndexBinarySearch(endValue);
         var length = endIndex - startIndex + 1;
 
+
         return spectraFittingOptimizationFunction switch
         {
             SpectraFittingOptimizationFunction.ThroughR2    => ThroughR2,
@@ -144,7 +145,7 @@ public static class FittingFunctions
             var center = peaksVector.Values[SpectraModeling.PeakParametersCount * i];
             var halfWidth = peaksVector.Values[SpectraModeling.PeakParametersCount * i + 1];
             var amplitude = peaksVector.Values[SpectraModeling.PeakParametersCount * i + 2];
-            const int gaussianContribution = 1;
+            var gaussianContribution = peaksVector.Values[SpectraModeling.PeakParametersCount * i + 3];
 
             value += PeakModeling.GetPeakValueAt(
                 x: x,

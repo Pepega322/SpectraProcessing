@@ -25,57 +25,61 @@ public static class NelderMead
         var settings = model.Settings;
         var constraints = model.Constraints;
 
-        var simplexPoints = GetSimplexPoints(funcBuffer);
+        var simplexPoints = Enumerable.Range(0, dimension + 1)
+            .Select(_ => new SimplexPoint { Vector = new VectorN(dimension), Value = 0 })
+            .ToArray();
 
-        var iteration = 0;
-        var consecutiveShrinks = 0;
-        while (iteration < settings.MaxIterationsCount && !IsCriteriaReached())
+        InitializeSimplexPoints(model.Start, funcBuffer);
+
+        int consecutiveShrinks;
+        for (var repeat = 0; repeat < settings.RepeatsCount; repeat++)
         {
-            MoveSimplex(funcBuffer);
-            Array.Sort(simplexPoints, Comparer);
-            iteration++;
+            consecutiveShrinks = 0;
+            InitializeSimplexPoints(simplexPoints[0].Vector, funcBuffer);
+
+            for (var iteration = 0; iteration < settings.MaxIterationsCount; iteration++)
+            {
+                MoveSimplex(funcBuffer);
+                Array.Sort(simplexPoints, Comparer);
+
+                if (IsCriteriaReached())
+                {
+                    return simplexPoints[0].Vector;
+                }
+            }
         }
 
-        return simplexPoints.First().Vector;
+        return simplexPoints[0].Vector;
 
-
-        SimplexPoint[] GetSimplexPoints(in Span<float> funcBuffer)
+        void InitializeSimplexPoints(VectorN startVector, in Span<float> funcBuffer)
         {
             Span<float> buffer = stackalloc float[dimension];
 
-            var start = model.Start.WithConstraints(constraints);
+            startVector = startVector.WithConstraints(constraints);
 
-            var points = new SimplexPoint[dimension + 1];
-
-            points[0] = new SimplexPoint
-            {
-                Vector = start,
-                Value = funcForMin(start.ToVectorNRefStruct(buffer), funcBuffer),
-            };
+            simplexPoints[0].Vector.Update(startVector);
+            simplexPoints[0].Value = funcForMin(simplexPoints[0].Vector.ToVectorNRefStruct(buffer), funcBuffer);
 
             for (var d = 0; d < dimension; d++)
             {
-                var newValues = start.Values.ToArray();
+                var simplexPoint = simplexPoints[d + 1];
+
+                var vector = simplexPoint.Vector;
+
+                vector.Update(startVector);
 
                 var m = Random.Shared.Next() % 2 == 0 ? -1 : 1;
 
-                newValues[d] = newValues[d].ApproximatelyEqual(0)
+                vector[d] = vector[d].ApproximatelyEqual(0)
                     ? settings.InitialShift * m
-                    : newValues[d] * (1 + settings.InitialShift * m);
+                    : vector[d] * (1 + settings.InitialShift * m);
 
-                var newVector = new VectorN(newValues)
-                    .WithConstraints(constraints);
+                vector = vector.WithConstraints(constraints);
 
-                points[d + 1] = new SimplexPoint
-                {
-                    Vector = newVector,
-                    Value = funcForMin(newVector.ToVectorNRefStruct(buffer), funcBuffer),
-                };
+                simplexPoint.Value = funcForMin(vector.ToVectorNRefStruct(buffer), funcBuffer);
             }
 
-            Array.Sort(points, Comparer);
-
-            return points;
+            Array.Sort(simplexPoints, Comparer);
         }
 
         bool IsCriteriaReached()

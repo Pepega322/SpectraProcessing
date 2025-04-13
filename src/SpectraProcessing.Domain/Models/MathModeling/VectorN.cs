@@ -4,6 +4,11 @@ public sealed class VectorN
 {
     public readonly float[] Values;
 
+    public VectorN(int dimension)
+    {
+        Values = new float[dimension];
+    }
+
     public VectorN(float[] values)
     {
         Values = values;
@@ -28,6 +33,19 @@ public sealed class VectorN
     }
 
     public void Update(in VectorNRefStruct vector)
+    {
+        if (vector.Dimension != Dimension)
+        {
+            throw new ArgumentException("Dimensions don't match");
+        }
+
+        for (var d = 0; d < Dimension; d++)
+        {
+            Values[d] = vector.Values[d];
+        }
+    }
+
+    public void Update(in VectorN vector)
     {
         if (vector.Dimension != Dimension)
         {

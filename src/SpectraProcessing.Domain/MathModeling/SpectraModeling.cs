@@ -25,8 +25,6 @@ public static class SpectraModeling
         return Parallel.ForEachAsync(
             groups,
             (group, _) => group.FitPeaksGroup(spectra, settings));
-
-        // return Task.WhenAll(groups.Select(g => g.FitPeaksGroup(spectra, settings)));
     }
 
     private static List<List<PeakData>> GroupPeaksByEffectiveRadius(this IReadOnlyCollection<PeakData> peaks)
@@ -73,6 +71,7 @@ public static class SpectraModeling
         var startValues = new float[peaks.Count * PeakParametersCount];
         var constraints = new Dictionary<int, ValueConstraint>();
         var gaussianContributionConstraint = new ValueConstraint(0, 1);
+        var halfWidthConstraint = new ValueConstraint(0, float.MaxValue);
 
         for (var i = 0; i < peaks.Count; i++)
         {
@@ -83,7 +82,9 @@ public static class SpectraModeling
             startValues[centerIndex] = center;
             constraints[centerIndex] = new ValueConstraint(center - halfWidth / 2, center + halfWidth / 2);
 
-            startValues[PeakParametersCount * i + 1] = halfWidth;
+            var halfWidthIndex = PeakParametersCount * i + 1;
+            startValues[halfWidthIndex] = halfWidth;
+            constraints[halfWidthIndex] = halfWidthConstraint;
 
             startValues[PeakParametersCount * i + 2] = peaks[i].Amplitude;
 
@@ -94,54 +95,26 @@ public static class SpectraModeling
 
         var startVector = new VectorN(startValues);
 
-        for (var i = 0; i < settings.RepeatsCount; i++)
+        var optimizationModel = new NedlerMeadOptimizationModel
         {
-            var (startValue, endValue) = GetBorders(startVector);
+            Start = startVector,
+            Constraints = constraints,
+            BufferSize = spectra.Points.Count,
+            Settings = settings,
+        };
+        var (startValue, endValue) = GetBorders(startVector);
 
-            var optimizationModel = new NedlerMeadOptimizationModel
-            {
-                Start = startVector,
-                Constraints = constraints,
-                BufferSize = spectra.Points.Count,
-                Settings = settings,
-            };
+        var funcForMin = FittingFunctions.GetOptimizationFunc(
+            SpectraFittingOptimizationFunction.ThroughError,
+            spectra,
+            startValue,
+            endValue);
 
-            var funcForMin = FittingFunctions.GetOptimizationFunc(
-                SpectraFittingOptimizationFunction.ThroughAICc,
-                spectra,
-                startValue,
-                endValue);
+        var optimizedVector = await NelderMead.GetOptimized(optimizationModel, funcForMin);
 
-            startVector = await NelderMead.GetOptimized(optimizationModel, funcForMin);
-        }
-
-        UpdatePeaks(startVector);
+        UpdatePeaks(optimizedVector);
 
         return;
-
-        static (float StartValue, float EndValue) GetBorders(VectorN peaksVector)
-        {
-            var peaksCount = peaksVector.Dimension / PeakParametersCount;
-
-            var startValue = float.MaxValue;
-            var endValue = float.MinValue;
-
-            for (var i = 0; i < peaksCount; i++)
-            {
-                var center = peaksVector.Values[PeakParametersCount * i];
-                var halfWidth = peaksVector.Values[PeakParametersCount * i + 1];
-                var gaussianContribution = peaksVector.Values[PeakParametersCount * i + 3];
-
-                var effectiveRadius = PeakModeling.GetPeakEffectiveRadius(
-                    halfWidth: halfWidth,
-                    gaussianContribution: gaussianContribution);
-
-                startValue = Math.Min(startValue, center - effectiveRadius);
-                endValue = Math.Max(endValue, center + effectiveRadius);
-            }
-
-            return (startValue, endValue);
-        }
 
         void UpdatePeaks(VectorN vector)
         {
@@ -153,5 +126,29 @@ public static class SpectraModeling
                 peaks[i].GaussianContribution = vector.Values[PeakParametersCount * i + 3];
             }
         }
+    }
+
+    private static (float StartValue, float EndValue) GetBorders(VectorN peaksVector)
+    {
+        var peaksCount = peaksVector.Dimension / PeakParametersCount;
+
+        var startValue = float.MaxValue;
+        var endValue = float.MinValue;
+
+        for (var i = 0; i < peaksCount; i++)
+        {
+            var center = peaksVector.Values[PeakParametersCount * i];
+            var halfWidth = peaksVector.Values[PeakParametersCount * i + 1];
+            var gaussianContribution = peaksVector.Values[PeakParametersCount * i + 3];
+
+            var effectiveRadius = PeakModeling.GetPeakEffectiveRadius(
+                halfWidth: halfWidth,
+                gaussianContribution: gaussianContribution);
+
+            startValue = Math.Min(startValue, center - effectiveRadius);
+            endValue = Math.Max(endValue, center + effectiveRadius);
+        }
+
+        return (startValue, endValue);
     }
 }

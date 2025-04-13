@@ -24,15 +24,10 @@ public class SpectraModelingTests
 
         //Act
         await spectra.FitPeaks(actual, OptimizationSettings);
+        actual = actual.OrderBy(p => p.Center).ToArray();
 
         //Assert
-        for (var i = 0; i < actual.Length; i++)
-        {
-            actual[i].Center.Should().BeApproximately(expected[i].Center, 1);
-            actual[i].HalfWidth.Should().BeApproximately(expected[i].HalfWidth, 1);
-            actual[i].Amplitude.Should().BeApproximately(expected[i].Amplitude, 1);
-            actual[i].GaussianContribution.Should().BeApproximately(expected[i].GaussianContribution, 1);
-        }
+        actual.Should().BeEquivalentTo(expected);
     }
 
     [Fact]
@@ -49,13 +44,10 @@ public class SpectraModelingTests
         await spectra.FitPeaks(actual, OptimizationSettings);
 
         //Assert
-        for (var i = 0; i < actual.Length; i++)
-        {
-            actual[i].Center.Should().BeApproximately(expected[i].Center, 1);
-            actual[i].HalfWidth.Should().BeApproximately(expected[i].HalfWidth, 1);
-            actual[i].Amplitude.Should().BeApproximately(expected[i].Amplitude, 1);
-            actual[i].GaussianContribution.Should().BeApproximately(expected[i].GaussianContribution, 1);
-        }
+        actual = actual.OrderBy(p => p.Center).ToArray();
+
+        //Assert
+        actual.Should().BeEquivalentTo(expected);
     }
 
     [Fact]
@@ -72,13 +64,10 @@ public class SpectraModelingTests
         await spectra.FitPeaks(actual, OptimizationSettings);
 
         //Assert
-        for (var i = 0; i < actual.Length; i++)
-        {
-            actual[i].Center.Should().BeApproximately(expected[i].Center, 1);
-            actual[i].HalfWidth.Should().BeApproximately(expected[i].HalfWidth, 1);
-            actual[i].Amplitude.Should().BeApproximately(expected[i].Amplitude, 1);
-            actual[i].GaussianContribution.Should().BeApproximately(expected[i].GaussianContribution, 1);
-        }
+        actual = actual.OrderBy(p => p.Center).ToArray();
+
+        //Assert
+        actual.Should().BeEquivalentTo(expected);
     }
 
     private static PeakData Shift(PeakData peak)
@@ -86,6 +75,7 @@ public class SpectraModelingTests
         peak.Center *= 1 + (Random.Shared.Next() % 2 == 0 ? 1 : -1) * shiftPercentage;
         peak.Amplitude *= 1 + (Random.Shared.Next() % 2 == 0 ? 1 : -1) * shiftPercentage;
         peak.HalfWidth *= 1 + (Random.Shared.Next() % 2 == 0 ? 1 : -1) * shiftPercentage;
+        peak.GaussianContribution *= 1 + (Random.Shared.Next() % 2 == 0 ? 1 : -1) * shiftPercentage;
 
         return peak;
     }
