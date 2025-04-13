@@ -8,7 +8,6 @@ namespace SpectraProcessing.Domain.MathModeling;
 public static class SpectraModeling
 {
     private const int peakParametersCount = 4;
-    private const float areaPercentage = 0.95f;
 
     public static Task FitPeaks(
         this SpectraData spectra,
@@ -33,7 +32,7 @@ public static class SpectraModeling
     {
         var effectiveRadius = peaks.ToDictionary(
             p => p,
-            p => p.GetPeakEffectiveRadius(areaPercentage));
+            p => p.GetPeakEffectiveRadius());
 
         var peaksByLeftBorder = peaks
             .OrderBy(x => x.Center - effectiveRadius[x])
@@ -105,7 +104,8 @@ public static class SpectraModeling
 
         var optimizedVector = await NelderMead.GetOptimized(
             model: optimizationModel,
-            funcForMin: GetOptimizationFuncThroughAICc(spectra, startValue, endValue)
+            funcForMin: GetOptimizationFuncThroughError(spectra, startValue, endValue)
+            // funcForMin: GetOptimizationFuncThroughAICc(spectra, startValue, endValue)
             // funcForMin: GetOptimizationFuncThroughAIC(spectra, startValue, endValue)
             // funcForMin: GetOptimizationFuncThroughR2(spectra, startValue, endValue)
             // funcForMin: GetOptimizationFuncThroughS2(spectra, startValue, endValue)
@@ -130,8 +130,7 @@ public static class SpectraModeling
 
                 var effectiveRadius = PeakModeling.GetPeakEffectiveRadius(
                     halfWidth: halfWidth,
-                    gaussianContribution: gaussianContribution,
-                    areaPercentage: areaPercentage);
+                    gaussianContribution: gaussianContribution);
 
                 startValue = Math.Min(startValue, center - effectiveRadius);
                 endValue = Math.Max(endValue, center + effectiveRadius);
@@ -288,6 +287,32 @@ public static class SpectraModeling
             var aicC = aic + 2f * paramCount * (paramCount - 1) / (length - paramCount - 1);
 
             return aicC;
+        }
+    }
+
+    private static Func<VectorNRefStruct, Span<float>, float> GetOptimizationFuncThroughError(
+        SpectraData spectra,
+        float startValue,
+        float endValue)
+    {
+        var startIndex = spectra.Points.X.ClosestIndexBinarySearch(startValue);
+        var endIndex = spectra.Points.X.ClosestIndexBinarySearch(endValue);
+        var length = endIndex - startIndex + 1;
+
+        return OptimizationFunc;
+
+        float OptimizationFunc(VectorNRefStruct vector, Span<float> buffer)
+        {
+            var deltas = buffer.Slice(startIndex, length);
+
+            for (var i = 0; i < length; i++)
+            {
+                var pointIndex = startIndex + i;
+                deltas[i] = spectra.Points.Y[pointIndex] - vector.GetPeaksValueAt(spectra.Points.X[pointIndex]);
+            }
+
+            var optimizationFunc = deltas.Sum(Math.Abs) / length;
+            return optimizationFunc;
         }
     }
 

@@ -65,14 +65,14 @@ public static class PeakModeling
         }
     }
 
-    public static float GetPeakEffectiveRadius(this IReadOnlyPeakData peak, float areaPercentage)
-        => GetPeakEffectiveRadius(peak.HalfWidth, peak.GaussianContribution, areaPercentage);
+    public static float GetPeakEffectiveRadius(this IReadOnlyPeakData peak)
+        => GetPeakEffectiveRadius(peak.HalfWidth, peak.GaussianContribution);
 
-    public static float GetPeakEffectiveRadius(float halfWidth, float gaussianContribution, float areaPercentage)
+    public static float GetPeakEffectiveRadius(float halfWidth, float gaussianContribution)
     {
         var gaussianWeight = GaussianAreaWeight();
 
-        return gaussianWeight * GaussianSquareRadius() + (1 - gaussianWeight) * LorentzianSquareRadius();
+        return gaussianWeight * GaussianSquareRadius(0.99f) + (1 - gaussianWeight) * LorentzianSquareRadius(0.75f);
 
         float GaussianAreaWeight()
         {
@@ -82,14 +82,14 @@ public static class PeakModeling
             return gaussianArea / (gaussianArea + (1 - gaussianContribution));
         }
 
-        float GaussianSquareRadius()
+        float GaussianSquareRadius(float areaPercentage)
         {
             // constant = 2 * Math.Sqrt(Math.Log(2));
             const float constant = 1.6651092223153954f;
             return ErfInv(areaPercentage) * halfWidth / constant;
         }
 
-        float LorentzianSquareRadius()
+        float LorentzianSquareRadius(float areaPercentage)
         {
             const float constant = (float) Math.PI / 2;
 

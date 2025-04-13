@@ -308,7 +308,7 @@ public partial class MainForm : Form
                 center: coordinateProvider.Coordinates.X,
                 amplitude: coordinateProvider.Coordinates.Y,
                 halfWidth: 30f,
-                gaussianContribution: 1);
+                gaussianContribution: 1f);
 
             await processingController.AddPeak(estimate);
         };
