@@ -4,7 +4,8 @@ public sealed record OptimizationSettings
 {
     public static readonly OptimizationSettings Default = new()
     {
-        MaxIterationsCount = 1000,
+        RepeatsCount = 10,
+        MaxIterationsCount = 100,
         InitialShift = 0.1f,
         Coefficients = new IterationCoefficients
         {
@@ -16,9 +17,12 @@ public sealed record OptimizationSettings
         Criteria = new CompletionСriteria
         {
             AbsoluteValue = null,
-            MaxConsecutiveShrinks = 100,
+            MinRelativeDeviation = 0.01f,
+            MaxConsecutiveShrinks = 30,
         },
     };
+
+    public required int RepeatsCount { get; init; }
 
     public required int MaxIterationsCount { get; init; }
 
@@ -39,6 +43,8 @@ public sealed record OptimizationSettings
     public sealed record CompletionСriteria
     {
         public float? AbsoluteValue { get; init; }
+
+        public float? MinRelativeDeviation { get; init; }
 
         public int? MaxConsecutiveShrinks { get; init; }
     }

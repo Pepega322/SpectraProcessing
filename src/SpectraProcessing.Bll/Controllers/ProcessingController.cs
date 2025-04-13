@@ -19,7 +19,8 @@ internal sealed class ProcessingController(
     private static readonly OptimizationSettings OptimizationSettings = OptimizationSettings.Default
         with
         {
-            MaxIterationsCount = 1000,
+            RepeatsCount = 1,
+            MaxIterationsCount = 100,
             Criteria = new OptimizationSettings.CompletionСriteria
             {
                 AbsoluteValue = null,

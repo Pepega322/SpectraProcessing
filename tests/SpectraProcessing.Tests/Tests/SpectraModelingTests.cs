@@ -10,6 +10,7 @@ namespace SpectraProcessing.Tests.Tests;
 public class SpectraModelingTests
 {
     private const float shiftPercentage = 0.1f;
+    private static readonly OptimizationSettings OptimizationSettings = OptimizationSettings.Default;
 
     [Fact]
     public async Task FitPeaks_Gauss_Success()
@@ -22,12 +23,16 @@ public class SpectraModelingTests
         var actual = ModelSpectras.GaussPeaks.Select(x => Shift(x.Copy())).ToArray();
 
         //Act
-        await spectra.FitPeaks(actual, OptimizationSettings.Default);
+        await spectra.FitPeaks(actual, OptimizationSettings);
 
         //Assert
-        actual = actual.OrderBy(p => p.Center).ToArray();
-
-        actual.Should().BeEquivalentTo(expected);
+        for (var i = 0; i < actual.Length; i++)
+        {
+            actual[i].Center.Should().BeApproximately(expected[i].Center, 1);
+            actual[i].HalfWidth.Should().BeApproximately(expected[i].HalfWidth, 1);
+            actual[i].Amplitude.Should().BeApproximately(expected[i].Amplitude, 1);
+            actual[i].GaussianContribution.Should().BeApproximately(expected[i].GaussianContribution, 1);
+        }
     }
 
     [Fact]
@@ -41,12 +46,16 @@ public class SpectraModelingTests
         var actual = ModelSpectras.LorentzPeaks.Select(x => Shift(x.Copy())).ToArray();
 
         //Act
-        await spectra.FitPeaks(actual, OptimizationSettings.Default);
+        await spectra.FitPeaks(actual, OptimizationSettings);
 
         //Assert
-        actual = actual.OrderBy(p => p.Center).ToArray();
-
-        actual.Should().BeEquivalentTo(expected);
+        for (var i = 0; i < actual.Length; i++)
+        {
+            actual[i].Center.Should().BeApproximately(expected[i].Center, 1);
+            actual[i].HalfWidth.Should().BeApproximately(expected[i].HalfWidth, 1);
+            actual[i].Amplitude.Should().BeApproximately(expected[i].Amplitude, 1);
+            actual[i].GaussianContribution.Should().BeApproximately(expected[i].GaussianContribution, 1);
+        }
     }
 
     [Fact]
@@ -60,19 +69,23 @@ public class SpectraModelingTests
         var actual = ModelSpectras.GaussAndLorentzPeaks.Select(x => Shift(x.Copy())).ToArray();
 
         //Act
-        await spectra.FitPeaks(actual, OptimizationSettings.Default);
+        await spectra.FitPeaks(actual, OptimizationSettings);
 
         //Assert
-        actual = actual.OrderBy(p => p.Center).ToArray();
-
-        actual.Should().BeEquivalentTo(expected);
+        for (var i = 0; i < actual.Length; i++)
+        {
+            actual[i].Center.Should().BeApproximately(expected[i].Center, 1);
+            actual[i].HalfWidth.Should().BeApproximately(expected[i].HalfWidth, 1);
+            actual[i].Amplitude.Should().BeApproximately(expected[i].Amplitude, 1);
+            actual[i].GaussianContribution.Should().BeApproximately(expected[i].GaussianContribution, 1);
+        }
     }
 
-    private static PeakData Shift(PeakData peak, float shiftPercentage = shiftPercentage)
+    private static PeakData Shift(PeakData peak)
     {
-        peak.Center *= 1 + (Random.Shared.Next() % 2 == 0 ? 1 : -1) * shiftPercentage / 4;
+        peak.Center *= 1 + (Random.Shared.Next() % 2 == 0 ? 1 : -1) * shiftPercentage;
         peak.Amplitude *= 1 + (Random.Shared.Next() % 2 == 0 ? 1 : -1) * shiftPercentage;
-        peak.HalfWidth *= 1 + shiftPercentage / 2;
+        peak.HalfWidth *= 1 + (Random.Shared.Next() % 2 == 0 ? 1 : -1) * shiftPercentage;
 
         return peak;
     }

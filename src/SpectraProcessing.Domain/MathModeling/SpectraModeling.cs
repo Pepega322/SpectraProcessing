@@ -94,25 +94,28 @@ public static class SpectraModeling
 
         var startVector = new VectorN(startValues);
 
-        var optimizationModel = new NedlerMeadOptimizationModel
+        for (var i = 0; i < settings.RepeatsCount; i++)
         {
-            Start = startVector,
-            Constraints = constraints,
-            BufferSize = spectra.Points.Count,
-            Settings = settings,
-        };
+            var (startValue, endValue) = GetBorders(startVector);
 
-        var (startValue, endValue) = GetBorders(startVector);
+            var optimizationModel = new NedlerMeadOptimizationModel
+            {
+                Start = startVector,
+                Constraints = constraints,
+                BufferSize = spectra.Points.Count,
+                Settings = settings,
+            };
 
-        var funcForMin = FittingFunctions.GetOptimizationFunc(
-            SpectraFittingOptimizationFunction.ThroughError,
-            spectra,
-            startValue,
-            endValue);
+            var funcForMin = FittingFunctions.GetOptimizationFunc(
+                SpectraFittingOptimizationFunction.ThroughAICc,
+                spectra,
+                startValue,
+                endValue);
 
-        var optimizedVector = await NelderMead.GetOptimized(optimizationModel, funcForMin);
+            startVector = await NelderMead.GetOptimized(optimizationModel, funcForMin);
+        }
 
-        UpdatePeaks(optimizedVector);
+        UpdatePeaks(startVector);
 
         return;
 

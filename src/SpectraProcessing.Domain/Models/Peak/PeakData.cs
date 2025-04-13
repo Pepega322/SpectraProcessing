@@ -41,6 +41,11 @@ public sealed class PeakData : IReadOnlyPeakData
             halfWidth: HalfWidth,
             gaussianContribution: GaussianContribution);
 
+    public override string ToString()
+    {
+        return $"C: {Center:##.000}, H: {HalfWidth:##.000}, A: {Amplitude:##.000}, G: {GaussianContribution:##.000}";
+    }
+
     public override bool Equals(object? obj)
         => obj is PeakData data
             && Amplitude.ApproximatelyEqual(data.Amplitude)

@@ -42,15 +42,6 @@ public static class DispersionAnalysis
         return (float) Math.Sqrt(standardDeviationSquare);
     }
 
-    public static float GetStandardDeviation(this Span<float> values)
-    {
-        var average = values.Sum() / values.Length;
-
-        var standardDeviationSquare = values.Sum(v => (v - average) * (v - average)) / (values.Length - 1);
-
-        return (float) Math.Sqrt(standardDeviationSquare);
-    }
-
     private static float GetConfidenceInterval(int valuesCount, float standardDeviation)
         => GetStudentCoefficients(valuesCount) * standardDeviation / (float) Math.Sqrt(valuesCount);
 
