@@ -32,24 +32,38 @@ public static class NelderMead
         InitializeSimplexPoints(model.Start, funcBuffer);
 
         int consecutiveShrinks;
+
+        var iterationsWithLessThanDelta = 0;
+        var previousBestValue = GetBestPoint().Value;
+        var previousDelta = float.MaxValue;
+
         for (var repeat = 0; repeat < settings.RepeatsCount; repeat++)
         {
             consecutiveShrinks = 0;
-            InitializeSimplexPoints(simplexPoints[0].Vector, funcBuffer);
+            InitializeSimplexPoints(GetBestPoint().Vector, funcBuffer);
 
             for (var iteration = 0; iteration < settings.MaxIterationsCount; iteration++)
             {
                 MoveSimplex(funcBuffer);
-                Array.Sort(simplexPoints, Comparer);
 
-                if (IsCriteriaReached())
+                var best = GetBestPoint();
+
+                Console.WriteLine(iteration);
+                if (IsCriteriaReached(best))
                 {
-                    return simplexPoints[0].Vector;
+                    return best.Vector;
                 }
             }
         }
 
         return simplexPoints[0].Vector;
+
+        SimplexPoint GetBestPoint()
+        {
+            Array.Sort(simplexPoints, Comparer);
+
+            return simplexPoints[0];
+        }
 
         void InitializeSimplexPoints(VectorN startVector, in Span<float> funcBuffer)
         {
@@ -78,14 +92,12 @@ public static class NelderMead
 
                 simplexPoint.Value = funcForMin(vector.ToVectorNRefStruct(buffer), funcBuffer);
             }
-
-            Array.Sort(simplexPoints, Comparer);
         }
 
-        bool IsCriteriaReached()
+        bool IsCriteriaReached(SimplexPoint best)
         {
             if (settings.Criteria.AbsoluteValue is not null &&
-                simplexPoints[0].Value.ApproximatelyEqual(settings.Criteria.AbsoluteValue.Value))
+                best.Value.ApproximatelyEqual(settings.Criteria.AbsoluteValue.Value))
             {
                 return true;
             }
@@ -96,7 +108,33 @@ public static class NelderMead
                 return true;
             }
 
-            return false;
+            if (settings.Criteria is
+                not
+                {
+                    MinDeltaBetweenBetweenIterations: not null,
+                    MaxIterationsWithLessThanDelta: not null,
+                })
+            {
+                return false;
+            }
+
+            var currentDelta = best.Value - previousBestValue;
+
+            var tolerance = settings.Criteria.MinDeltaBetweenBetweenIterations.Value;
+
+            if (previousDelta.ApproximatelyEqual(currentDelta, tolerance))
+            {
+                iterationsWithLessThanDelta++;
+            }
+            else
+            {
+                iterationsWithLessThanDelta = 0;
+            }
+
+            previousBestValue = best.Value;
+            previousDelta = currentDelta;
+
+            return iterationsWithLessThanDelta >= settings.Criteria.MaxIterationsWithLessThanDelta;
         }
 
         void MoveSimplex(in Span<float> funcBuffer)

@@ -2,7 +2,6 @@
 using ScottPlot;
 using SpectraProcessing.Bll.Models.ScottPlot.Peak;
 using SpectraProcessing.Bll.Providers.Interfaces;
-using SpectraProcessing.Domain.Extensions;
 using SpectraProcessing.Domain.MathModeling;
 using SpectraProcessing.Domain.Models.Peak;
 
@@ -23,42 +22,21 @@ internal sealed class PeakDataPlotProvider : IPeakDataPlotProvider
         plotForm.Add.Plottable(sumPeaksLine);
     }
 
-    public Task<bool> IsDrew(PeakData data)
+    public IEnumerable<PeakDataPlot> GetPlots(IEnumerable<PeakData> data)
     {
-        lock (plotted)
-        {
-            return Task.FromResult(plotted.ContainsKey(data));
-        }
+        return data.Select(GetOrCreatePlot);
     }
 
-    public Task<IReadOnlyList<PeakDataPlot>> GetPlots(IReadOnlyList<PeakData> data)
+    public IEnumerable<PeakDataPlot> Draw(IEnumerable<PeakData> data)
     {
-        var plots = data.Select(GetOrCreatePlot).ToArray();
-
-        return Task.FromResult<IReadOnlyList<PeakDataPlot>>(plots);
-    }
-
-    public Task<IReadOnlyList<PeakDataPlot>> Draw(IReadOnlyList<PeakData> data)
-    {
-        var plots = data
-            .Select(d => (Peak: d, Plot: GetOrCreatePlot(d)))
-            .ToArray();
-
-        var result = plots.Select(x => x.Plot).ToArray();
-
-        PeakDataPlot[] newPlots;
+        IEnumerable<PeakDataPlot> newPlots;
 
         lock (plotted)
         {
-            newPlots = plots
+            newPlots = data
+                .Select(d => (Peak: d, Plot: GetOrCreatePlot(d)))
                 .Where(p => plotted.TryAdd(p.Peak, p.Plot))
-                .Select(p => p.Plot)
-                .ToArray();
-
-            if (newPlots.IsEmpty())
-            {
-                return Task.FromResult<IReadOnlyList<PeakDataPlot>>(result);
-            }
+                .Select(p => p.Plot);
         }
 
         lock (plotForm)
@@ -71,33 +49,23 @@ internal sealed class PeakDataPlotProvider : IPeakDataPlotProvider
                 }
 
                 plotForm.Add.Plottable(plot.Line);
+
+                yield return plot;
+                ;
             }
         }
-
-        return Task.FromResult<IReadOnlyList<PeakDataPlot>>(result);
     }
 
-    public Task<IReadOnlyList<PeakDataPlot>> Erase(IReadOnlyList<PeakData> data)
+    public IEnumerable<PeakDataPlot> Erase(IEnumerable<PeakData> data)
     {
-        var plots = data
-            .Select(d => (Peak: d, Plot: GetOrCreatePlot(d)))
-            .ToArray();
-
-        var result = plots.Select(x => x.Plot).ToArray();
-
-        PeakDataPlot[] removedPlots;
+        IEnumerable<PeakDataPlot> removedPlots;
 
         lock (plotted)
         {
-            removedPlots = plots
+            removedPlots = data
+                .Select(d => (Peak: d, Plot: GetOrCreatePlot(d)))
                 .Where(p => plotted.Remove(p.Peak))
-                .Select(p => p.Plot)
-                .ToArray();
-
-            if (removedPlots.IsEmpty())
-            {
-                return Task.FromResult<IReadOnlyList<PeakDataPlot>>(result);
-            }
+                .Select(p => p.Plot);
         }
 
         lock (plotForm)
@@ -110,13 +78,13 @@ internal sealed class PeakDataPlotProvider : IPeakDataPlotProvider
                 }
 
                 plotForm.Remove(plot.Line);
+
+                yield return plot;
             }
         }
-
-        return Task.FromResult<IReadOnlyList<PeakDataPlot>>(result);
     }
 
-    public Task Clear()
+    public void Clear()
     {
         lock (plotted)
         {
@@ -135,8 +103,6 @@ internal sealed class PeakDataPlotProvider : IPeakDataPlotProvider
 
             plotted.Clear();
         }
-
-        return Task.CompletedTask;
     }
 
     private static PeakDataPlot GetOrCreatePlot(PeakData data)

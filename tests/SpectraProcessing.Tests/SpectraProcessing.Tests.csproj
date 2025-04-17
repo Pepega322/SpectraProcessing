@@ -8,6 +8,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\SpectraProcessing.Bll\SpectraProcessing.Bll.csproj" />
     <ProjectReference Include="..\SpectraProcessing.TestingInfrastructure\SpectraProcessing.TestingInfrastructure.csproj" />
   </ItemGroup>
 

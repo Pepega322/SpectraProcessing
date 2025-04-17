@@ -17,8 +17,9 @@ public sealed record OptimizationSettings
         Criteria = new CompletionСriteria
         {
             AbsoluteValue = null,
-            MinRelativeDeviation = 0.01f,
             MaxConsecutiveShrinks = 30,
+            MinDeltaBetweenBetweenIterations = null,
+            MaxIterationsWithLessThanDelta = null,
         },
     };
 
@@ -44,8 +45,10 @@ public sealed record OptimizationSettings
     {
         public float? AbsoluteValue { get; init; }
 
-        public float? MinRelativeDeviation { get; init; }
-
         public int? MaxConsecutiveShrinks { get; init; }
+
+        public float? MinDeltaBetweenBetweenIterations { get; init; }
+
+        public int? MaxIterationsWithLessThanDelta { get; init; }
     }
 }

@@ -19,4 +19,22 @@ public static class EnumerableExtensions
             start += delta;
         }
     }
+
+    public static Span<T> ToSpan<T>(this IEnumerable<T> enumerable, T[] buffer)
+    {
+        Span<T> span = new(buffer);
+
+        using var enumerator = enumerable.GetEnumerator();
+
+        span[0] = enumerator.Current;
+
+        var index = 1;
+        while (enumerator.MoveNext() && index < buffer.Length)
+        {
+            span[index] = enumerator.Current;
+            index++;
+        }
+
+        return span[..index];
+    }
 }

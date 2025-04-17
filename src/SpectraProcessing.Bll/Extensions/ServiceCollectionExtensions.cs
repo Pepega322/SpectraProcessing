@@ -8,7 +8,6 @@ using SpectraProcessing.Bll.Models.Settings;
 using SpectraProcessing.Bll.Providers;
 using SpectraProcessing.Bll.Providers.Interfaces;
 using SpectraProcessing.Domain.Collections.Keys;
-using SpectraProcessing.Domain.Models.Peak;
 using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Bll.Extensions;

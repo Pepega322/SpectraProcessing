@@ -17,7 +17,6 @@ public static class FittingFunctions
         var endIndex = spectra.Points.X.ClosestIndexBinarySearch(endValue);
         var length = endIndex - startIndex + 1;
 
-
         return spectraFittingOptimizationFunction switch
         {
             SpectraFittingOptimizationFunction.ThroughR2    => ThroughR2,
@@ -89,10 +88,12 @@ public static class FittingFunctions
 
             var sumOfResidualsSquares = deltas.Sum(delta => delta * delta);
 
-            return GetAic(
+            var aic = GetAic(
                 sumOfResidualsSquares: sumOfResidualsSquares,
                 valuesCount: length,
                 paramsCount: vector.Dimension);
+
+            return aic;
         }
 
         float ThroughAICc(VectorNRefStruct vector, Span<float> buffer)
@@ -129,8 +130,9 @@ public static class FittingFunctions
                 deltas[i] = spectra.Points.Y[pointIndex] - vector.GetPeaksValueAt(spectra.Points.X[pointIndex]);
             }
 
-            var optimizationFunc = deltas.Sum(Math.Abs) / length;
-            return optimizationFunc;
+            var averageError = deltas.Sum(Math.Abs) / length;
+
+            return averageError;
         }
     }
 
