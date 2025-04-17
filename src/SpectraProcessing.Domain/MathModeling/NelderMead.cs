@@ -48,7 +48,6 @@ public static class NelderMead
 
                 var best = GetBestPoint();
 
-                Console.WriteLine(iteration);
                 if (IsCriteriaReached(best))
                 {
                     return best.Vector;

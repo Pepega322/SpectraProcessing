@@ -10,7 +10,7 @@ using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Application;
 
-public partial class MainForm : Form
+public sealed partial class MainForm : Form
 {
     private readonly IDataProvider<SpectraData> dataProvider;
     private readonly ICoordinateProvider coordinateProvider;
@@ -23,6 +23,8 @@ public partial class MainForm : Form
 
     public MainForm()
     {
+        WindowState = FormWindowState.Maximized;
+
         InitializeComponent();
 
         var provider = Startup.GetServiceProvider(plotView);

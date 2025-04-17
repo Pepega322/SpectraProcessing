@@ -118,8 +118,6 @@ public static class SpectraModeling
 
         UpdatePeaks(optimizedVector);
 
-        Console.Clear();
-
         return;
 
         void UpdatePeaks(VectorN vector)
