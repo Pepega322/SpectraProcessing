@@ -14,7 +14,7 @@ public static class SpectraModeling
 
     public static async Task FitPeaks(
         this SpectraData spectra,
-        IEnumerable<PeakData> peaks,
+        IReadOnlyCollection<PeakData> peaks,
         OptimizationSettings settings)
     {
         var groups = peaks.GroupPeaksByEffectiveRadius();
@@ -25,20 +25,18 @@ public static class SpectraModeling
         }
 
         // return Parallel.ForEachAsync(
-            // groups,
-            // (g, _) => g.FitPeaksGroup(spectra, settings));
+        // groups,
+        // (g, _) => g.FitPeaksGroup(spectra, settings));
     }
 
-    private static List<List<PeakData>> GroupPeaksByEffectiveRadius(this IEnumerable<PeakData> peaks)
+    private static List<List<PeakData>> GroupPeaksByEffectiveRadius(this IReadOnlyCollection<PeakData> peaks)
     {
-        var peaksCollection = peaks.ToArray();
-
-        var effectiveRadius = peaksCollection
+        var effectiveRadius = peaks
             .ToDictionary(
                 p => p,
                 p => p.GetPeakEffectiveRadius());
 
-        var peaksByLeftBorder = peaksCollection
+        var peaksByLeftBorder = peaks
             .OrderBy(x => x.Center - effectiveRadius[x])
             .ToArray();
 
@@ -98,25 +96,28 @@ public static class SpectraModeling
 
         var startVector = new VectorN(startValues);
 
-        var optimizationModel = new NedlerMeadOptimizationModel
+        for (var i = 0; i < 2; i++)
         {
-            Start = startVector,
-            Constraints = constraints,
-            BufferSize = spectra.Points.Count,
-            Settings = settings,
-        };
+            var optimizationModel = new NedlerMeadOptimizationModel
+            {
+                Start = startVector,
+                Constraints = constraints,
+                BufferSize = spectra.Points.Count,
+                Settings = settings,
+            };
 
-        var (startValue, endValue) = GetBorders(startVector);
+            var (startValue, endValue) = GetBorders(startVector);
 
-        var funcForMin = FittingFunctions.GetOptimizationFunc(
-            SpectraFittingOptimizationFunction.ThroughR2,
-            spectra,
-            startValue,
-            endValue);
+            var funcForMin = FittingFunctions.GetOptimizationFunc(
+                SpectraFittingOptimizationFunction.ThroughR2,
+                spectra,
+                startValue,
+                endValue);
 
-        var optimizedVector = await NelderMead.GetOptimized(optimizationModel, funcForMin);
+            startVector = await NelderMead.GetOptimized(optimizationModel, funcForMin);
+        }
 
-        UpdatePeaks(optimizedVector);
+        UpdatePeaks(startVector);
 
         return;
 

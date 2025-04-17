@@ -22,21 +22,20 @@ internal sealed class PeakDataPlotProvider : IPeakDataPlotProvider
         plotForm.Add.Plottable(sumPeaksLine);
     }
 
-    public IEnumerable<PeakDataPlot> GetPlots(IEnumerable<PeakData> data)
+    public IReadOnlyCollection<PeakDataPlot> GetPlots(IEnumerable<PeakData> data)
     {
-        return data.Select(GetOrCreatePlot);
+        return data.Select(GetOrCreatePlot).ToArray();
     }
 
-    public IEnumerable<PeakDataPlot> Draw(IEnumerable<PeakData> data)
+    public void Draw(IEnumerable<PeakDataPlot> data)
     {
         IEnumerable<PeakDataPlot> newPlots;
 
         lock (plotted)
         {
             newPlots = data
-                .Select(d => (Peak: d, Plot: GetOrCreatePlot(d)))
-                .Where(p => plotted.TryAdd(p.Peak, p.Plot))
-                .Select(p => p.Plot);
+                .Where(p => plotted.TryAdd(p.Peak, p))
+                .Select(p => p);
         }
 
         lock (plotForm)
@@ -49,23 +48,19 @@ internal sealed class PeakDataPlotProvider : IPeakDataPlotProvider
                 }
 
                 plotForm.Add.Plottable(plot.Line);
-
-                yield return plot;
-                ;
             }
         }
     }
 
-    public IEnumerable<PeakDataPlot> Erase(IEnumerable<PeakData> data)
+    public void Erase(IEnumerable<PeakDataPlot> data)
     {
         IEnumerable<PeakDataPlot> removedPlots;
 
         lock (plotted)
         {
             removedPlots = data
-                .Select(d => (Peak: d, Plot: GetOrCreatePlot(d)))
                 .Where(p => plotted.Remove(p.Peak))
-                .Select(p => p.Plot);
+                .Select(p => p);
         }
 
         lock (plotForm)
@@ -78,8 +73,6 @@ internal sealed class PeakDataPlotProvider : IPeakDataPlotProvider
                 }
 
                 plotForm.Remove(plot.Line);
-
-                yield return plot;
             }
         }
     }

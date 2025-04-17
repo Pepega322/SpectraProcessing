@@ -5,11 +5,11 @@ namespace SpectraProcessing.Bll.Providers.Interfaces;
 
 public interface IPeakDataPlotProvider
 {
-    public IEnumerable<PeakDataPlot> GetPlots(IEnumerable<PeakData> data);
+    public IReadOnlyCollection<PeakDataPlot> GetPlots(IEnumerable<PeakData> data);
 
-    public IEnumerable<PeakDataPlot> Draw(IEnumerable<PeakData> data);
+    public void Draw(IEnumerable<PeakDataPlot> data);
 
-    public IEnumerable<PeakDataPlot> Erase(IEnumerable<PeakData> data);
+    public void Erase(IEnumerable<PeakDataPlot> data);
 
     public void Clear();
 }

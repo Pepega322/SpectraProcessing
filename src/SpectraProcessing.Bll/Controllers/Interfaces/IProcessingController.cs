@@ -12,9 +12,9 @@ public interface IProcessingController
 
     Task SmoothSpectras(IReadOnlyCollection<SpectraData> spectras);
 
-    Task AddPeak(PeakData peak);
+    Task AddPeaks(IReadOnlyCollection<PeakData> peaks);
 
-    Task RemovePeak(PeakData peak);
+    Task RemovePeaks(IReadOnlyCollection<PeakData> peaks);
 
     Task<bool> CheckoutSpectra(SpectraData? spectra);
 

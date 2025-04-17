@@ -20,7 +20,7 @@ internal sealed class ProcessingController(
         with
         {
             RepeatsCount = 3,
-            MaxIterationsCount = 1000,
+            MaxIterationsCount = 500,
             Criteria = new OptimizationSettings.CompletionСriteria
             {
                 AbsoluteValue = 1e-3f,
@@ -50,22 +50,32 @@ internal sealed class ProcessingController(
         OnPlotAreaChanged?.Invoke();
     }
 
-    public Task AddPeak(PeakData peak)
+    public Task AddPeaks(IReadOnlyCollection<PeakData> peaks)
     {
-        var plot = peakDataPlotProvider.Draw([peak]).Single();
+        var plots = peakDataPlotProvider.GetPlots(peaks);
 
-        CurrentPeaksSet.AddThreadSafe(plot);
+        peakDataPlotProvider.Draw(plots);
+
+        foreach (var plot in plots)
+        {
+            CurrentPeaksSet.AddThreadSafe(plot);
+        }
 
         OnPlotAreaChanged?.Invoke();
 
         return Task.CompletedTask;
     }
 
-    public Task RemovePeak(PeakData peak)
+    public Task RemovePeaks(IReadOnlyCollection<PeakData> peaks)
     {
-        var plot = peakDataPlotProvider.Erase([peak]).Single();
+        var plots = peakDataPlotProvider.GetPlots(peaks);
 
-        CurrentPeaksSet.RemoveThreadSafe(plot);
+        peakDataPlotProvider.Erase(plots);
+
+        foreach (var plot in plots)
+        {
+            CurrentPeaksSet.RemoveThreadSafe(plot);
+        }
 
         OnPlotAreaChanged?.Invoke();
 
@@ -89,7 +99,7 @@ internal sealed class ProcessingController(
 
         if (spectra is null)
         {
-            if (previousKey is not null && peaksStorage.Sets.TryGetValue(previousKey, out var plotSet))
+            if (previousKey is not null && peaksStorage.Sets.ContainsKey(previousKey))
             {
                 peakDataPlotProvider.Clear();
                 DrawPeaksSet(peaksStorage.DefaultSet);
@@ -134,19 +144,20 @@ internal sealed class ProcessingController(
         {
             var key = new SpectraKey(spectra);
 
-            if (peaksStorage.Sets.TryGetValue(key, out var customPeaks))
+            if (peaksStorage.Sets.TryGetValue(key, out var customPlotSet))
             {
-                if (customPeaks!.Data.IsEmpty())
+                if (customPlotSet.Data.IsEmpty())
                 {
                     return;
                 }
 
-                var peaks = customPeaks!.Data
-                    .Select(d => d.Peak);
+                var peaks = customPlotSet!.Data
+                    .Select(d => d.Peak)
+                    .ToArray();
 
                 await spectra.FitPeaks(peaks, OptimizationSettings);
 
-                foreach (var plot in customPeaks.Data)
+                foreach (var plot in customPlotSet.Data)
                 {
                     plot.UpdateMarkers();
                 }
@@ -171,7 +182,15 @@ internal sealed class ProcessingController(
                     peakPlot.UpdateMarkers();
                 }
 
-                await peaksStorage.AddDataSet(key, new DataSet<PeakDataPlot>(key.Name, plots));
+                var plotSet = new DataSet<PeakDataPlot>(key.Name, plots);
+
+                await peaksStorage.AddDataSet(key, plotSet);
+
+                if (key.Equals(currentSpectraKey))
+                {
+                    peakDataPlotProvider.Clear();
+                    DrawPeaksSet(plotSet);
+                }
             }
         }
     }
@@ -189,7 +208,9 @@ internal sealed class ProcessingController(
             .Select(d => d.Peak.Copy())
             .ToArray();
 
-        var plotsCopy = peakDataPlotProvider.Draw(peaksCopy).ToArray();
+        var plotsCopy = peakDataPlotProvider.GetPlots(peaksCopy);
+
+        peakDataPlotProvider.Draw(plotsCopy);
 
         await peaksStorage.AddDataSet(currentSpectraKey, new DataSet<PeakDataPlot>(currentSpectraKey.Name, plotsCopy));
 
@@ -221,14 +242,8 @@ internal sealed class ProcessingController(
         var peakData = peaks.Data
             .Select(x => x.Peak);
 
-        peakDataPlotProvider.Draw(peakData);
-    }
+        var plots = peakDataPlotProvider.GetPlots(peakData);
 
-    private void ErasePeaksSet(DataSet<PeakDataPlot> peaks)
-    {
-        var peakData = peaks.Data
-            .Select(x => x.Peak);
-
-        peakDataPlotProvider.Erase(peakData);
+        peakDataPlotProvider.Draw(plots);
     }
 }
