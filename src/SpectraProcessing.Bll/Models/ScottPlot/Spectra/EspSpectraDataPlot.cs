@@ -5,16 +5,32 @@ using SpectraProcessing.Domain.Models.Spectra;
 
 namespace SpectraProcessing.Bll.Models.ScottPlot.Spectra;
 
-public class EspSpectraDataPlot(EspSpectraData spectraData, SignalXY plot)
-    : SpectraDataPlot(spectraData, plot)
+public class EspSpectraDataPlot : SpectraDataPlot
 {
-    public override string Name { get; protected set; } = spectraData.Name;
+    private readonly SignalXY signalXY;
 
-    public override Color PreviousColor { get; protected set; }
+    public EspSpectraDataPlot(EspSpectraData esp, Color color) : base(esp)
+    {
+        signalXY = PlottableCreator.CreateSignalXY(
+            esp.Points.X,
+            esp.Points.Y,
+            color);
+
+        Name = esp.Name;
+
+        PreviousColor = color;
+
+    }
+
+    public sealed override IPlottable Plottable => signalXY;
+
+    public sealed override string Name { get; protected set; }
+
+    public sealed override Color PreviousColor { get; protected set; }
 
     public override void ChangeColor(Color color)
     {
-        PreviousColor = plot.Color;
-        plot.Color = color;
+        PreviousColor = signalXY.Color;
+        signalXY.Color = color;
     }
 }

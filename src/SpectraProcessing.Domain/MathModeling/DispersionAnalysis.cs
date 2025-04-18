@@ -1,8 +1,9 @@
-using SpectraProcessing.Bll.Models.Math;
+using SpectraProcessing.Domain.Extensions;
+using SpectraProcessing.Domain.Models.MathModeling;
 
-namespace SpectraProcessing.Bll.Math;
+namespace SpectraProcessing.Domain.MathModeling;
 
-internal static class DispersionAnalysis
+public static class DispersionAnalysis
 {
     public static DispersionStatistics<float> GetDispersionStatistics(
         this IReadOnlyCollection<float> values,
@@ -28,16 +29,21 @@ internal static class DispersionAnalysis
             confidenceInterval);
     }
 
-    private static float GetStandardDeviation(this IReadOnlyCollection<float> values, out float averageValue)
+    public static float GetRelativeDeviation(float value, float realValue)
+    {
+        return Math.Abs((value - realValue) / realValue);
+    }
+
+    public static float GetStandardDeviation(this IReadOnlyCollection<float> values, out float averageValue)
     {
         var average = values.Sum() / values.Count;
         var standardDeviationSquare = values.Sum(v => (v - average) * (v - average)) / (values.Count - 1);
         averageValue = average;
-        return (float) System.Math.Sqrt(standardDeviationSquare);
+        return (float) Math.Sqrt(standardDeviationSquare);
     }
 
     private static float GetConfidenceInterval(int valuesCount, float standardDeviation)
-        => GetStudentCoefficients(valuesCount) * standardDeviation / (float) System.Math.Sqrt(valuesCount);
+        => GetStudentCoefficients(valuesCount) * standardDeviation / (float) Math.Sqrt(valuesCount);
 
     private static float GetStudentCoefficients(int valuesCount)
     {
@@ -59,5 +65,35 @@ internal static class DispersionAnalysis
             10 => 2.26f,
             _  => 1.96f,
         };
+    }
+
+    public static float GetR2Coefficient(
+        in Span<float> realValues,
+        in Span<float> predictedValues)
+    {
+        if (realValues.Length != predictedValues.Length)
+        {
+            throw new IndexOutOfRangeException("Real-time values and predicted values do not match");
+        }
+
+        var residualSumOfSquares = 0f;
+
+        for (var i = 0; i < realValues.Length; i++)
+        {
+            var delta = realValues[i] - predictedValues[i];
+            residualSumOfSquares += delta * delta;
+        }
+
+        var average = realValues.Sum() / realValues.Length;
+
+        var totalSumOfSquares = 0f;
+
+        for (var i = 0; i < realValues.Length; i++)
+        {
+            var delta = average - predictedValues[i];
+            totalSumOfSquares += delta * delta;
+        }
+
+        return 1 - residualSumOfSquares / totalSumOfSquares;
     }
 }

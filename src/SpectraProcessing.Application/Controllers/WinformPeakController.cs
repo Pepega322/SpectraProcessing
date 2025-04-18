@@ -3,28 +3,27 @@ using ScottPlot.WinForms;
 using SpectraProcessing.Bll.Controllers.Interfaces;
 using SpectraProcessing.Bll.Models.ScottPlot.Peak;
 using SpectraProcessing.Bll.Providers.Interfaces;
-using SpectraProcessing.Domain.Collections.Keys;
 
 namespace SpectraProcessing.Application.Controllers;
 
 internal sealed class WinformPeakController(
     FormsPlot plotView,
     ICoordinateProvider coordinateProvider,
-    IDataStorageProvider<SpectraKey, PeakDataPlot> peaksStorage
+    IProcessingController processingController
 ) : IPeakController
 {
+    private Coordinates coordinates = new Coordinates(0, 0);
+
     public event Action? OnPeakChanges;
 
     public Task<PeakDataPlot?> TryGetPeak()
     {
-        var coordinates = new Coordinates(
-            coordinateProvider.Coordinates.X,
-            coordinateProvider.Coordinates.Y);
+        coordinates.X = coordinateProvider.Coordinates.X;
+        coordinates.Y = coordinateProvider.Coordinates.Y;
 
         var pixel = plotView.Plot.GetPixel(coordinates);
 
-        var hitPeak = peaksStorage.DefaultDataSet.Data
-            .Concat(peaksStorage.StorageDataSets.SelectMany(x => x.Data))
+        var hitPeak = processingController.CurrentPeaks
             .FirstOrDefault(p => p.TryHit(pixel, 20f));
 
         return Task.FromResult(hitPeak);
@@ -41,7 +40,11 @@ internal sealed class WinformPeakController(
 
         plotView.Cursor = Cursors.Hand;
         plotView.UserInputProcessor.Disable();
-        MouseEventHandler onMouseMove = (_, _) => { hitPeak.TryMoveTo(coordinateProvider.Coordinates); };
+        MouseEventHandler onMouseMove = (_, _) =>
+        {
+            hitPeak.TryMoveTo(coordinateProvider.Coordinates);
+            OnPeakChanges?.Invoke();
+        };
         plotView.MouseMove += onMouseMove;
 
         var tcs = new TaskCompletionSource();

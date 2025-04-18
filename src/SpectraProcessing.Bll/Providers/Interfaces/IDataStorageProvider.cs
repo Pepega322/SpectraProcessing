@@ -1,16 +1,17 @@
+using System.Collections.Immutable;
 using SpectraProcessing.Domain.Collections;
 using SpectraProcessing.Domain.Collections.Keys;
 
 namespace SpectraProcessing.Bll.Providers.Interfaces;
 
-public interface IDataStorageProvider<in TKey, TData>
+public interface IDataStorageProvider<TKey, TData>
     where TKey : INamedKey
 {
     event Action? OnChange;
 
-    DataSet<TData> DefaultDataSet { get; }
+    DataSet<TData> DefaultSet { get; }
 
-    IReadOnlyCollection<DataSet<TData>> StorageDataSets { get; }
+    IImmutableDictionary<TKey, DataSet<TData>> Sets { get; }
 
     Task AddDataToDefaultSet(TData data);
 
@@ -18,7 +19,9 @@ public interface IDataStorageProvider<in TKey, TData>
 
     Task DeleteData(DataSet<TData> dataOwner, TData data);
 
-    Task DeleteDataSet(TKey key, DataSet<TData> set);
+    Task DeleteDataSet(TKey key);
+
+    Task DeleteDataSet(DataSet<TData> set);
 
     Task Clear();
 }

@@ -20,6 +20,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{E6B3B1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpectraProcessing.Tests", "tests\SpectraProcessing.Tests\SpectraProcessing.Tests.csproj", "{4C09AC1F-AD79-46B6-81D4-7C8D18C53485}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpectraProcessing.TestingInfrastructure", "tests\SpectraProcessing.TestingInfrastructure\SpectraProcessing.TestingInfrastructure.csproj", "{A71F043F-25B1-4425-B321-D61820B4F037}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +52,10 @@ Global
 		{C9FF865F-697B-474D-BA5B-ED62E3A3E2BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9FF865F-697B-474D-BA5B-ED62E3A3E2BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9FF865F-697B-474D-BA5B-ED62E3A3E2BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A71F043F-25B1-4425-B321-D61820B4F037}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A71F043F-25B1-4425-B321-D61820B4F037}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A71F043F-25B1-4425-B321-D61820B4F037}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A71F043F-25B1-4425-B321-D61820B4F037}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F42FBFE2-92F8-43E4-BB34-8FAEE891561D} = {456FA009-9D70-4019-8A50-16B7897905A5}
@@ -58,5 +64,6 @@ Global
 		{57DDC053-45BA-4181-B1D1-278FF42E3230} = {456FA009-9D70-4019-8A50-16B7897905A5}
 		{4C09AC1F-AD79-46B6-81D4-7C8D18C53485} = {07F3EE41-88BB-4B01-858B-822BEE05A677}
 		{C9FF865F-697B-474D-BA5B-ED62E3A3E2BF} = {456FA009-9D70-4019-8A50-16B7897905A5}
+		{A71F043F-25B1-4425-B321-D61820B4F037} = {07F3EE41-88BB-4B01-858B-822BEE05A677}
 	EndGlobalSection
 EndGlobal

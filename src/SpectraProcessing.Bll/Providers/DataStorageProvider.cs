@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using Microsoft.Extensions.Options;
 using SpectraProcessing.Bll.Models.Settings;
 using SpectraProcessing.Bll.Providers.Interfaces;
@@ -10,17 +12,17 @@ internal sealed class DataStorageProvider<TKey, TData>(IOptions<DataStorageSetti
     : IDataStorageProvider<TKey, TData>
     where TKey : INamedKey
 {
-    private readonly DataStorage<TKey, TData> storage = new(settings.Value.DefaultDataSetName);
+    private readonly ConcurrentDictionary<TKey, DataSet<TData>> storage = [];
 
     public event Action? OnChange;
 
-    public DataSet<TData> DefaultDataSet => storage.DefaultSet;
+    public DataSet<TData> DefaultSet { get; private set; } = new(settings.Value.DefaultDataSetName);
 
-    public IReadOnlyCollection<DataSet<TData>> StorageDataSets => storage;
+    public IImmutableDictionary<TKey, DataSet<TData>> Sets => storage.ToImmutableDictionary();
 
     public Task AddDataToDefaultSet(TData data)
     {
-        if (storage.DefaultSet.AddThreadSafe(data))
+        if (DefaultSet.AddThreadSafe(data))
         {
             OnChange?.Invoke();
         }
@@ -30,7 +32,7 @@ internal sealed class DataStorageProvider<TKey, TData>(IOptions<DataStorageSetti
 
     public Task AddDataSet(TKey key, DataSet<TData> set)
     {
-        storage.Add(key, set);
+        storage.TryAdd(key, set);
 
         OnChange?.Invoke();
 
@@ -47,15 +49,33 @@ internal sealed class DataStorageProvider<TKey, TData>(IOptions<DataStorageSetti
         return Task.CompletedTask;
     }
 
-    public Task DeleteDataSet(TKey key, DataSet<TData> set)
+    public Task DeleteDataSet(TKey key)
     {
-        if (storage.ContainsKey(key) && storage[key] == set)
+        if (key.Name == settings.Value.DefaultDataSetName)
         {
-            storage.RemoveThreadSafe(key);
+            DefaultSet = new DataSet<TData>(settings.Value.DefaultDataSetName);
         }
         else
         {
+            storage.TryRemove(key, out _);
+        }
+
+        OnChange?.Invoke();
+
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteDataSet(DataSet<TData> set)
+    {
+        var key = storage.FirstOrDefault(x => x.Value == set).Key;
+
+        if (key is null)
+        {
             set.DisconnectFromParentThreadSafe();
+        }
+        else
+        {
+            storage.TryRemove(key, out _);
         }
 
         OnChange?.Invoke();
@@ -65,7 +85,9 @@ internal sealed class DataStorageProvider<TKey, TData>(IOptions<DataStorageSetti
 
     public Task Clear()
     {
-        storage.ClearThreadSafe();
+        DefaultSet = new DataSet<TData>(settings.Value.DefaultDataSetName);
+
+        storage.Clear();
 
         OnChange?.Invoke();
 

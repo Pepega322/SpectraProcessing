@@ -1,18 +1,18 @@
-﻿using SpectraProcessing.Domain.DataTypes;
+﻿using SpectraProcessing.Domain.Extensions;
 
 namespace SpectraProcessing.Domain.Models.Peak;
 
-public sealed class PeakData : IPlottableData
+public sealed class PeakData : IReadOnlyPeakData
 {
     private static long _counter;
 
     private readonly long id;
 
-    public float Amplitude { get; set; }
-
     public float Center { get; set; }
 
     public float HalfWidth { get; set; }
+
+    public float Amplitude { get; set; }
 
     public float GaussianContribution { get; set; }
 
@@ -28,9 +28,9 @@ public sealed class PeakData : IPlottableData
         }
 
         id = Interlocked.Increment(ref _counter);
-        Amplitude = amplitude;
         Center = center;
         HalfWidth = halfWidth;
+        Amplitude = amplitude;
         GaussianContribution = gaussianContribution;
     }
 
@@ -41,7 +41,17 @@ public sealed class PeakData : IPlottableData
             halfWidth: HalfWidth,
             gaussianContribution: GaussianContribution);
 
-    public override bool Equals(object? obj) => obj is PeakData data && data.id == id;
+    public override string ToString()
+    {
+        return $"C: {Center:##.000}, H: {HalfWidth:##.000}, A: {Amplitude:##.000}, G: {GaussianContribution:##.000}";
+    }
+
+    public override bool Equals(object? obj)
+        => obj is PeakData data
+            && Amplitude.ApproximatelyEqual(data.Amplitude)
+            && Center.ApproximatelyEqual(data.Center)
+            && HalfWidth.ApproximatelyEqual(data.HalfWidth)
+            && GaussianContribution.ApproximatelyEqual(data.GaussianContribution);
 
     public override int GetHashCode() => id.GetHashCode();
 }

@@ -4,11 +4,11 @@ using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Bll.Models.ScottPlot.Spectra.Abstractions;
 
-public abstract class SpectraDataPlot(SpectraData spectraData, IPlottable plottable) : IDataPlot
+public abstract class SpectraDataPlot(SpectraData spectraData) : IDataPlot
 {
-    public SpectraData SpectraData { get; init; } = spectraData;
+    public SpectraData SpectraData { get; } = spectraData;
 
-    public IPlottable Plottable { get; init; } = plottable;
+    public abstract IPlottable Plottable { get; }
 
     public abstract string Name { get; protected set; }
 

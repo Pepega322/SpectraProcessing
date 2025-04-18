@@ -103,40 +103,49 @@ internal static class TreeViewExtensions
         }
     }
 
-    public static TData GetClickData<TData>(object? sender) where TData : class
+    public static TData? GetClickData<TData>(object? sender)
+        where TData : class
     {
         var node = GetClickTreeNode(sender);
-        return node as TData ?? throw new Exception();
+        return node?.Tag as TData;
     }
 
-    public static DataSet<TData> GetClickSet<TData>(object? sender)
+    public static DataSet<TData>? GetClickSet<TData>(object? sender)
     {
         var node = GetClickTreeNode(sender);
-        return node.Tag as DataSet<TData> ?? throw new Exception();
+        return node?.Tag as DataSet<TData>;
     }
 
-    public static TreeNode GetClickTreeNode(object? sender)
+    public static TreeNode? GetClickTreeNode(object? sender)
     {
-        var treeView = sender as TreeView ?? throw new InvalidCastException();
-        return treeView.SelectedNode ?? throw new Exception();
+        var treeView = sender as TreeView;
+        return treeView?.SelectedNode;
     }
 
-    public static TData GetContextData<TData>(object? sender) where TData : class
-    {
-        var node = GetContextTreeNode(sender);
-        return node.Tag as TData ?? throw new InvalidCastException();
-    }
-
-    public static DataSet<TData> GetContextParentSet<TData>(object? sender)
+    public static TData? GetContextData<TData>(object? sender)
+        where TData : class
     {
         var node = GetContextTreeNode(sender);
-        return node.Parent?.Tag as DataSet<TData> ?? throw new InvalidCastException();
+        return node.Tag as TData;
     }
 
-    public static DataSet<TData> GetContextSet<TData>(object? sender)
+    public static TData? GetContextData<TData>(object? sender, out TreeNode node)
+        where TData : class
+    {
+        node = GetContextTreeNode(sender);
+        return node.Tag as TData;
+    }
+
+    public static DataSet<TData>? GetContextParentSet<TData>(object? sender)
     {
         var node = GetContextTreeNode(sender);
-        return node.Tag as DataSet<TData> ?? throw new InvalidCastException();
+        return node.Parent?.Tag as DataSet<TData>;
+    }
+
+    public static DataSet<TData>? GetContextSet<TData>(object? sender)
+    {
+        var node = GetContextTreeNode(sender);
+        return node.Tag as DataSet<TData>;
     }
 
     private static TreeNode GetContextTreeNode(object? sender)

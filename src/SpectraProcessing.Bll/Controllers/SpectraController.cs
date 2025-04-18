@@ -11,7 +11,7 @@ namespace SpectraProcessing.Bll.Controllers;
 
 internal sealed class SpectraController(
     IDataStorageProvider<StringKey, SpectraDataPlot> storageProvider,
-    IDataPlotProvider<SpectraData, SpectraDataPlot> plotProvider
+    ISpectraDataPlotProvider spectraDataPlotProvider
 ) : ISpectraController
 {
     private static readonly Color HighlightColor = Colors.Black;
@@ -24,13 +24,14 @@ internal sealed class SpectraController(
 
     public event Action? OnPlotStorageChanged;
 
-    public IReadOnlyCollection<DataSet<SpectraDataPlot>> Plots => storageProvider.StorageDataSets;
+    public IReadOnlyCollection<DataSet<SpectraDataPlot>> Plots
+        => new[] { storageProvider.DefaultSet }
+            .Concat(storageProvider.Sets.Values)
+            .ToArray();
 
     public async Task AddToPlotArea(DataSet<SpectraData> set)
     {
-        var plots = await Task.WhenAll(set.Data.Select(plotProvider.GetPlot));
-
-        await Task.WhenAll(plots.Select(plotProvider.Draw));
+        var plots = await spectraDataPlotProvider.Draw(set.Data);
 
         var plotSet = new DataSet<SpectraDataPlot>(set.Name, plots);
 
@@ -46,11 +47,9 @@ internal sealed class SpectraController(
         await AddToPlotArea(set);
     }
 
-    public async Task DataAddToPlotAreaToDefault(SpectraData spectraData)
+    public async Task DataAddToPlotAreaToDefault(SpectraData data)
     {
-        var plot = await plotProvider.GetPlot(spectraData);
-
-        await plotProvider.Draw(plot);
+        var plot = (await spectraDataPlotProvider.Draw([data])).Single();
 
         await storageProvider.AddDataToDefaultSet(plot);
 
@@ -58,41 +57,43 @@ internal sealed class SpectraController(
         OnPlotStorageChanged?.Invoke();
     }
 
-    public async Task ContextDataAddToClearPlotToDefault(SpectraData spectraData)
+    public async Task ContextDataAddToClearPlotToDefault(SpectraData data)
     {
         await ClearPlot();
-        await DataAddToPlotAreaToDefault(spectraData);
+        await DataAddToPlotAreaToDefault(data);
     }
 
-    public Task<bool> IsPlotVisible(SpectraDataPlot dataPlot)
+    public Task<bool> IsPlotVisible(SpectraDataPlot plot)
     {
-        return plotProvider.IsDrew(dataPlot);
+        return spectraDataPlotProvider.IsDrew(plot.SpectraData);
     }
 
     public async Task ChangePlotSetVisibility(DataSet<SpectraDataPlot> set, bool isVisible)
     {
+        var data = set.Data.Select(x => x.SpectraData).ToArray();
+
         if (isVisible)
         {
-            await Task.WhenAll(set.Data.Select(plotProvider.Draw));
+            await spectraDataPlotProvider.Draw(data);
         }
         else
         {
-            await Task.WhenAll(set.Data.Select(plotProvider.Erase));
+            await spectraDataPlotProvider.Erase(data);
         }
 
         OnPlotAreaChanged?.Invoke();
         OnPlotStorageChanged?.Invoke();
     }
 
-    public async Task ChangePlotVisibility(SpectraDataPlot dataPlot, bool isVisible)
+    public async Task ChangePlotVisibility(SpectraDataPlot plot, bool isVisible)
     {
         if (isVisible)
         {
-            await plotProvider.Draw(dataPlot);
+            await spectraDataPlotProvider.Draw([plot.SpectraData]);
         }
         else
         {
-            await plotProvider.Erase(dataPlot);
+            await spectraDataPlotProvider.Erase([plot.SpectraData]);
         }
 
         OnPlotAreaChanged?.Invoke();
@@ -118,41 +119,53 @@ internal sealed class SpectraController(
         OnPlotAreaChanged?.Invoke();
     }
 
-    public async Task PlotHighlight(SpectraDataPlot dataPlot)
+    public async Task<bool> PlotHighlight(SpectraDataPlot plot)
     {
+        var isHighlighted = true;
+
         if (highlightedData is not null)
         {
             await SetHighlighting(highlightedData, false);
         }
 
-        if (Equals(highlightedData, dataPlot))
+        if (Equals(highlightedData, plot))
         {
             highlightedData = null;
+            isHighlighted = false;
         }
         else
         {
-            highlightedData = dataPlot;
-            await SetHighlighting(dataPlot, true);
+            highlightedData = plot;
+            await SetHighlighting(plot, true);
         }
 
         OnPlotAreaChanged?.Invoke();
+
+        return isHighlighted;
+    }
+
+    public Task PlotRemoveHighlight(SpectraDataPlot plot)
+    {
+        return SetHighlighting(plot, false);
     }
 
     public async Task ContextPlotSetDelete(DataSet<SpectraDataPlot> set)
     {
-        await Task.WhenAll(set.Data.Select(plotProvider.Erase));
+        var data = set.Data.Select(x => x.SpectraData).ToArray();
 
-        await storageProvider.DeleteDataSet(new StringKey(set.Name), set);
+        await spectraDataPlotProvider.Erase(data);
+
+        await storageProvider.DeleteDataSet(set);
 
         OnPlotAreaChanged?.Invoke();
         OnPlotStorageChanged?.Invoke();
     }
 
-    public async Task ContextPlotDelete(DataSet<SpectraDataPlot> ownerSet, SpectraDataPlot dataPlot)
+    public async Task ContextPlotDelete(DataSet<SpectraDataPlot> ownerSet, SpectraDataPlot plot)
     {
-        await plotProvider.Erase(dataPlot);
+        await spectraDataPlotProvider.Erase([plot.SpectraData]);
 
-        await storageProvider.DeleteData(ownerSet, dataPlot);
+        await storageProvider.DeleteData(ownerSet, plot);
 
         OnPlotAreaChanged?.Invoke();
         OnPlotStorageChanged?.Invoke();
@@ -168,7 +181,7 @@ internal sealed class SpectraController(
 
     public async Task PlotAreaResize()
     {
-        await plotProvider.Resize();
+        await spectraDataPlotProvider.Resize();
 
         OnPlotAreaChanged?.Invoke();
     }
@@ -178,16 +191,15 @@ internal sealed class SpectraController(
         await storageProvider.Clear();
         highlightedData = null;
         highlightedSet = null;
-        await plotProvider.Clear();
+        await spectraDataPlotProvider.Clear();
     }
 
     private async Task SetHighlighting(SpectraDataPlot dataPlot, bool isHighlighted)
     {
         if (isHighlighted)
         {
-            await plotProvider.Erase(dataPlot);
+            await spectraDataPlotProvider.PushOnTop([dataPlot.SpectraData]);
             dataPlot.ChangeColor(HighlightColor);
-            await plotProvider.Draw(dataPlot);
         }
         else
         {

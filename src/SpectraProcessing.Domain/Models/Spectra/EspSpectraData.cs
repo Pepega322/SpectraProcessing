@@ -10,13 +10,18 @@ public sealed class EspSpectraData(
     EspSpectraData.EspInfo info
 ) : SpectraData(name, points)
 {
-    public EspInfo Info { get; } = info;
+    private EspInfo Info { get; } = info;
 
     public override string Extension => "esp";
 
     protected override SpectraFormat Format => SpectraFormat.Esp;
 
-    public override SpectraData ChangePoints(SpectraPoints newPoints) => new EspSpectraData(Name, newPoints, Info);
+    public override IEnumerable<string> ToContents()
+        => new[]
+        {
+            Info.ExpCfg,
+            Info.ProcCfg,
+        }.Concat(base.ToContents());
 
     public sealed record EspInfo
     {

@@ -1,6 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <InternalsVisibleTo Include="SpectraProcessing.Tests"/>
+    <InternalsVisibleTo Include="SpectraProcessing.IntegrationTests"/>
+    <InternalsVisibleTo Include="SpectraProcessing.TestingInfrastructure"/>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SpectraProcessing.Dal\SpectraProcessing.Dal.csproj"/>
     <ProjectReference Include="..\SpectraProcessing.Domain\SpectraProcessing.Domain.csproj"/>
   </ItemGroup>

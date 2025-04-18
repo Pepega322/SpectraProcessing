@@ -44,14 +44,14 @@ public static class ServiceCollectionExtensions
     {
         services
             .AddSingleton<ICoordinateProvider, CoordinateProvider>()
-            .AddSingleton<IDataPlotProvider<SpectraData, SpectraDataPlot>, SpectraDataPlotProvider>()
-            .AddSingleton<IDataPlotProvider<PeakData, PeakDataPlot>, PeakDataPlotProvider>()
             .AddSingleton<IDataStorageProvider<StringKey, SpectraData>, SpectraDataStorageProvider>()
             .AddSingleton<IDataStorageProvider<StringKey, SpectraDataPlot>, SpectraPlotStorageProvider>()
-            .AddSingleton<IDataStorageProvider<SpectraKey, PeakDataPlot>, SpectraPeakDataStorageProvider>();
+            .AddSingleton<IDataStorageProvider<SpectraKey, PeakDataPlot>, SpectraPeakDataStorageProvider>()
+            .AddSingleton<ISpectraDataPlotProvider, SpectraDataPlotProvider>()
+            .AddSingleton<IPeakDataPlotProvider, PeakDataPlotProvider>();
 
-        services
-            .AddTransient<IDataProvider<SpectraData>, DirectoryDataProvider<SpectraData>>();
+        services.AddTransient<IDataProvider<SpectraData>, DirectoryDataProvider<SpectraData>>();
+        services.AddTransient<IDataProvider<PeakDataSet>, DirectoryDataProvider<PeakDataSet>>();
 
         return services;
     }

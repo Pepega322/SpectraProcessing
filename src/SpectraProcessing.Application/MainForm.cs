@@ -5,14 +5,16 @@ using SpectraProcessing.Bll.Models.ScottPlot.Spectra.Abstractions;
 using SpectraProcessing.Bll.Providers.Interfaces;
 using SpectraProcessing.Domain.Collections;
 using SpectraProcessing.Domain.Collections.Keys;
+using SpectraProcessing.Domain.Extensions;
 using SpectraProcessing.Domain.Models.Peak;
 using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Application;
 
-public partial class MainForm : Form
+public sealed partial class MainForm : Form
 {
-    private readonly IDataProvider<SpectraData> dataProvider;
+    private readonly IDataProvider<SpectraData> spectraDataProvider;
+    private readonly IDataProvider<PeakDataSet> peakDataProvider;
     private readonly ICoordinateProvider coordinateProvider;
     private readonly IDataStorageProvider<StringKey, SpectraData> dataStorageProvider;
 
@@ -23,6 +25,8 @@ public partial class MainForm : Form
 
     public MainForm()
     {
+        WindowState = FormWindowState.Maximized;
+
         InitializeComponent();
 
         var provider = Startup.GetServiceProvider(plotView);
@@ -30,7 +34,8 @@ public partial class MainForm : Form
         spectraController = provider.GetRequiredService<ISpectraController>();
         dialogController = provider.GetRequiredService<IDialogController>();
         dataStorageProvider = provider.GetRequiredService<IDataStorageProvider<StringKey, SpectraData>>();
-        dataProvider = provider.GetRequiredService<IDataProvider<SpectraData>>();
+        spectraDataProvider = provider.GetRequiredService<IDataProvider<SpectraData>>();
+        peakDataProvider = provider.GetRequiredService<IDataProvider<PeakDataSet>>();
         coordinateProvider = provider.GetRequiredService<ICoordinateProvider>();
         peakController = provider.GetRequiredService<IPeakController>();
         processingController = provider.GetRequiredService<IProcessingController>();
@@ -57,7 +62,7 @@ public partial class MainForm : Form
 
     private async Task<int> Prepare()
     {
-        var set = await dataProvider.ReadFolderAsync("d:\\Study\\Chemfuck\\диплом\\DEV\\");
+        var set = await spectraDataProvider.ReadFolderAsync("d:\\Study\\Chemfuck\\диплом\\DEV\\");
 
         await dataStorageProvider.AddDataSet(new StringKey(set.Name), set);
 
@@ -98,7 +103,7 @@ public partial class MainForm : Form
                 return;
             }
 
-            var set = await dataProvider.ReadFolderFullDepthAsync(path);
+            var set = await spectraDataProvider.ReadFolderFullDepthAsync(path);
 
             await dataStorageProvider.AddDataSet(new StringKey(set.Name), set);
         };
@@ -108,8 +113,8 @@ public partial class MainForm : Form
     {
         dataStorageProvider.OnChange +=
             async () => await dataStorageTreeView.BuildTreeAsync(
-                dataStorageProvider.StorageDataSets
-                    .Concat([dataStorageProvider.DefaultDataSet])
+                dataStorageProvider.Sets.Values
+                    .Concat([dataStorageProvider.DefaultSet])
                     .GetDataNodes);
 
         dataContextMenuClear.Click += (_, _) => dataStorageProvider.Clear();
@@ -118,21 +123,21 @@ public partial class MainForm : Form
         {
             var data = TreeViewExtensions.GetContextData<SpectraData>(sender);
 
-            var fullname = dialogController.GetSaveFileFullName(data.Name, ".esp");
+            var fullname = dialogController.GetSaveFileFullName(data!.Name, ".esp");
 
             if (fullname is null)
             {
                 return;
             }
 
-            await dataProvider.DataWriteAs(data, fullname);
+            await spectraDataProvider.DataWriteAs(data, fullname);
         };
 
         dataContextMenuDelete.Click += async (sender, _) =>
         {
             var ownerSet = TreeViewExtensions.GetContextParentSet<SpectraData>(sender);
             var spectra = TreeViewExtensions.GetContextData<SpectraData>(sender);
-            await dataStorageProvider.DeleteData(ownerSet, spectra);
+            await dataStorageProvider.DeleteData(ownerSet!, spectra!);
         };
 
         dataSetContextMenuClear.Click += (_, _) => dataStorageProvider.Clear();
@@ -148,9 +153,9 @@ public partial class MainForm : Form
 
             var set = TreeViewExtensions.GetContextSet<SpectraData>(sender);
 
-            var outputPath = Path.Combine(path, $"{set.Name} (converted)");
+            var outputPath = Path.Combine(path, $"{set!.Name} (converted)");
 
-            await dataProvider.SetOnlyWriteAs(set, outputPath, ".esp");
+            await spectraDataProvider.DataWriteAs(set.Data, outputPath, ".esp");
         };
 
         dataSetContextMenuSaveAsEspRecursive.Click += async (sender, _) =>
@@ -164,34 +169,34 @@ public partial class MainForm : Form
 
             var set = TreeViewExtensions.GetContextSet<SpectraData>(sender);
 
-            var outputPath = Path.Combine(path, $"{set.Name} (converted full depth)");
+            var outputPath = Path.Combine(path, $"{set!.Name} (converted full depth)");
 
-            await dataProvider.SetFullDepthWriteAs(set, outputPath, ".esp");
+            await spectraDataProvider.SetWriteAs(set, outputPath, ".esp");
         };
 
         dataSetContextMenuDelete.Click += async (sender, _) =>
         {
             var set = TreeViewExtensions.GetContextSet<SpectraData>(sender);
-            await dataStorageProvider.DeleteDataSet(new StringKey(set.Name), set);
+            await dataStorageProvider.DeleteDataSet(set!);
         };
 
         //Plotting
         dataContextMenuPlot.Click += async (sender, _) =>
         {
             var spectra = TreeViewExtensions.GetContextData<SpectraData>(sender);
-            await spectraController.ContextDataAddToClearPlotToDefault(spectra);
+            await spectraController.ContextDataAddToClearPlotToDefault(spectra!);
         };
 
         dataSetContextMenuPlot.Click += async (s, _) =>
         {
             var set = TreeViewExtensions.GetContextSet<SpectraData>(s);
-            await spectraController.ContextDataAddToClearPlotArea(set);
+            await spectraController.ContextDataAddToClearPlotArea(set!);
         };
 
         dataSetContextMenuAddToPlot.Click += async (s, _) =>
         {
             var set = TreeViewExtensions.GetContextSet<SpectraData>(s);
-            await spectraController.AddToPlotArea(set);
+            await spectraController.AddToPlotArea(set!);
         };
 
         dataStorageTreeView.NodeMouseDoubleClick += async (_, e) =>
@@ -212,13 +217,23 @@ public partial class MainForm : Form
 
         spectraController.OnPlotAreaChanged += () => plotView.Refresh();
 
-        plotContextMenuClear.Click += async (_, _) => await spectraController.PlotAreaClear();
+        plotContextMenuClear.Click += async (_, _) =>
+        {
+            await spectraController.PlotAreaClear();
+            await processingController.ClearPeaks();
+        };
 
         plotContextMenuDelete.Click += async (sender, _) =>
         {
             var ownerSet = TreeViewExtensions.GetContextParentSet<SpectraDataPlot>(sender);
+
             var plot = TreeViewExtensions.GetContextData<SpectraDataPlot>(sender);
-            await spectraController.ContextPlotDelete(ownerSet, plot);
+
+            await spectraController.ContextPlotDelete(ownerSet!, plot!);
+
+            await processingController.RemovePeaks(plot!.SpectraData);
+
+            await spectraController.PlotRemoveHighlight(plot);
         };
 
         plotStorageTreeView.AfterCheck += async (_, e) =>
@@ -237,27 +252,26 @@ public partial class MainForm : Form
         plotSetContextMenuDelete.Click += async (sender, _) =>
         {
             var set = TreeViewExtensions.GetContextSet<SpectraDataPlot>(sender);
-            await spectraController.ContextPlotSetDelete(set);
-        };
+            await spectraController.ContextPlotSetDelete(set!);
 
-        plotStorageTreeView.NodeMouseDoubleClick += async (sender, _) =>
-        {
-            var node = TreeViewExtensions.GetClickTreeNode(sender);
-
-            if (node is { Tag: SpectraDataPlot plot, Checked: true })
+            foreach (var plot in set!.Data)
             {
-                await spectraController.PlotHighlight(plot);
-                await processingController.SaveSpectraPeaks(plot.SpectraData);
+                await processingController.RemovePeaks(plot.SpectraData);
+                await spectraController.PlotRemoveHighlight(plot);
             }
         };
 
-        plotSetContextMenuClear.Click += (_, _) => spectraController.PlotAreaClear();
+        plotSetContextMenuClear.Click += async (_, _) =>
+        {
+            await spectraController.PlotAreaClear();
+            await processingController.ClearPeaks();
+        };
 
         plotSetContextMenuHighlight.Click += async (sender, _) =>
         {
             var set = TreeViewExtensions.GetContextSet<SpectraDataPlot>(sender);
 
-            await spectraController.ContextPlotSetHighlight(set);
+            await spectraController.ContextPlotSetHighlight(set!);
         };
     }
 
@@ -274,41 +288,27 @@ public partial class MainForm : Form
     private void SetupSpectraProcessingController()
     {
         processingController.OnPlotAreaChanged += plotView.Refresh;
+        peakController.OnPeakChanges += plotView.Refresh;
 
-        addPeaksToolStripMenuItem.Click += (_, _) =>
+        plotView.MouseDown += async (_, _) => await peakController.TryMovePeak();
+
+        customPeaksToolStripMenuItem.Click += async (_, _) =>
         {
-            if (addPeaksToolStripMenuItem.Checked)
+            if (customPeaksToolStripMenuItem.Checked)
             {
-                removePeaksToolStripMenuItem.Checked = false;
+                customPeaksToolStripMenuItem.Checked = await processingController.SaveCurrentSpectraPeaks();
+            }
+            else
+            {
+                customPeaksToolStripMenuItem.Checked = await processingController.RemoveCurrentSpectraPeaks() is false;
             }
         };
 
-        removePeaksToolStripMenuItem.Click += (_, _) =>
-        {
-            if (removePeaksToolStripMenuItem.Checked)
-            {
-                addPeaksToolStripMenuItem.Checked = false;
-            }
-        };
+        clearPeaksToolStripMenuItem.Click += async (_, _) => await processingController.ClearCurrentSpectraPeaks();
 
         plotView.SKControl!.MouseDoubleClick += async (_, _) =>
         {
-            if (addPeaksToolStripMenuItem.Checked is false)
-            {
-                return;
-            }
-
-            var estimate = new PeakData(
-                center: coordinateProvider.Coordinates.X,
-                amplitude: coordinateProvider.Coordinates.Y,
-                halfWidth: 30f);
-
-            await processingController.AddPeak(estimate);
-        };
-
-        plotView.SKControl!.MouseDoubleClick += async (_, _) =>
-        {
-            if (!removePeaksToolStripMenuItem.Checked)
+            if (addOrRemovePeaksToolStripMenuItem.Checked is false)
             {
                 return;
             }
@@ -317,115 +317,238 @@ public partial class MainForm : Form
 
             if (peak is not null)
             {
-                await processingController.RemovePeak(peak.Peak);
+                await processingController.RemovePeaksForCurrentSpectra([peak.Peak]);
+            }
+            else
+            {
+                await processingController.AddPeaksForCurrentSpectra(
+                [
+                    new PeakData(
+                        center: coordinateProvider.Coordinates.X,
+                        amplitude: coordinateProvider.Coordinates.Y,
+                        halfWidth: 30f,
+                        gaussianContribution: 1f),
+                ]);
             }
         };
 
-        plotView.MouseDown += async (_, _) => await peakController.TryMovePeak();
+        plotStorageTreeView.NodeMouseDoubleClick += async (sender, _) =>
+        {
+            var node = TreeViewExtensions.GetClickTreeNode(sender);
+
+            await CheckoutPlotNode(node!);
+        };
+
+        plotContextMenuSmooth.Click += async (sender, _) =>
+        {
+            var plot = TreeViewExtensions.GetContextData<SpectraDataPlot>(sender);
+
+            await processingController.SmoothSpectras([plot!.SpectraData]);
+        };
+
+        plotSetContextMenuSmooth.Click += async (sender, _) =>
+        {
+            var set = TreeViewExtensions.GetContextSet<SpectraDataPlot>(sender);
+
+            var spectras = set!.Data.Select(d => d.SpectraData).ToArray();
+
+            await processingController.SmoothSpectras(spectras);
+        };
+
+        plotContextMenuFitPeaks.Click += async (sender, _) =>
+        {
+            var plot = TreeViewExtensions.GetContextData<SpectraDataPlot>(sender);
+
+            await processingController.FitPeaks([plot!.SpectraData]);
+        };
+
+        plotSetContextMenuFitPeaks.Click += async (sender, _) =>
+        {
+            var set = TreeViewExtensions.GetContextSet<SpectraDataPlot>(sender);
+
+            var spectras = set!.Data.Select(d => d.SpectraData).ToArray();
+
+            await processingController.FitPeaks(spectras);
+        };
+
+        exportPeaksToolStripMenuItem.Click += async (_, _) =>
+        {
+            var plot = TreeViewExtensions.GetClickData<SpectraDataPlot>(plotContextMenu.Tag);
+
+            var name = plot?.Name ?? "peaksSet";
+
+            var fullname = dialogController.GetSaveFileFullName(name, PeakDataSet.FileExtension);
+
+            if (fullname is null)
+            {
+                return;
+            }
+
+            var peaks = processingController.CurrentPeaks
+                .Select(p => p.Peak)
+                .ToArray();
+
+            var set = new PeakDataSet(peaks, name);
+
+            await peakDataProvider.DataWriteAs(set, fullname);
+        };
+
+        plotContextMenuExportPeaks.Click += async (sender, _) =>
+        {
+            var plot = TreeViewExtensions.GetContextData<SpectraDataPlot>(sender);
+
+            var peaks = await processingController.ExportPeaks(plot!.SpectraData);
+
+            if (peaks.IsEmpty())
+            {
+                return;
+            }
+
+            var fullname = dialogController.GetSaveFileFullName(plot.Name, PeakDataSet.FileExtension);
+
+            if (fullname is null)
+            {
+                return;
+            }
+
+            var set = new PeakDataSet(peaks, plot.Name);
+
+            await peakDataProvider.DataWriteAs(set, fullname);
+        };
+
+        plotSetContextMenuExportPeaks.Click += async (sender, _) =>
+        {
+            var set = TreeViewExtensions.GetContextSet<SpectraDataPlot>(sender);
+
+            if (set!.Data.IsEmpty())
+            {
+                return;
+            }
+
+            var peaksSetsSet = new List<PeakDataSet>();
+
+            foreach (var plot in set.Data)
+            {
+                var peaks = await processingController.ExportPeaks(plot.SpectraData);
+
+                if (peaks.IsEmpty())
+                {
+                    continue;
+                }
+
+                peaksSetsSet.Add(new PeakDataSet(peaks, plot.Name));
+            }
+
+            if (peaksSetsSet.IsEmpty())
+            {
+                return;
+            }
+
+            var path = dialogController.GetFolderPath();
+
+            if (path is null)
+            {
+                return;
+            }
+
+            var outputPath = Path.Combine(path, $"{set!.Name} (peaks)");
+
+            await peakDataProvider.DataWriteAs(peaksSetsSet, outputPath, PeakDataSet.FileExtension);
+        };
+
+        importPeaksToolStripMenuItem.Click += async (_, _) =>
+        {
+            var fullName = dialogController.GetReadFileFullName();
+
+            if (fullName is null)
+            {
+                return;
+            }
+
+            var set = await peakDataProvider.ReadDataAsync(fullName);
+
+            await processingController.AddPeaksForCurrentSpectra(set.Peaks);
+        };
+
+        plotContextMenuImportPeaks.Click += async (sender, _) =>
+        {
+            var fullName = dialogController.GetReadFileFullName();
+
+            if (fullName is null)
+            {
+                return;
+            }
+
+            var peaksSet = await peakDataProvider.ReadDataAsync(fullName);
+
+            var plot = TreeViewExtensions.GetContextData<SpectraDataPlot>(sender, out var node);
+
+            await processingController.ImportPeaks(plot!.SpectraData, peaksSet.Peaks);
+
+            await CheckoutPlotNode(node);
+        };
+
+        plotSetContextMenuImportPeaks.Click += async (sender, _) =>
+        {
+            var fullName = dialogController.GetReadFileFullName();
+
+            if (fullName is null)
+            {
+                return;
+            }
+
+            var peaksSet = await peakDataProvider.ReadDataAsync(fullName);
+
+            var plotSet = TreeViewExtensions.GetContextSet<SpectraDataPlot>(sender);
+
+            foreach (var spectraData in plotSet!.Data.Select(p => p.SpectraData))
+            {
+                await processingController.ImportPeaks(spectraData, peaksSet.Peaks);
+            }
+        };
     }
 
-    // private void SetupSpectraProcessingController()
-    // {
-    //     plotButtonImportPeaks.Click += async (_, _) =>
-    //     {
-    //         var fullName = dialogController.GetReadFileFullName();
-    //         if (fullName is null)
-    //         {
-    //             return;
-    //         }
-    //
-    //         await processingController.ImportBorders(fullName);
-    //         plotView.Refresh();
-    //     };
-    //     plotButtonExportPeaks.Click += async (_, _) =>
-    //     {
-    //         var borderSet = new PeakBordersSet
-    //         {
-    //             Name = "",
-    //             Borders = processingController.Borders.ToArray(),
-    //         };
-    //         var fullName = dialogController.GetSaveFileFullName("bordersSet", "borders");
-    //         if (fullName is null)
-    //         {
-    //             return;
-    //         }
-    //
-    //         await dataWriterController.DataWriteAs(borderSet, fullName);
-    //     };
-    //     plotButtonClearPeaks.Click += async (_, _) =>
-    //     {
-    //         await Task.Run(processingController.ClearBorders);
-    //         plotView.Refresh();
-    //     };
-    //     plotContextPlotSetSubstractBaseLine.Click += async (sender, _) =>
-    //     {
-    //         var set = TreeViewHelpers.GetContextSet<SpectraPlot>(sender);
-    //         var spectra = set.Data.Select(s => s.Spectra).ToArray();
-    //         var substracted = await processingController.SubstractBaseline(spectra);
-    //         var substractedSet = new DataSet<Spectra>($"{set.Name} b-", substracted);
-    //         dataStorageController.AddDataSet(substractedSet);
-    //     };
-    //     plotContextPlotSubstractBaseLine.Click += async (sender, _) =>
-    //     {
-    //         var plot = TreeViewHelpers.GetContextData<SpectraPlot>(sender);
-    //         var substracted = await processingController.SubstractBaseline(plot.Spectra);
-    //         dataStorageController.AddDataToDefaultSet(substracted);
-    //     };
-    //     plotButtonAddPeak.Click += async (_, _) =>
-    //     {
-    //         var start = await coordinateController.GetCoordinateByClick();
-    //         var end = await coordinateController.GetCoordinateByClick();
-    //         var border = new PeakBorders(start.X, end.X);
-    //         processingController.AddBorder(border);
-    //         plotView.Refresh();
-    //     };
-    //     plotButtonDeleteLastPeak.Click += async (_, _) =>
-    //     {
-    //         var last = processingController.Borders.LastOrDefault();
-    //         if (last is not null)
-    //             await Task.Run(() => processingController.RemoveBorder(last));
-    //         plotView.Refresh();
-    //     };
-    //     plotContextPlotSetPeaksProcess.Click += async (sender, _) =>
-    //     {
-    //         var plotSet = TreeViewHelpers.GetContextSet<SpectraPlot>(sender);
-    //         var spectraSet = new DataSet<Spectra>(plotSet.Name, plotSet.Data.Select(plot => plot.Spectra));
-    //         var processed = await processingController.ProcessPeaksForSpectraSet(spectraSet);
-    //         var peaksFullname = dialogController.GetSaveFileFullName(plotSet.Name, processed.Extension);
-    //         if (peaksFullname is null)
-    //         {
-    //             return;
-    //         }
-    //
-    //         await dataWriterController.DataWriteAs(processed, peaksFullname);
-    //         var dispersionStatistics = processed.GetDispersionStatistics();
-    //         await dataWriterController.DataWriteAs(
-    //             dispersionStatistics,
-    //             $"{peaksFullname}.{dispersionStatistics.Extension}");
-    //     };
-    //     plotContextPlotPeaksProcess.Click += async (sender, _) =>
-    //     {
-    //         var plot = TreeViewHelpers.GetContextData<SpectraPlot>(sender);
-    //         var fullname = dialogController.GetSaveFileFullName(plot.Name, ".txt");
-    //         if (fullname is null)
-    //         {
-    //             return;
-    //         }
-    //
-    //         var processed = await processingController.ProcessPeaksForSingleSpectra(plot.Spectra);
-    //         await dataWriterController.DataWriteAs(processed, fullname);
-    //     };
-    //     plotContextPlotSetAverageSpectra.Click += async (s, _) =>
-    //     {
-    //         var set = TreeViewHelpers.GetContextSet<SpectraPlot>(s);
-    //         var spectras = set.Data.Select(plot => plot.Spectra).ToArray();
-    //         var average = await processingController.GetAverageSpectra(spectras);
-    //         average.Name = $"{set.Name} (average)";
-    //         dataStorageController.AddDataToDefaultSet(average);
-    //     };
-    // }
-
 #region SupportMethods
+
+    private async Task CheckoutPlotNode(TreeNode node)
+    {
+        if (node is not { Tag: SpectraDataPlot plot, Checked: true })
+        {
+            return;
+        }
+
+        var isHighlight = await spectraController.PlotHighlight(plot);
+
+        if (!isHighlight)
+        {
+            customPeaksToolStripMenuItem.Checked = await processingController.CheckoutSpectra(null);
+            return;
+        }
+
+        customPeaksToolStripMenuItem.Checked = await processingController.CheckoutSpectra(plot.SpectraData);
+
+        await HighlightNodeUntilNextClick(node);
+    }
+
+    private async Task HighlightNodeUntilNextClick(TreeNode node)
+    {
+        node.NodeFont = new Font(plotStorageTreeView.Font, FontStyle.Bold);
+
+        var tcs = new TaskCompletionSource();
+
+        TreeNodeMouseClickEventHandler? moveBackFont = (_, _) =>
+        {
+            node.NodeFont = new Font(plotStorageTreeView.Font, FontStyle.Regular);
+            tcs.TrySetResult();
+        };
+
+        plotStorageTreeView.NodeMouseDoubleClick += moveBackFont;
+
+
+        await tcs.Task;
+
+        plotStorageTreeView.NodeMouseDoubleClick -= moveBackFont;
+    }
 
     private static void TreeNodeClickSelect(object? sender, TreeNodeMouseClickEventArgs e)
     {

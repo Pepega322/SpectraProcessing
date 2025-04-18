@@ -16,23 +16,25 @@ public interface ISpectraController
 
     Task ContextDataAddToClearPlotArea(DataSet<SpectraData> set);
 
-    Task DataAddToPlotAreaToDefault(SpectraData spectra);
+    Task DataAddToPlotAreaToDefault(SpectraData data);
 
-    Task ContextDataAddToClearPlotToDefault(SpectraData spectra);
+    Task ContextDataAddToClearPlotToDefault(SpectraData data);
 
-    Task<bool> IsPlotVisible(SpectraDataPlot dataPlot);
+    Task<bool> IsPlotVisible(SpectraDataPlot plot);
 
     Task ChangePlotSetVisibility(DataSet<SpectraDataPlot> set, bool isVisible);
 
-    Task ChangePlotVisibility(SpectraDataPlot dataPlot, bool isVisible);
+    Task ChangePlotVisibility(SpectraDataPlot plot, bool isVisible);
 
     Task ContextPlotSetHighlight(DataSet<SpectraDataPlot> set);
 
-    Task PlotHighlight(SpectraDataPlot dataPlot);
+    Task<bool> PlotHighlight(SpectraDataPlot plot);
+
+    Task PlotRemoveHighlight(SpectraDataPlot plot);
 
     Task ContextPlotSetDelete(DataSet<SpectraDataPlot> set);
 
-    Task ContextPlotDelete(DataSet<SpectraDataPlot> ownerSet, SpectraDataPlot dataPlot);
+    Task ContextPlotDelete(DataSet<SpectraDataPlot> ownerSet, SpectraDataPlot plot);
 
     Task PlotAreaClear();
 
