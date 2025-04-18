@@ -271,22 +271,6 @@ public sealed partial class MainForm : Form
 
         plotView.MouseDown += async (_, _) => await peakController.TryMovePeak();
 
-        addPeaksToolStripMenuItem.Click += (_, _) =>
-        {
-            if (addPeaksToolStripMenuItem.Checked)
-            {
-                removePeaksToolStripMenuItem.Checked = false;
-            }
-        };
-
-        removePeaksToolStripMenuItem.Click += (_, _) =>
-        {
-            if (removePeaksToolStripMenuItem.Checked)
-            {
-                addPeaksToolStripMenuItem.Checked = false;
-            }
-        };
-
         customPeaksToolStripMenuItem.Click += async (_, _) =>
         {
             if (customPeaksToolStripMenuItem.Checked)
@@ -303,23 +287,7 @@ public sealed partial class MainForm : Form
 
         plotView.SKControl!.MouseDoubleClick += async (_, _) =>
         {
-            if (addPeaksToolStripMenuItem.Checked is false)
-            {
-                return;
-            }
-
-            var peak = new PeakData(
-                center: coordinateProvider.Coordinates.X,
-                amplitude: coordinateProvider.Coordinates.Y,
-                halfWidth: 30f,
-                gaussianContribution: 1f);
-
-            await processingController.AddPeaks([peak]);
-        };
-
-        plotView.SKControl!.MouseDoubleClick += async (_, _) =>
-        {
-            if (removePeaksToolStripMenuItem.Checked is false)
+            if (addOrRemovePeaksToolStripMenuItem.Checked is false)
             {
                 return;
             }
@@ -329,6 +297,17 @@ public sealed partial class MainForm : Form
             if (peak is not null)
             {
                 await processingController.RemovePeaks([peak.Peak]);
+            }
+            else
+            {
+                await processingController.AddPeaks(
+                [
+                    new PeakData(
+                        center: coordinateProvider.Coordinates.X,
+                        amplitude: coordinateProvider.Coordinates.Y,
+                        halfWidth: 30f,
+                        gaussianContribution: 1f),
+                ]);
             }
         };
 

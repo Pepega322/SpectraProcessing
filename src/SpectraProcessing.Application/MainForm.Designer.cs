@@ -36,8 +36,7 @@ sealed partial class MainForm
         mouseCoordinatesBox = new TextBox();
         menuStrip2 = new MenuStrip();
         resizeToolStripMenuItem = new ToolStripMenuItem();
-        addPeaksToolStripMenuItem = new ToolStripMenuItem();
-        removePeaksToolStripMenuItem = new ToolStripMenuItem();
+        addOrRemovePeaksToolStripMenuItem = new ToolStripMenuItem();
         customPeaksToolStripMenuItem = new ToolStripMenuItem();
         clearPeaksToolStripMenuItem = new ToolStripMenuItem();
         plotView = new ScottPlot.WinForms.FormsPlot();
@@ -166,7 +165,7 @@ sealed partial class MainForm
         // 
         menuStrip2.Dock = DockStyle.Fill;
         menuStrip2.ImageScalingSize = new Size(32, 32);
-        menuStrip2.Items.AddRange(new ToolStripItem[] { resizeToolStripMenuItem, addPeaksToolStripMenuItem, removePeaksToolStripMenuItem, customPeaksToolStripMenuItem, clearPeaksToolStripMenuItem });
+        menuStrip2.Items.AddRange(new ToolStripItem[] { resizeToolStripMenuItem, addOrRemovePeaksToolStripMenuItem, customPeaksToolStripMenuItem, clearPeaksToolStripMenuItem });
         menuStrip2.Location = new Point(0, 0);
         menuStrip2.Name = "menuStrip2";
         menuStrip2.Size = new Size(1123, 44);
@@ -179,19 +178,12 @@ sealed partial class MainForm
         resizeToolStripMenuItem.Size = new Size(100, 40);
         resizeToolStripMenuItem.Text = "Resize";
         // 
-        // addPeaksToolStripMenuItem
+        // addOrRemovePeaksToolStripMenuItem
         // 
-        addPeaksToolStripMenuItem.CheckOnClick = true;
-        addPeaksToolStripMenuItem.Name = "addPeaksToolStripMenuItem";
-        addPeaksToolStripMenuItem.Size = new Size(145, 40);
-        addPeaksToolStripMenuItem.Text = "Add peaks";
-        // 
-        // removePeaksToolStripMenuItem
-        // 
-        removePeaksToolStripMenuItem.CheckOnClick = true;
-        removePeaksToolStripMenuItem.Name = "removePeaksToolStripMenuItem";
-        removePeaksToolStripMenuItem.Size = new Size(188, 40);
-        removePeaksToolStripMenuItem.Text = "Remove peaks";
+        addOrRemovePeaksToolStripMenuItem.CheckOnClick = true;
+        addOrRemovePeaksToolStripMenuItem.Name = "addOrRemovePeaksToolStripMenuItem";
+        addOrRemovePeaksToolStripMenuItem.Size = new Size(237, 40);
+        addOrRemovePeaksToolStripMenuItem.Text = "Add|Remove peaks";
         // 
         // customPeaksToolStripMenuItem
         // 
@@ -548,8 +540,7 @@ sealed partial class MainForm
     private TreeView plotStorageTreeView;
     private MenuStrip menuStrip2;
     private ToolStripMenuItem resizeToolStripMenuItem;
-    private ToolStripMenuItem addPeaksToolStripMenuItem;
-    private ToolStripMenuItem removePeaksToolStripMenuItem;
+    private ToolStripMenuItem addOrRemovePeaksToolStripMenuItem;
     private ToolStripMenuItem customPeaksToolStripMenuItem;
     private ToolStripMenuItem clearPeaksToolStripMenuItem;
     private ToolStripMenuItem fitPeaksToolStripMenuItem;
