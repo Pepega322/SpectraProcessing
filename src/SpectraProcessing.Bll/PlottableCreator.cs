@@ -7,7 +7,7 @@ namespace SpectraProcessing.Bll;
 public static class PlottableCreator
 {
     private const float lineWidth = 2f;
-    private const float markerSize = 20f;
+    private const float defaultMarkerSize = 20f;
 
     public static Signal CreateSignal(float[] ys, float delta, Color? color = null)
     {
@@ -51,7 +51,8 @@ public static class PlottableCreator
         double x,
         double y,
         MarkerShape shape,
-        Color? color = null)
+        Color? color = null,
+        float markerSize = defaultMarkerSize)
     {
         using var builder = new Plot();
 

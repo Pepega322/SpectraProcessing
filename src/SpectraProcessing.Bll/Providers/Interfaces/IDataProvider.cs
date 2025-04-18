@@ -4,6 +4,8 @@ namespace SpectraProcessing.Bll.Providers.Interfaces;
 
 public interface IDataProvider<TData>
 {
+    Task<TData> ReadDataAsync(string fullName);
+
     Task<DataSet<TData>> ReadFolderAsync(string fullName);
 
     Task<DataSet<TData>> ReadFolderFullDepthAsync(string fullName);

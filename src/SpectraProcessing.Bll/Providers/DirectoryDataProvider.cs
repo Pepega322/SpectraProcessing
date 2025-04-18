@@ -13,6 +13,24 @@ internal sealed class DirectoryDataProvider<TData>(
 ) : IDataProvider<TData>
     where TData : class, IWriteableData
 {
+    public async Task<TData> ReadDataAsync(string fullName)
+    {
+        TData? data = null;
+        try
+        {
+            data = await dataRepository.ReadData(fullName);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(
+                "Error while reading files: Error: {Error}, Message: {Message}",
+                e,
+                e.Message);
+        }
+
+        return data!;
+    }
+
     public async Task<DataSet<TData>> ReadFolderAsync(string fullName)
     {
         var folder = new DirectoryInfo(fullName);
@@ -21,19 +39,8 @@ internal sealed class DirectoryDataProvider<TData>(
 
         foreach (var file in folder.GetFiles())
         {
-            try
-            {
-                var data = await dataRepository.ReadData(file.FullName);
-
-                set.AddThreadSafe(data);
-            }
-            catch (Exception e)
-            {
-                logger.LogError(
-                    "Error while reading files: Error: {Error}, Message: {Message}",
-                    e,
-                    e.Message);
-            }
+            var data = await ReadDataAsync(file.FullName);
+            set.AddThreadSafe(data);
         }
 
         return set;

@@ -72,7 +72,7 @@ public static class PeakModeling
     {
         var gaussianWeight = GaussianAreaWeight();
 
-        return gaussianWeight * GaussianSquareRadius(0.99f) + (1 - gaussianWeight) * LorentzianSquareRadius(0.75f);
+        return gaussianWeight * GaussianSquareRadius(0.9995f) + (1 - gaussianWeight) * LorentzianSquareRadius(0.75f);
 
         float GaussianAreaWeight()
         {

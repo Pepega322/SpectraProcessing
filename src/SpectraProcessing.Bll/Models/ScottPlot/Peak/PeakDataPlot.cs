@@ -9,17 +9,19 @@ namespace SpectraProcessing.Bll.Models.ScottPlot.Peak;
 
 public sealed class PeakDataPlot : IDataPlot
 {
-    private static readonly Color MarkerColor = Colors.Red;
+    private static int _counter = 0;
+
+    private static readonly IPalette Palette = global::ScottPlot.Palette.Default;
     private static readonly Color PeakColor = Colors.Green;
 
     private readonly Lock locker = new();
 
     private readonly DraggableMarker leftMarker;
 
-    // private readonly DraggableMarker leftEffectiveRadiusMarker;
+    private readonly DraggableMarker leftEffectiveRadiusMarker;
     private readonly DraggableMarker centerMarker;
     private readonly DraggableMarker rightMarker;
-    // private readonly DraggableMarker rightEffectiveRadiusMarker;
+    private readonly DraggableMarker rightEffectiveRadiusMarker;
 
     public PeakData Peak { get; private set; }
 
@@ -29,50 +31,53 @@ public sealed class PeakDataPlot : IDataPlot
         =>
         [
             leftMarker,
-            // leftEffectiveRadiusMarker,
+            leftEffectiveRadiusMarker,
             centerMarker,
             rightMarker,
-            // rightEffectiveRadiusMarker,
+            rightEffectiveRadiusMarker,
         ];
 
     public PeakDataPlot(PeakData peak)
     {
-        const MarkerShape shape = MarkerShape.Cross;
         Peak = peak;
+
+        var markerColor = Palette.GetColor(Interlocked.Increment(ref _counter));
 
         leftMarker = PlottableCreator.CreateDraggableMarker(
             x: peak.Center - peak.HalfWidth / 2,
             y: peak.Amplitude / 2,
-            shape,
-            MarkerColor);
+            MarkerShape.Cross,
+            markerColor);
 
-        // var effectiveRadius = PeakModeling.GetPeakEffectiveRadius(
-        //     peak.HalfWidth,
-        //     peak.GaussianContribution);
-        //
-        // leftEffectiveRadiusMarker = PlottableCreator.CreateDraggableMarker(
-        //     x: peak.Center - effectiveRadius,
-        //     y: 0,
-        //     shape,
-        //     MarkerColor);
+        var effectiveRadius = PeakModeling.GetPeakEffectiveRadius(
+            peak.HalfWidth,
+            peak.GaussianContribution);
+
+        leftEffectiveRadiusMarker = PlottableCreator.CreateDraggableMarker(
+            x: peak.Center - effectiveRadius,
+            y: 0,
+            MarkerShape.OpenTriangleUp,
+            markerColor,
+            15f);
 
         centerMarker = PlottableCreator.CreateDraggableMarker(
             x: peak.Center,
             y: peak.Amplitude,
-            shape,
-            MarkerColor);
+            MarkerShape.Cross,
+            markerColor);
 
         rightMarker = PlottableCreator.CreateDraggableMarker(
             x: peak.Center + peak.HalfWidth / 2,
             y: peak.Amplitude / 2,
-            shape,
-            MarkerColor);
+            MarkerShape.Cross,
+            markerColor);
 
-        // rightEffectiveRadiusMarker = PlottableCreator.CreateDraggableMarker(
-        // x: peak.Center + effectiveRadius,
-        // y: 0,
-        // shape,
-        // MarkerColor);
+        rightEffectiveRadiusMarker = PlottableCreator.CreateDraggableMarker(
+            x: peak.Center + effectiveRadius,
+            y: 0,
+            MarkerShape.OpenTriangleUp,
+            markerColor,
+            15f);
 
         Line = PlottableCreator.CreateFunction(x => peak.GetPeakValueAt((float) x), PeakColor);
     }
@@ -156,15 +161,15 @@ public sealed class PeakDataPlot : IDataPlot
 
         var halfHeight = Peak.Amplitude / 2;
 
-        // var effectiveRadius = PeakModeling.GetPeakEffectiveRadius(
-        // Peak.HalfWidth,
-        // Peak.GaussianContribution);
+        var effectiveRadius = PeakModeling.GetPeakEffectiveRadius(
+            Peak.HalfWidth,
+            Peak.GaussianContribution);
 
         DragMarkerTo(leftMarker, new Coordinates(Peak.Center - Peak.HalfWidth / 2, halfHeight));
-        // DragMarkerTo(leftEffectiveRadiusMarker, new Coordinates(Peak.Center - effectiveRadius, 0));
+        DragMarkerTo(leftEffectiveRadiusMarker, new Coordinates(Peak.Center - effectiveRadius, 0));
         DragMarkerTo(centerMarker, new Coordinates(Peak.Center, Peak.Amplitude));
         DragMarkerTo(rightMarker, new Coordinates(Peak.Center + Peak.HalfWidth / 2, halfHeight));
-        // DragMarkerTo(rightEffectiveRadiusMarker, new Coordinates(Peak.Center + effectiveRadius, 0));
+        DragMarkerTo(rightEffectiveRadiusMarker, new Coordinates(Peak.Center + effectiveRadius, 0));
 
         locker.Exit();
 

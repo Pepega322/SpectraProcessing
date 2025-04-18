@@ -12,13 +12,14 @@ internal sealed class WinformPeakController(
     IProcessingController processingController
 ) : IPeakController
 {
+    private Coordinates coordinates = new Coordinates(0, 0);
+
     public event Action? OnPeakChanges;
 
     public Task<PeakDataPlot?> TryGetPeak()
     {
-        var coordinates = new Coordinates(
-            coordinateProvider.Coordinates.X,
-            coordinateProvider.Coordinates.Y);
+        coordinates.X = coordinateProvider.Coordinates.X;
+        coordinates.Y = coordinateProvider.Coordinates.Y;
 
         var pixel = plotView.Plot.GetPixel(coordinates);
 

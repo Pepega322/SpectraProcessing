@@ -8,6 +8,7 @@ using SpectraProcessing.Bll.Models.Settings;
 using SpectraProcessing.Bll.Providers;
 using SpectraProcessing.Bll.Providers.Interfaces;
 using SpectraProcessing.Domain.Collections.Keys;
+using SpectraProcessing.Domain.Models.Peak;
 using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Bll.Extensions;
@@ -49,8 +50,8 @@ public static class ServiceCollectionExtensions
             .AddSingleton<ISpectraDataPlotProvider, SpectraDataPlotProvider>()
             .AddSingleton<IPeakDataPlotProvider, PeakDataPlotProvider>();
 
-        services
-            .AddTransient<IDataProvider<SpectraData>, DirectoryDataProvider<SpectraData>>();
+        services.AddTransient<IDataProvider<SpectraData>, DirectoryDataProvider<SpectraData>>();
+        services.AddTransient<IDataProvider<PeakDataSet>, DirectoryDataProvider<PeakDataSet>>();
 
         return services;
     }

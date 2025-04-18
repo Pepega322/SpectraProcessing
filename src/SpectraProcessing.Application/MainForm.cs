@@ -12,7 +12,8 @@ namespace SpectraProcessing.Application;
 
 public sealed partial class MainForm : Form
 {
-    private readonly IDataProvider<SpectraData> dataProvider;
+    private readonly IDataProvider<SpectraData> spectraDataProvider;
+    private readonly IDataProvider<PeakDataSet> peakDataProvider;
     private readonly ICoordinateProvider coordinateProvider;
     private readonly IDataStorageProvider<StringKey, SpectraData> dataStorageProvider;
 
@@ -32,7 +33,8 @@ public sealed partial class MainForm : Form
         spectraController = provider.GetRequiredService<ISpectraController>();
         dialogController = provider.GetRequiredService<IDialogController>();
         dataStorageProvider = provider.GetRequiredService<IDataStorageProvider<StringKey, SpectraData>>();
-        dataProvider = provider.GetRequiredService<IDataProvider<SpectraData>>();
+        spectraDataProvider = provider.GetRequiredService<IDataProvider<SpectraData>>();
+        peakDataProvider = provider.GetRequiredService<IDataProvider<PeakDataSet>>();
         coordinateProvider = provider.GetRequiredService<ICoordinateProvider>();
         peakController = provider.GetRequiredService<IPeakController>();
         processingController = provider.GetRequiredService<IProcessingController>();
@@ -59,7 +61,7 @@ public sealed partial class MainForm : Form
 
     private async Task<int> Prepare()
     {
-        var set = await dataProvider.ReadFolderAsync("d:\\Study\\Chemfuck\\диплом\\DEV\\");
+        var set = await spectraDataProvider.ReadFolderAsync("d:\\Study\\Chemfuck\\диплом\\DEV\\");
 
         await dataStorageProvider.AddDataSet(new StringKey(set.Name), set);
 
@@ -100,7 +102,7 @@ public sealed partial class MainForm : Form
                 return;
             }
 
-            var set = await dataProvider.ReadFolderFullDepthAsync(path);
+            var set = await spectraDataProvider.ReadFolderFullDepthAsync(path);
 
             await dataStorageProvider.AddDataSet(new StringKey(set.Name), set);
         };
@@ -127,7 +129,7 @@ public sealed partial class MainForm : Form
                 return;
             }
 
-            await dataProvider.DataWriteAs(data, fullname);
+            await spectraDataProvider.DataWriteAs(data, fullname);
         };
 
         dataContextMenuDelete.Click += async (sender, _) =>
@@ -152,7 +154,7 @@ public sealed partial class MainForm : Form
 
             var outputPath = Path.Combine(path, $"{set.Name} (converted)");
 
-            await dataProvider.SetOnlyWriteAs(set, outputPath, ".esp");
+            await spectraDataProvider.SetOnlyWriteAs(set, outputPath, ".esp");
         };
 
         dataSetContextMenuSaveAsEspRecursive.Click += async (sender, _) =>
@@ -168,7 +170,7 @@ public sealed partial class MainForm : Form
 
             var outputPath = Path.Combine(path, $"{set.Name} (converted full depth)");
 
-            await dataProvider.SetFullDepthWriteAs(set, outputPath, ".esp");
+            await spectraDataProvider.SetFullDepthWriteAs(set, outputPath, ".esp");
         };
 
         dataSetContextMenuDelete.Click += async (sender, _) =>
@@ -382,6 +384,38 @@ public sealed partial class MainForm : Form
             var spectras = set.Data.Select(d => d.SpectraData).ToArray();
 
             await processingController.FitPeaks(spectras);
+        };
+
+        exportPeaksToolStripMenuItem.Click += async (sender, _) =>
+        {
+            var fullname = dialogController.GetSaveFileFullName("peaksSet", PeakDataSet.FileExtension);
+
+            if (fullname is null)
+            {
+                return;
+            }
+
+            var peaks = processingController.CurrentPeaks
+                .Select(p => p.Peak)
+                .ToArray();
+
+            var set = new PeakDataSet(peaks, "peaksSet");
+
+            await peakDataProvider.DataWriteAs(set, fullname);
+        };
+
+        importPeaksToolStripMenuItem.Click += async (sender, _) =>
+        {
+            var fullName = dialogController.GetReadFileFullName();
+
+            if (fullName is null)
+            {
+                return;
+            }
+
+            var set = await peakDataProvider.ReadDataAsync(fullName);
+
+            await processingController.AddPeaks(set.Peaks);
         };
     }
 

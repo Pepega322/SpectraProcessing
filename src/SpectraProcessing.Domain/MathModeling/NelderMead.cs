@@ -83,7 +83,7 @@ public static class NelderMead
 
                 var m = Random.Shared.Next() % 2 == 0 ? -1 : 1;
 
-                vector[d] = vector[d].ApproximatelyEqual(0)
+                vector[d] = vector[d].ApproximatelyEqual(0, settings.InitialShift)
                     ? settings.InitialShift * m
                     : vector[d] * (1 + settings.InitialShift * m);
 
