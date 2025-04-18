@@ -5,7 +5,9 @@ using SpectraProcessing.Domain.Collections;
 using SpectraProcessing.Domain.Collections.Keys;
 using SpectraProcessing.Domain.Extensions;
 using SpectraProcessing.Domain.MathModeling;
+using SpectraProcessing.Domain.MathModeling.Peaks;
 using SpectraProcessing.Domain.Models.MathModeling;
+using SpectraProcessing.Domain.Models.MathModeling.Peaks;
 using SpectraProcessing.Domain.Models.Peak;
 using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 

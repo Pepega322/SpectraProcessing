@@ -1,9 +1,11 @@
 ﻿using SpectraProcessing.Domain.Enums;
 using SpectraProcessing.Domain.Extensions;
+using SpectraProcessing.Domain.MathModeling.Common;
 using SpectraProcessing.Domain.Models.MathModeling;
+using SpectraProcessing.Domain.Models.MathModeling.Common;
 using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
-namespace SpectraProcessing.Domain.MathModeling;
+namespace SpectraProcessing.Domain.MathModeling.Peaks;
 
 public static class FittingFunctions
 {

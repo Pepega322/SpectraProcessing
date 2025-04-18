@@ -1,9 +1,11 @@
 ﻿using SpectraProcessing.Domain.Extensions;
 using SpectraProcessing.Domain.Models.MathModeling;
+using SpectraProcessing.Domain.Models.MathModeling.Common;
+using SpectraProcessing.Domain.Models.MathModeling.Peaks;
 
-namespace SpectraProcessing.Domain.MathModeling;
+namespace SpectraProcessing.Domain.MathModeling.Peaks;
 
-public static class NelderMead
+public static class NelderMeadOptimization
 {
     private static readonly Comparer<SimplexPoint> Comparer
         = Comparer<SimplexPoint>.Create((x, y) => x.Value.CompareTo(y.Value));

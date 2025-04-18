@@ -1,9 +1,11 @@
 using SpectraProcessing.Domain.Enums;
 using SpectraProcessing.Domain.Models.MathModeling;
+using SpectraProcessing.Domain.Models.MathModeling.Common;
+using SpectraProcessing.Domain.Models.MathModeling.Peaks;
 using SpectraProcessing.Domain.Models.Peak;
 using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
-namespace SpectraProcessing.Domain.MathModeling;
+namespace SpectraProcessing.Domain.MathModeling.Peaks;
 
 public static class SpectraModeling
 {
@@ -12,21 +14,14 @@ public static class SpectraModeling
     private static readonly ValueConstraint GaussianContributionConstraint = new(0, 1);
     private static readonly ValueConstraint HalfWidthConstraint = new(0, float.MaxValue);
 
-    public static async Task FitPeaks(
+    public static Task FitPeaks(
         this SpectraData spectra,
         IReadOnlyCollection<PeakData> peaks,
         OptimizationSettings settings)
     {
         var groups = peaks.GroupPeaksByEffectiveRadius();
 
-        foreach (var g in groups)
-        {
-            await g.FitPeaksGroup(spectra, settings);
-        }
-
-        // return Parallel.ForEachAsync(
-        // groups,
-        // (g, _) => g.FitPeaksGroup(spectra, settings));
+        return Parallel.ForEachAsync(groups, (g, _) => g.FitPeaksGroup(spectra, settings));
     }
 
     private static List<List<PeakData>> GroupPeaksByEffectiveRadius(this IReadOnlyCollection<PeakData> peaks)
@@ -114,7 +109,7 @@ public static class SpectraModeling
                 startValue,
                 endValue);
 
-            startVector = await NelderMead.GetOptimized(optimizationModel, funcForMin);
+            startVector = await NelderMeadOptimization.GetOptimized(optimizationModel, funcForMin);
         }
 
         UpdatePeaks(startVector);

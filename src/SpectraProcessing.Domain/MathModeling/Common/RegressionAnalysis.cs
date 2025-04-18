@@ -1,7 +1,7 @@
 using System.Numerics;
 using SpectraProcessing.Domain.Collections;
 
-namespace SpectraProcessing.Domain.MathModeling;
+namespace SpectraProcessing.Domain.MathModeling.Common;
 
 public static class RegressionAnalysis
 {

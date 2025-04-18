@@ -1,7 +1,10 @@
 using FluentAssertions;
 using SpectraProcessing.Domain.Extensions;
 using SpectraProcessing.Domain.MathModeling;
+using SpectraProcessing.Domain.MathModeling.Peaks;
 using SpectraProcessing.Domain.Models.MathModeling;
+using SpectraProcessing.Domain.Models.MathModeling.Common;
+using SpectraProcessing.Domain.Models.MathModeling.Peaks;
 using SpectraProcessing.TestingInfrastructure;
 using Xunit;
 
@@ -22,7 +25,7 @@ public class NeldlerMeadTests
             Settings = OptimizationSettings.Default,
         };
 
-        var actual = await NelderMead.GetOptimized(model, Func);
+        var actual = await NelderMeadOptimization.GetOptimized(model, Func);
 
         //Assert
         actual.Values[0].Should().BeApproximately(
@@ -52,7 +55,7 @@ public class NeldlerMeadTests
             Settings = OptimizationSettings.Default,
         };
 
-        var actual = await NelderMead.GetOptimized(model, Func);
+        var actual = await NelderMeadOptimization.GetOptimized(model, Func);
 
         //Assert
         actual.Values[0].Should().BeApproximately(

@@ -1,4 +1,6 @@
-namespace SpectraProcessing.Domain.Models.MathModeling;
+using SpectraProcessing.Domain.Models.MathModeling.Common;
+
+namespace SpectraProcessing.Domain.Models.MathModeling.Peaks;
 
 public sealed record NedlerMeadOptimizationModel
 {

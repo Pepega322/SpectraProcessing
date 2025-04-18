@@ -3,6 +3,7 @@ using ScottPlot;
 using SpectraProcessing.Bll.Models.ScottPlot.Peak;
 using SpectraProcessing.Bll.Providers.Interfaces;
 using SpectraProcessing.Domain.MathModeling;
+using SpectraProcessing.Domain.MathModeling.Peaks;
 using SpectraProcessing.Domain.Models.Peak;
 
 namespace SpectraProcessing.Bll.Providers;

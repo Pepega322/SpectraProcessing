@@ -1,4 +1,4 @@
-namespace SpectraProcessing.Domain.Models.MathModeling;
+namespace SpectraProcessing.Domain.Models.MathModeling.Common;
 
 public readonly ref struct VectorNRefStruct
 {
