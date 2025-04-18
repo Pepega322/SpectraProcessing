@@ -75,26 +75,26 @@ internal sealed class DirectoryDataProvider<TData>(
         return rootSet;
     }
 
-    public Task DataWriteAs(TData data, string path)
+    public Task DataWriteAs(TData data, string fullName)
     {
-        return dataRepository.WriteData(data, path);
+        return dataRepository.WriteData(data, fullName);
     }
 
-    public Task SetOnlyWriteAs(DataSet<TData> set, string path, string extension)
+    public Task DataWriteAs(IReadOnlyCollection<TData> dataSet, string path, string extension)
     {
         if (!Directory.Exists(path))
         {
             Directory.CreateDirectory(path);
         }
 
-        return Task.WhenAll(set.Data.Select(data => DataWriteAs(data, Path.Combine(path, $"{data.Name}{extension}"))));
+        return Task.WhenAll(dataSet.Select(data => DataWriteAs(data, Path.Combine(path, $"{data.Name}{extension}"))));
     }
 
-    public async Task SetFullDepthWriteAs(DataSet<TData> root, string path, string extension)
+    public async Task SetWriteAs(DataSet<TData> root, string path, string extension)
     {
         var track = LinkSetAndOutputFolder(root, path);
 
-        await Task.WhenAll(track.Keys.Select(set => SetOnlyWriteAs(set, track[set], extension)));
+        await Task.WhenAll(track.Keys.Select(set => DataWriteAs(set.Data, track[set], extension)));
     }
 
     private async Task ReadFolder(DirectoryInfo dir, DataSet<TData> node)

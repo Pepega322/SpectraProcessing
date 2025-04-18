@@ -144,6 +144,11 @@ internal sealed class SpectraController(
         return isHighlighted;
     }
 
+    public Task PlotRemoveHighlight(SpectraDataPlot plot)
+    {
+        return SetHighlighting(plot, false);
+    }
+
     public async Task ContextPlotSetDelete(DataSet<SpectraDataPlot> set)
     {
         var data = set.Data.Select(x => x.SpectraData).ToArray();

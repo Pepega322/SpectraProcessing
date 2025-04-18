@@ -1,8 +1,10 @@
 using SpectraProcessing.Domain.Collections;
+using SpectraProcessing.Domain.DataTypes;
 
 namespace SpectraProcessing.Bll.Providers.Interfaces;
 
 public interface IDataProvider<TData>
+    where TData : IWriteableData
 {
     Task<TData> ReadDataAsync(string fullName);
 
@@ -10,9 +12,9 @@ public interface IDataProvider<TData>
 
     Task<DataSet<TData>> ReadFolderFullDepthAsync(string fullName);
 
-    Task DataWriteAs(TData data, string path);
+    Task DataWriteAs(TData data, string fullName);
 
-    Task SetOnlyWriteAs(DataSet<TData> set, string path, string extension);
+    Task DataWriteAs(IReadOnlyCollection<TData> dataSet, string path, string extension);
 
-    Task SetFullDepthWriteAs(DataSet<TData> root, string path, string extension);
+    Task SetWriteAs(DataSet<TData> root, string path, string extension);
 }

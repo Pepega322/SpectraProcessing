@@ -14,10 +14,16 @@ internal sealed class WinformDialogController : IDialogController
     public string? GetSaveFileFullName(string defaultName, string defaultExtension)
     {
         using SaveFileDialog dialog = new();
-        dialog.FileName = defaultName;
-        dialog.DefaultExt = defaultExtension;
-        var result = dialog.ShowDialog();
-        return result == DialogResult.OK ? dialog.FileName : null;
+        dialog.FileName = $"{defaultName}.{defaultExtension}";
+
+        if (dialog.ShowDialog() is not DialogResult.OK)
+        {
+            return null;
+        }
+
+        return dialog.FileName.EndsWith($".{defaultExtension}")
+            ? dialog.FileName
+            : $"{dialog.FileName}.{defaultExtension}";
     }
 
     public string? GetReadFileFullName()

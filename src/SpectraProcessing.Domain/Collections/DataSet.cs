@@ -65,6 +65,20 @@ public class DataSet<TValue>
         return result;
     }
 
+    public void AddRangeThreadSafe(IEnumerable<TValue> values)
+    {
+        lock (data)
+        {
+            foreach (var value in values)
+            {
+                if (data.Add(value))
+                {
+                    IncreaseCount();
+                }
+            }
+        }
+    }
+
     public bool RemoveThreadSafe(TValue value)
     {
         bool result;
@@ -80,6 +94,20 @@ public class DataSet<TValue>
         }
 
         return result;
+    }
+
+    public void RemoveRangeThreadSafe(IEnumerable<TValue> values)
+    {
+        lock (data)
+        {
+            foreach (var value in values)
+            {
+                if (data.Remove(value))
+                {
+                    DecreaseCount();
+                }
+            }
+        }
     }
 
     public void ClearThreadSafe()

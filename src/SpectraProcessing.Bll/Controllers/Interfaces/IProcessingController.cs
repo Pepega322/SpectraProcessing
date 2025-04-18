@@ -9,20 +9,17 @@ public interface IProcessingController
     event Action? OnPlotAreaChanged;
 
     IReadOnlyList<PeakDataPlot> CurrentPeaks { get; }
+    Task<bool> CheckoutSpectra(SpectraData? spectra);
+    Task AddPeaksForCurrentSpectra(IReadOnlyCollection<PeakData> peaks);
+    Task RemovePeaksForCurrentSpectra(IReadOnlyCollection<PeakData> peaks);
+    Task<bool> SaveCurrentSpectraPeaks();
+    Task<bool> RemoveCurrentSpectraPeaks();
+    Task ClearCurrentSpectraPeaks();
 
     Task SmoothSpectras(IReadOnlyCollection<SpectraData> spectras);
-
-    Task AddPeaks(IReadOnlyCollection<PeakData> peaks);
-
-    Task RemovePeaks(IReadOnlyCollection<PeakData> peaks);
-
-    Task<bool> CheckoutSpectra(SpectraData? spectra);
-
     Task FitPeaks(IReadOnlyCollection<SpectraData> spectras);
-
-    Task<bool> SaveSpectraPeaks();
-
-    Task<bool> RemovedSpectraPeaks();
-
+    Task<IReadOnlyCollection<PeakData>> ExportPeaks(SpectraData spectra);
+    Task ImportPeaks(SpectraData spectra, IReadOnlyCollection<PeakData> peaks);
+    Task RemovePeaks(SpectraData spectra);
     Task ClearPeaks();
 }
