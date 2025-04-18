@@ -60,7 +60,8 @@ public static class ServiceCollectionExtensions
     {
         services
             .AddSingleton<ISpectraController, SpectraController>()
-            .AddSingleton<IProcessingController, ProcessingController>();
+            .AddSingleton<IPeakProcessingController, PeakProcessingController>()
+            .AddSingleton<ISpectraProcessingController, SpectraProcessingController>();
 
         return services;
     }

@@ -85,6 +85,7 @@ sealed partial class MainForm
         plotSetContextMenuExportPeaks = new ToolStripMenuItem();
         plotSetContextMenuFitPeaks = new ToolStripMenuItem();
         plotSetContextMenuClear = new ToolStripMenuItem();
+        addOrRemoveBaselineAnchorsToolStripMenuItem = new ToolStripMenuItem();
         tableLayoutPanel1.SuspendLayout();
         tableLayoutPanel2.SuspendLayout();
         tableLayoutPanel3.SuspendLayout();
@@ -171,7 +172,7 @@ sealed partial class MainForm
         // 
         menuStrip2.Dock = DockStyle.Fill;
         menuStrip2.ImageScalingSize = new Size(32, 32);
-        menuStrip2.Items.AddRange(new ToolStripItem[] { resizeToolStripMenuItem, addOrRemovePeaksToolStripMenuItem, customPeaksToolStripMenuItem, clearPeaksToolStripMenuItem });
+        menuStrip2.Items.AddRange(new ToolStripItem[] { resizeToolStripMenuItem, addOrRemovePeaksToolStripMenuItem, customPeaksToolStripMenuItem, clearPeaksToolStripMenuItem, addOrRemoveBaselineAnchorsToolStripMenuItem });
         menuStrip2.Location = new Point(0, 0);
         menuStrip2.Name = "menuStrip2";
         menuStrip2.Size = new Size(1123, 44);
@@ -512,6 +513,12 @@ sealed partial class MainForm
         plotSetContextMenuClear.Size = new Size(288, 38);
         plotSetContextMenuClear.Text = "Clear";
         // 
+        // addOrRemoveBaselineAnchorsToolStripMenuItem
+        // 
+        addOrRemoveBaselineAnchorsToolStripMenuItem.Name = "addOrRemoveBaselineAnchorsToolStripMenuItem";
+        addOrRemoveBaselineAnchorsToolStripMenuItem.Size = new Size(354, 40);
+        addOrRemoveBaselineAnchorsToolStripMenuItem.Text = "Add|Remove baseline anchors";
+        // 
         // MainForm
         // 
         AutoScaleDimensions = new SizeF(13F, 32F);
@@ -606,4 +613,5 @@ sealed partial class MainForm
     private ToolStripMenuItem plotContextMenuExportPeaks;
     private ToolStripMenuItem plotContextMenuFitPeaks;
     private ToolStripMenuItem plotSetContextMenuImportPeaks;
+    private ToolStripMenuItem addOrRemoveBaselineAnchorsToolStripMenuItem;
 }

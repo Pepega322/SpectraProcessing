@@ -22,7 +22,7 @@ public class SpectraModelingTests
         var actual = ModelSpectras.GaussPeaks.Select(x => Shift(x.Copy())).ToArray();
 
         //Act
-        await spectra.FitPeaks(actual, ProcessingController.OptimizationSettings);
+        await spectra.FitPeaks(actual, PeakProcessingController.OptimizationSettings);
         actual = actual.OrderBy(p => p.Center).ToArray();
 
         //Assert
@@ -40,7 +40,7 @@ public class SpectraModelingTests
         var actual = ModelSpectras.LorentzPeaks.Select(x => Shift(x.Copy())).ToArray();
 
         //Act
-        await spectra.FitPeaks(actual, ProcessingController.OptimizationSettings);
+        await spectra.FitPeaks(actual, PeakProcessingController.OptimizationSettings);
 
         //Assert
         actual = actual.OrderBy(p => p.Center).ToArray();
@@ -60,7 +60,7 @@ public class SpectraModelingTests
         var actual = ModelSpectras.GaussAndLorentzPeaks.Select(x => Shift(x.Copy())).ToArray();
 
         //Act
-        await spectra.FitPeaks(actual, ProcessingController.OptimizationSettings);
+        await spectra.FitPeaks(actual, PeakProcessingController.OptimizationSettings);
 
         //Assert
         actual = actual.OrderBy(p => p.Center).ToArray();

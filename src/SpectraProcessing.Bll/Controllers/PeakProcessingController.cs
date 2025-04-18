@@ -11,10 +11,10 @@ using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Bll.Controllers;
 
-internal sealed class ProcessingController(
+internal sealed class PeakProcessingController(
     IDataStorageProvider<SpectraKey, PeakDataPlot> peaksStorageProvider,
     IPeakDataPlotProvider peakDataPlotProvider
-) : IProcessingController
+) : IPeakProcessingController
 {
     public static readonly OptimizationSettings OptimizationSettings = OptimizationSettings.Default
         with
@@ -40,15 +40,6 @@ internal sealed class ProcessingController(
     public IReadOnlyList<PeakDataPlot> CurrentPeaks => CurrentPeaksSet.Data;
 
     public event Action? OnPlotAreaChanged;
-
-    public async Task SmoothSpectras(IReadOnlyCollection<SpectraData> spectras)
-    {
-        var smoothingTasks = spectras.Select(s => Task.Run(() => s.Points.Smooth()));
-
-        await Task.WhenAll(smoothingTasks);
-
-        OnPlotAreaChanged?.Invoke();
-    }
 
     public Task<IReadOnlyCollection<PeakData>> ExportPeaks(SpectraData spectra)
     {

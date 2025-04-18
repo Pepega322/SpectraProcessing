@@ -9,7 +9,7 @@ namespace SpectraProcessing.Application.Controllers;
 internal sealed class WinformPeakController(
     FormsPlot plotView,
     ICoordinateProvider coordinateProvider,
-    IProcessingController processingController
+    IPeakProcessingController peakProcessingController
 ) : IPeakController
 {
     private Coordinates coordinates = new Coordinates(0, 0);
@@ -23,7 +23,7 @@ internal sealed class WinformPeakController(
 
         var pixel = plotView.Plot.GetPixel(coordinates);
 
-        var hitPeak = processingController.CurrentPeaks
+        var hitPeak = peakProcessingController.CurrentPeaks
             .FirstOrDefault(p => p.TryHit(pixel, 20f));
 
         return Task.FromResult(hitPeak);

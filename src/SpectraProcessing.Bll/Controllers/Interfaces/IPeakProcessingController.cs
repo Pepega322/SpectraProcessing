@@ -4,7 +4,7 @@ using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Bll.Controllers.Interfaces;
 
-public interface IProcessingController
+public interface IPeakProcessingController
 {
     event Action? OnPlotAreaChanged;
 
@@ -16,7 +16,6 @@ public interface IProcessingController
     Task<bool> RemoveCurrentSpectraPeaks();
     Task ClearCurrentSpectraPeaks();
 
-    Task SmoothSpectras(IReadOnlyCollection<SpectraData> spectras);
     Task FitPeaks(IReadOnlyCollection<SpectraData> spectras);
     Task<IReadOnlyCollection<PeakData>> ExportPeaks(SpectraData spectra);
     Task ImportPeaks(SpectraData spectra, IReadOnlyCollection<PeakData> peaks);
