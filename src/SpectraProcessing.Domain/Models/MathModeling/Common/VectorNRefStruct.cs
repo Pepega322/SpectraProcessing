@@ -1,3 +1,5 @@
+using SpectraProcessing.Domain.Extensions;
+
 namespace SpectraProcessing.Domain.Models.MathModeling.Common;
 
 public readonly ref struct VectorNRefStruct
@@ -6,46 +8,47 @@ public readonly ref struct VectorNRefStruct
 
     public int Dimension => Values.Length;
 
-    public VectorNRefStruct(Span<float> values)
+    public VectorNRefStruct(Span<float> buffer)
     {
-        Values = values;
+        Values = buffer;
     }
 
-    public VectorNRefStruct Add(in VectorNRefStruct other)
+    public VectorNRefStruct Add(in VectorNRefStruct other, float multiplier = 1)
     {
-        for (var d = 0; d < Dimension; d++)
+        if (multiplier.ApproximatelyEqual(1))
         {
-            Values[d] += other.Values[d];
+            for (var d = 0; d < Dimension; d++)
+            {
+                Values[d] += other.Values[d];
+            }
         }
+        else
+        {
+            for (var d = 0; d < Dimension; d++)
+            {
+                Values[d] += multiplier * other.Values[d];
+            }
+        }
+
 
         return this;
     }
 
-    public VectorNRefStruct Add(VectorN other)
+    public VectorNRefStruct Add(VectorN other, float multiplier = 1)
     {
-        for (var d = 0; d < Dimension; d++)
+        if (multiplier.ApproximatelyEqual(1))
         {
-            Values[d] += other.Values[d];
+            for (var d = 0; d < Dimension; d++)
+            {
+                Values[d] += other.Values[d];
+            }
         }
-
-        return this;
-    }
-
-    public VectorNRefStruct Substract(in VectorNRefStruct other)
-    {
-        for (var d = 0; d < Dimension; d++)
+        else
         {
-            Values[d] -= other.Values[d];
-        }
-
-        return this;
-    }
-
-    public VectorNRefStruct Substract(VectorN other)
-    {
-        for (var d = 0; d < Dimension; d++)
-        {
-            Values[d] -= other.Values[d];
+            for (var d = 0; d < Dimension; d++)
+            {
+                Values[d] += multiplier * other.Values[d];
+            }
         }
 
         return this;
@@ -76,11 +79,19 @@ public readonly ref struct VectorNRefStruct
         return $"({string.Join(", ", Values.ToArray())})";
     }
 
-    public static VectorNRefStruct Difference(in VectorNRefStruct left, in VectorNRefStruct right, Span<float> buffer)
+    public static VectorNRefStruct Difference(
+        in VectorNRefStruct left,
+        in VectorNRefStruct right,
+        in Span<float> buffer)
     {
         if (left.Dimension != right.Dimension)
         {
-            throw new InvalidOperationException($"Vectors must have the same dimension.");
+            throw new InvalidOperationException("Vectors must have the same dimension.");
+        }
+
+        if (buffer.Length < left.Dimension)
+        {
+            throw new InvalidOperationException("Buffer too small.");
         }
 
         for (var d = 0; d < left.Dimension; d++)
@@ -88,14 +99,22 @@ public readonly ref struct VectorNRefStruct
             buffer[d] = left.Values[d] - right.Values[d];
         }
 
-        return new VectorNRefStruct(buffer);
+        return new VectorNRefStruct(buffer[..left.Dimension]);
     }
 
-    public static VectorNRefStruct Difference(VectorN left, in VectorNRefStruct right, Span<float> buffer)
+    public static VectorNRefStruct Difference(
+        VectorN left,
+        in VectorNRefStruct right,
+        in Span<float> buffer)
     {
         if (left.Dimension != right.Dimension)
         {
-            throw new InvalidOperationException($"Vectors must have the same dimension.");
+            throw new InvalidOperationException("Vectors must have the same dimension.");
+        }
+
+        if (buffer.Length < left.Dimension)
+        {
+            throw new InvalidOperationException("Buffer too small.");
         }
 
         for (var d = 0; d < left.Dimension; d++)
@@ -103,14 +122,22 @@ public readonly ref struct VectorNRefStruct
             buffer[d] = left.Values[d] - right.Values[d];
         }
 
-        return new VectorNRefStruct(buffer);
+        return new VectorNRefStruct(buffer[..left.Dimension]);
     }
 
-    public static VectorNRefStruct Difference(VectorN left, VectorN right, Span<float> buffer)
+    public static VectorNRefStruct Difference(
+        VectorN left,
+        VectorN right,
+        in Span<float> buffer)
     {
         if (left.Dimension != right.Dimension)
         {
-            throw new InvalidOperationException($"Vectors must have the same dimension.");
+            throw new InvalidOperationException("Vectors must have the same dimension.");
+        }
+
+        if (buffer.Length < left.Dimension)
+        {
+            throw new InvalidOperationException("Buffer too small.");
         }
 
         for (var d = 0; d < left.Dimension; d++)
@@ -118,14 +145,22 @@ public readonly ref struct VectorNRefStruct
             buffer[d] = left.Values[d] - right.Values[d];
         }
 
-        return new VectorNRefStruct(buffer);
+        return new VectorNRefStruct(buffer[..left.Dimension]);
     }
 
-    public static VectorNRefStruct Difference(in VectorNRefStruct left, VectorN right, Span<float> buffer)
+    public static VectorNRefStruct Difference(
+        in VectorNRefStruct left,
+        VectorN right,
+        in Span<float> buffer)
     {
         if (left.Dimension != right.Dimension)
         {
-            throw new InvalidOperationException($"Vectors must have the same dimension.");
+            throw new InvalidOperationException("Vectors must have the same dimension.");
+        }
+
+        if (buffer.Length < left.Dimension)
+        {
+            throw new InvalidOperationException("Buffer too small.");
         }
 
         for (var d = 0; d < left.Dimension; d++)
@@ -133,6 +168,6 @@ public readonly ref struct VectorNRefStruct
             buffer[d] = left.Values[d] - right.Values[d];
         }
 
-        return new VectorNRefStruct(buffer);
+        return new VectorNRefStruct(buffer[..left.Dimension]);
     }
 }

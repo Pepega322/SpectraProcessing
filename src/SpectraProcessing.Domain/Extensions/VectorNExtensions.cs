@@ -1,11 +1,10 @@
-﻿using SpectraProcessing.Domain.Models.MathModeling;
-using SpectraProcessing.Domain.Models.MathModeling.Common;
+﻿using SpectraProcessing.Domain.Models.MathModeling.Common;
 
 namespace SpectraProcessing.Domain.Extensions;
 
 public static class VectorNExtensions
 {
-    public static VectorNRefStruct Sum(this IEnumerable<VectorN> vectors, Span<float> buffer)
+    public static VectorNRefStruct Sum(this IEnumerable<VectorN> vectors, in Span<float> buffer)
     {
         buffer.Clear();
 
