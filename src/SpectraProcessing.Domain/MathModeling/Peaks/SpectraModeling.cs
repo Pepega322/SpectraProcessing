@@ -1,5 +1,4 @@
 using SpectraProcessing.Domain.Enums;
-using SpectraProcessing.Domain.Models.MathModeling;
 using SpectraProcessing.Domain.Models.MathModeling.Common;
 using SpectraProcessing.Domain.Models.MathModeling.Peaks;
 using SpectraProcessing.Domain.Models.Peak;
@@ -120,10 +119,10 @@ public static class SpectraModeling
         {
             for (var i = 0; i < peaks.Count; i++)
             {
-                peaks[i].Center = vector.Values[PeakParametersCount * i];
-                peaks[i].HalfWidth = vector.Values[PeakParametersCount * i + 1];
-                peaks[i].Amplitude = vector.Values[PeakParametersCount * i + 2];
-                peaks[i].GaussianContribution = vector.Values[PeakParametersCount * i + 3];
+                peaks[i].Center = vector[PeakParametersCount * i];
+                peaks[i].HalfWidth = vector[PeakParametersCount * i + 1];
+                peaks[i].Amplitude = vector[PeakParametersCount * i + 2];
+                peaks[i].GaussianContribution = vector[PeakParametersCount * i + 3];
             }
         }
     }
@@ -137,9 +136,9 @@ public static class SpectraModeling
 
         for (var i = 0; i < peaksCount; i++)
         {
-            var center = peaksVector.Values[PeakParametersCount * i];
-            var halfWidth = peaksVector.Values[PeakParametersCount * i + 1];
-            var gaussianContribution = peaksVector.Values[PeakParametersCount * i + 3];
+            var center = peaksVector[PeakParametersCount * i];
+            var halfWidth = peaksVector[PeakParametersCount * i + 1];
+            var gaussianContribution = peaksVector[PeakParametersCount * i + 3];
 
             var effectiveRadius = PeakModeling.GetPeakEffectiveRadius(
                 halfWidth: halfWidth,

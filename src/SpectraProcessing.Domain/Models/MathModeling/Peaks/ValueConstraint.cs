@@ -16,7 +16,7 @@ public sealed record ValueConstraint
         this.max = max;
     }
 
-    public void ApplyWithReflection(ref float value)
+    public float WithReflection(float value)
     {
         while (true)
         {
@@ -32,21 +32,22 @@ public sealed record ValueConstraint
                 continue;
             }
 
-            return;
+            return value;
         }
     }
 
-    public void ApplyWithCut(ref float value)
+    public float ApplyWithCut(float value)
     {
         if (value < min)
         {
-            value = min;
-            return;
+            return min;
         }
 
         if (value > max)
         {
-            value = max;
+            return max;
         }
+
+        return value;
     }
 }

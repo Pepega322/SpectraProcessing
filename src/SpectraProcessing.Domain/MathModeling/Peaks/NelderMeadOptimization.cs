@@ -1,5 +1,4 @@
 ﻿using SpectraProcessing.Domain.Extensions;
-using SpectraProcessing.Domain.Models.MathModeling;
 using SpectraProcessing.Domain.Models.MathModeling.Common;
 using SpectraProcessing.Domain.Models.MathModeling.Peaks;
 
@@ -236,7 +235,7 @@ public static class NelderMeadOptimization
         {
             if (constraints.TryGetValue(d, out var constraint))
             {
-                constraint.ApplyWithReflection(ref vector.Values[d]);
+                vector[d] = constraint.WithReflection(vector[d]);
             }
         }
 
@@ -251,7 +250,7 @@ public static class NelderMeadOptimization
         {
             if (constraints.TryGetValue(d, out var constraint))
             {
-                constraint.ApplyWithReflection(ref vector.Values[d]);
+                vector[d] = constraint.WithReflection(vector[d]);
             }
         }
 

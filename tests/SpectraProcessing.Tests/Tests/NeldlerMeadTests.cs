@@ -1,8 +1,6 @@
 using FluentAssertions;
 using SpectraProcessing.Domain.Extensions;
-using SpectraProcessing.Domain.MathModeling;
 using SpectraProcessing.Domain.MathModeling.Peaks;
-using SpectraProcessing.Domain.Models.MathModeling;
 using SpectraProcessing.Domain.Models.MathModeling.Common;
 using SpectraProcessing.Domain.Models.MathModeling.Peaks;
 using SpectraProcessing.TestingInfrastructure;
@@ -28,18 +26,17 @@ public class NeldlerMeadTests
         var actual = await NelderMeadOptimization.GetOptimized(model, Func);
 
         //Assert
-        actual.Values[0].Should().BeApproximately(
+        actual[0].Should().BeApproximately(
             MathFunctions.RosenbrockMinimum.X,
             ComparisonsExtensions.FloatTolerance);
 
-        actual.Values[1].Should().BeApproximately(
+        actual[1].Should().BeApproximately(
             MathFunctions.RosenbrockMinimum.Y,
             ComparisonsExtensions.FloatTolerance);
 
         return;
 
-        float Func(VectorNRefStruct vector, Span<float> buffer)
-            => MathFunctions.RosenbrockFunc(vector.Values[0], vector.Values[1]);
+        float Func(VectorNRefStruct vector, Span<float> buffer) => MathFunctions.RosenbrockFunc(vector[0], vector[1]);
     }
 
     [Theory]
@@ -58,18 +55,17 @@ public class NeldlerMeadTests
         var actual = await NelderMeadOptimization.GetOptimized(model, Func);
 
         //Assert
-        actual.Values[0].Should().BeApproximately(
+        actual[0].Should().BeApproximately(
             expectedMinimum[0],
             ComparisonsExtensions.FloatTolerance);
 
-        actual.Values[1].Should().BeApproximately(
+        actual[1].Should().BeApproximately(
             expectedMinimum[1],
             ComparisonsExtensions.FloatTolerance);
 
         return;
 
-        float Func(VectorNRefStruct vector, Span<float> buffer)
-            => MathFunctions.HimmelblauFunc(vector.Values[0], vector.Values[1]);
+        float Func(VectorNRefStruct vector, Span<float> buffer) => MathFunctions.HimmelblauFunc(vector[0], vector[1]);
     }
 
     public static TheoryData<VectorN> GetRosenbrockFuncStarts()
@@ -107,8 +103,8 @@ public class NeldlerMeadTests
 
     private static VectorN Shift(VectorN vector, float shiftPercentage)
     {
-        var shifted = vector.Values
-            .Select(v => v * (1 + (Random.Shared.Next() % 2 == 0 ? 1 : -1) * shiftPercentage))
+        var shifted = Enumerable.Range(0, vector.Dimension)
+            .Select(d => vector[d] * (1 + (Random.Shared.Next() % 2 == 0 ? 1 : -1) * shiftPercentage))
             .ToArray();
 
         return new VectorN(shifted);

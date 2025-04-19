@@ -1,6 +1,5 @@
 using FluentAssertions;
 using SpectraProcessing.Bll.Controllers;
-using SpectraProcessing.Domain.MathModeling;
 using SpectraProcessing.Domain.MathModeling.Peaks;
 using SpectraProcessing.Domain.Models.Peak;
 using SpectraProcessing.TestingInfrastructure;

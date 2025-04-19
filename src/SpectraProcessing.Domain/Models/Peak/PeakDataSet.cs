@@ -1,5 +1,4 @@
 ﻿using SpectraProcessing.Domain.DataTypes;
-using SpectraProcessing.Domain.MathModeling;
 using SpectraProcessing.Domain.MathModeling.Peaks;
 
 namespace SpectraProcessing.Domain.Models.Peak;

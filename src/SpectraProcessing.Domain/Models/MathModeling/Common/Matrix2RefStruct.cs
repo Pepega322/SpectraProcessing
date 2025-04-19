@@ -172,11 +172,11 @@ public readonly ref struct Matrix2RefStruct
 
         for (var row = 0; row < RowsCount; row++)
         {
-            builder.Append($"({values[row, 0]:0.##}");
+            builder.Append($"({values[row, 0]:0.00}");
 
             for (var column = 1; column < ColumnsCount; column++)
             {
-                builder.Append($"\t, {values[row, column]:0.##}");
+                builder.Append($"\t;\t{values[row, column]:0.00}");
             }
 
             builder.Append(")\n");

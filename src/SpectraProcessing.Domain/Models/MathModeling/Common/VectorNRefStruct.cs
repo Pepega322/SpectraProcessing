@@ -4,13 +4,19 @@ namespace SpectraProcessing.Domain.Models.MathModeling.Common;
 
 public readonly ref struct VectorNRefStruct
 {
-    public readonly Span<float> Values;
+    private readonly Span<float> values;
 
-    public int Dimension => Values.Length;
+    public int Dimension => values.Length;
+
+    public float this[int index]
+    {
+        get => values[index];
+        set => values[index] = value;
+    }
 
     public VectorNRefStruct(Span<float> buffer)
     {
-        Values = buffer;
+        values = buffer;
     }
 
     public VectorNRefStruct Add(in VectorNRefStruct other, float multiplier = 1)
@@ -19,14 +25,14 @@ public readonly ref struct VectorNRefStruct
         {
             for (var d = 0; d < Dimension; d++)
             {
-                Values[d] += other.Values[d];
+                values[d] += other.values[d];
             }
         }
         else
         {
             for (var d = 0; d < Dimension; d++)
             {
-                Values[d] += multiplier * other.Values[d];
+                values[d] += multiplier * other.values[d];
             }
         }
 
@@ -40,14 +46,14 @@ public readonly ref struct VectorNRefStruct
         {
             for (var d = 0; d < Dimension; d++)
             {
-                Values[d] += other.Values[d];
+                values[d] += other[d];
             }
         }
         else
         {
             for (var d = 0; d < Dimension; d++)
             {
-                Values[d] += multiplier * other.Values[d];
+                values[d] += multiplier * other[d];
             }
         }
 
@@ -58,7 +64,7 @@ public readonly ref struct VectorNRefStruct
     {
         for (var d = 0; d < Dimension; d++)
         {
-            Values[d] *= multiplier;
+            values[d] *= multiplier;
         }
 
         return this;
@@ -68,7 +74,7 @@ public readonly ref struct VectorNRefStruct
     {
         for (var d = 0; d < Dimension; d++)
         {
-            Values[d] /= divider;
+            values[d] /= divider;
         }
 
         return this;
@@ -76,7 +82,7 @@ public readonly ref struct VectorNRefStruct
 
     public override string ToString()
     {
-        return $"({string.Join(", ", Values.ToArray())})";
+        return $"({string.Join(", ", values.ToArray())})";
     }
 
     public static VectorNRefStruct Difference(
@@ -96,7 +102,7 @@ public readonly ref struct VectorNRefStruct
 
         for (var d = 0; d < left.Dimension; d++)
         {
-            buffer[d] = left.Values[d] - right.Values[d];
+            buffer[d] = left.values[d] - right.values[d];
         }
 
         return new VectorNRefStruct(buffer[..left.Dimension]);
@@ -119,7 +125,7 @@ public readonly ref struct VectorNRefStruct
 
         for (var d = 0; d < left.Dimension; d++)
         {
-            buffer[d] = left.Values[d] - right.Values[d];
+            buffer[d] = left[d] - right.values[d];
         }
 
         return new VectorNRefStruct(buffer[..left.Dimension]);
@@ -142,7 +148,7 @@ public readonly ref struct VectorNRefStruct
 
         for (var d = 0; d < left.Dimension; d++)
         {
-            buffer[d] = left.Values[d] - right.Values[d];
+            buffer[d] = left[d] - right[d];
         }
 
         return new VectorNRefStruct(buffer[..left.Dimension]);
@@ -165,7 +171,7 @@ public readonly ref struct VectorNRefStruct
 
         for (var d = 0; d < left.Dimension; d++)
         {
-            buffer[d] = left.Values[d] - right.Values[d];
+            buffer[d] = left[d] - right[d];
         }
 
         return new VectorNRefStruct(buffer[..left.Dimension]);

@@ -2,7 +2,6 @@
 using SpectraProcessing.Bll.Models.ScottPlot.Plottables;
 using SpectraProcessing.Domain.Collections;
 using SpectraProcessing.Domain.DataTypes;
-using SpectraProcessing.Domain.MathModeling;
 using SpectraProcessing.Domain.MathModeling.Peaks;
 using SpectraProcessing.Domain.Models.Peak;
 
