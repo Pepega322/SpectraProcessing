@@ -22,6 +22,8 @@ public sealed class VectorN
         set => values[index] = value;
     }
 
+    public float GetLength() => MathF.Sqrt(values.Sum(v => v * v));
+
     public VectorNRefStruct ToVectorNRefStruct(in Span<float> buffer)
     {
         for (var d = 0; d < Dimension; d++)
@@ -29,7 +31,7 @@ public sealed class VectorN
             buffer[d] = values[d];
         }
 
-        return new VectorNRefStruct(buffer);
+        return new VectorNRefStruct(Dimension, buffer);
     }
 
     public void Update(in VectorNRefStruct vector)

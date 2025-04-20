@@ -14,9 +14,9 @@ public readonly ref struct VectorNRefStruct
         set => values[index] = value;
     }
 
-    public VectorNRefStruct(Span<float> buffer)
+    public VectorNRefStruct(int dimensions, Span<float> buffer)
     {
-        values = buffer;
+        values = buffer[..dimensions];
     }
 
     public VectorNRefStruct Add(in VectorNRefStruct other, float multiplier = 1)
@@ -105,7 +105,7 @@ public readonly ref struct VectorNRefStruct
             buffer[d] = left.values[d] - right.values[d];
         }
 
-        return new VectorNRefStruct(buffer[..left.Dimension]);
+        return new VectorNRefStruct(left.Dimension, buffer);
     }
 
     public static VectorNRefStruct Difference(
@@ -128,7 +128,7 @@ public readonly ref struct VectorNRefStruct
             buffer[d] = left[d] - right.values[d];
         }
 
-        return new VectorNRefStruct(buffer[..left.Dimension]);
+        return new VectorNRefStruct(left.Dimension, buffer);
     }
 
     public static VectorNRefStruct Difference(
@@ -151,7 +151,7 @@ public readonly ref struct VectorNRefStruct
             buffer[d] = left[d] - right[d];
         }
 
-        return new VectorNRefStruct(buffer[..left.Dimension]);
+        return new VectorNRefStruct(left.Dimension, buffer);
     }
 
     public static VectorNRefStruct Difference(
@@ -174,6 +174,6 @@ public readonly ref struct VectorNRefStruct
             buffer[d] = left[d] - right[d];
         }
 
-        return new VectorNRefStruct(buffer[..left.Dimension]);
+        return new VectorNRefStruct(left.Dimension, buffer);
     }
 }

@@ -16,6 +16,6 @@ public static class VectorNExtensions
             }
         }
 
-        return new VectorNRefStruct(buffer);
+        return new VectorNRefStruct(buffer.Length, buffer);
     }
 }

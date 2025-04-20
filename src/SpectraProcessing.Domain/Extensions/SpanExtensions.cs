@@ -42,4 +42,14 @@ public static class SpanExtensions
 
         return count;
     }
+
+    public static Span<T> Set<T>(this in Span<T> values, Func<T, T> selector)
+    {
+        for (var i = 0; i < values.Length; i++)
+        {
+            values[i] = selector(values[i]);
+        }
+
+        return values;
+    }
 }
