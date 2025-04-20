@@ -1,41 +1,35 @@
 using SpectraProcessing.Domain.Extensions;
 using SpectraProcessing.Domain.Models.MathModeling.Baseline;
 using SpectraProcessing.Domain.Models.MathModeling.Common;
-using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Domain.MathModeling.Baseline.AirPLS;
 
 public static partial class AirPLS
 {
-    internal static Task<VectorN> GetBaseline(float[] yValues, AirPLSBaselineCorrectionModel model)
+    public static Task<float[]> GetBaseline(float[] yValues, AirPLSSettings settings)
     {
-        return Task.Run(() => GetBaselineInternal(yValues, model));
+        return Task.Run(() => GetBaselineInternal(yValues, settings));
     }
 
-    public static Task<VectorN> GetBaseline(SpectraData spectra, AirPLSBaselineCorrectionModel model)
+    private static float[] GetBaselineInternal(float[] yValues, AirPLSSettings settings)
     {
-        return Task.Run(() => GetBaselineInternal(spectra.Points.Y, model));
-    }
+        var length = yValues.Length;
 
-    private static VectorN GetBaselineInternal(float[] pointsY, AirPLSBaselineCorrectionModel model)
-    {
-        var length = pointsY.Length;
+        var baseline = new float[length];
 
-        var baselineVector = new VectorN(length);
-
-        var yVector = new VectorN(pointsY);
+        var yVector = new VectorN(yValues);
         var yVectorLength = yVector.GetLength();
         var weightVector = new VectorNRefStruct(length, stackalloc float[length].Set(_ => 1f));
 
         var penaltyMatrix = new PenaltyMatrix(length);
         Span<float> vectorBuffer = stackalloc float[length];
         Span<float> otherVectorBuffer = stackalloc float[length];
-        Span<float> lMatrixBuffer = stackalloc float[3 * length - 3];
+        Span<double> lMatrixBuffer = stackalloc double[3 * length - 3];
 
-        for (var iteration = 0; iteration < model.MaxIterationsCount; iteration++)
+        for (var iteration = 0; iteration < settings.IterationsCount; iteration++)
         {
             //Этап 1 получаем текущий baseline
-            var lMatrix = LMatrix.Create(weightVector, penaltyMatrix, model.SmoothCoefficient, lMatrixBuffer);
+            var lMatrix = LMatrix.Create(weightVector, penaltyMatrix, settings.SmoothCoefficient, lMatrixBuffer);
 
             var weightedYVector = GetWeightedYVector(weightVector, vectorBuffer);
 
@@ -47,7 +41,7 @@ public static partial class AirPLS
             var negativeResidualsVectorLength = GetNegativeResidualsVectorLength();
 
             //Этап 3 проверяем прошёл ли критерий завершения
-            if (negativeResidualsVectorLength < model.SmoothingTolerance * yVectorLength)
+            if (negativeResidualsVectorLength < settings.SmoothingTolerance * yVectorLength)
             {
                 break;
             }
@@ -55,7 +49,7 @@ public static partial class AirPLS
             //Этап 4 перевешиваем
             for (var i = 0; i < length; i++)
             {
-                var delta = yVector[i] - baselineVector[i];
+                var delta = yVector[i] - baseline[i];
 
                 weightVector[i] += delta <= 0
                     ? MathF.Exp(iteration * delta / negativeResidualsVectorLength)
@@ -63,7 +57,7 @@ public static partial class AirPLS
             }
         }
 
-        return baselineVector;
+        return baseline;
 
         VectorNRefStruct GetWeightedYVector(
             in VectorNRefStruct weight,
@@ -88,7 +82,7 @@ public static partial class AirPLS
 
             for (var i = 0; i < length; i++)
             {
-                var y = weightedYVector[i];
+                double y = weightedYVector[i];
 
                 for (var j = i - 2; j < i; j++)
                 {
@@ -100,7 +94,7 @@ public static partial class AirPLS
                     y -= intermediateVector[j] * lMatrix[i, j];
                 }
 
-                intermediateVector[i] = y / lMatrix[i, i];
+                intermediateVector[i] = (float) (y / lMatrix[i, i]);
             }
 
             return intermediateVector;
@@ -121,10 +115,10 @@ public static partial class AirPLS
                         continue;
                     }
 
-                    b -= baselineVector[j] * lMatrix[j, i];
+                    b -= (float) (baseline[j] * lMatrix[j, i]);
                 }
 
-                baselineVector[i] = b / lMatrix[i, i];
+                baseline[i] = (float) (b / lMatrix[i, i]);
             }
         }
 
@@ -134,7 +128,7 @@ public static partial class AirPLS
 
             for (var i = 0; i < length; i++)
             {
-                var delta = yVector[i] - baselineVector[i];
+                var delta = yVector[i] - baseline[i];
 
                 if (delta < 0)
                 {

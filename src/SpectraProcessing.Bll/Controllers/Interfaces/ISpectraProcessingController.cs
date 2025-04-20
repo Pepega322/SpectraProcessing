@@ -8,5 +8,7 @@ public interface ISpectraProcessingController
 
     Task SmoothSpectras(IReadOnlyCollection<SpectraData> spectras);
 
-    //TODO думай голова!
+    Task DrawBaseline(SpectraData spectraData);
+
+    Task SubstractBaseline(IReadOnlyCollection<SpectraData> spectras);
 }

@@ -15,15 +15,15 @@ public class NeldlerMeadTests
     public async Task Optimize_RosenbrockFunc_Success(VectorN start)
     {
         //Act
-        var model = new NedlerMeadOptimizationModel
+        var model = new NedlerMeadModel
         {
             Start = start,
             Constraints = [],
             BufferSize = 0,
-            Settings = OptimizationSettings.Default,
+            Settings = new NedlerMeadSettings(),
         };
 
-        var actual = await NelderMeadOptimization.GetOptimized(model, Func);
+        var actual = await NelderMead.GetOptimized(model, Func);
 
         //Assert
         actual[0].Should().BeApproximately(
@@ -44,15 +44,15 @@ public class NeldlerMeadTests
     public async Task Optimize_HimmelblauFunc_Success(VectorN start, VectorN expectedMinimum)
     {
         //Act
-        var model = new NedlerMeadOptimizationModel
+        var model = new NedlerMeadModel
         {
             Start = start,
             Constraints = [],
             BufferSize = 0,
-            Settings = OptimizationSettings.Default,
+            Settings = new NedlerMeadSettings(),
         };
 
-        var actual = await NelderMeadOptimization.GetOptimized(model, Func);
+        var actual = await NelderMead.GetOptimized(model, Func);
 
         //Assert
         actual[0].Should().BeApproximately(

@@ -1,5 +1,3 @@
-using SpectraProcessing.Domain.Models.MathModeling.Common;
-using SpectraProcessing.TestingInfrastructure;
 using Xunit;
 
 namespace SpectraProcessing.Tests.Tests;

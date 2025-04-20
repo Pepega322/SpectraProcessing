@@ -7,9 +7,9 @@ public static partial class AirPLS
     private readonly ref struct LMatrix
     {
         private readonly int mainDiagonalSize;
-        private readonly Span<float> threeDiagonalsValues;
+        private readonly Span<double> threeDiagonalsValues;
 
-        public float this[int row, int column]
+        public double this[int row, int column]
         {
             get
             {
@@ -26,7 +26,7 @@ public static partial class AirPLS
             }
         }
 
-        private LMatrix(int mainDiagonalSize, Span<float> buffer)
+        private LMatrix(int mainDiagonalSize, Span<double> buffer)
         {
             this.mainDiagonalSize = mainDiagonalSize;
             threeDiagonalsValues = buffer[..(3 * mainDiagonalSize - 3)];
@@ -35,8 +35,8 @@ public static partial class AirPLS
         public static LMatrix Create(
             in VectorNRefStruct weightVector,
             in PenaltyMatrix penaltyMatrix,
-            float smoothingCoefficient,
-            Span<float> buffer)
+            double smoothingCoefficient,
+            Span<double> buffer)
         {
             if (weightVector.Dimension != penaltyMatrix.Size)
             {
@@ -48,8 +48,7 @@ public static partial class AirPLS
 
             for (var row = 0; row < size; row++)
             {
-                var diagonalSquare =
-                    weightVector[row] + smoothingCoefficient * penaltyMatrix[row, row];
+                var diagonalSquare = weightVector[row] + smoothingCoefficient * penaltyMatrix[row, row];
 
                 for (var column = row - 2; column < row; column++)
                 {
@@ -66,13 +65,13 @@ public static partial class AirPLS
                     throw new InvalidOperationException("Matrix is not positive definite.");
                 }
 
-                lMatrix[row, row] = MathF.Sqrt(diagonalSquare);
+                lMatrix[row, row] = Math.Sqrt(diagonalSquare);
 
                 for (var tRow = row + 1; tRow < row + 3 && tRow < size; tRow++)
                 {
                     var underlyingElement = smoothingCoefficient * penaltyMatrix[tRow, row];
 
-                    for (var column = row - 1; column < row; column++)
+                    for (var column = row - 2; column < row; column++)
                     {
                         if (column < 0)
                         {

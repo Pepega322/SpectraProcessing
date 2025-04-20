@@ -16,7 +16,7 @@ public static class SpectraModeling
     public static Task FitPeaks(
         this SpectraData spectra,
         IReadOnlyCollection<PeakData> peaks,
-        OptimizationSettings settings)
+        NedlerMeadSettings settings)
     {
         var groups = peaks.GroupPeaksByEffectiveRadius();
 
@@ -63,7 +63,7 @@ public static class SpectraModeling
     private static async ValueTask FitPeaksGroup(
         this List<PeakData> peaks,
         SpectraData spectra,
-        OptimizationSettings settings)
+        NedlerMeadSettings settings)
     {
         var startValues = new float[peaks.Count * PeakParametersCount];
         var constraints = new Dictionary<int, ValueConstraint>();
@@ -92,7 +92,7 @@ public static class SpectraModeling
 
         for (var i = 0; i < 2; i++)
         {
-            var optimizationModel = new NedlerMeadOptimizationModel
+            var optimizationModel = new NedlerMeadModel
             {
                 Start = startVector,
                 Constraints = constraints,
@@ -108,7 +108,7 @@ public static class SpectraModeling
                 startValue,
                 endValue);
 
-            startVector = await NelderMeadOptimization.GetOptimized(optimizationModel, funcForMin);
+            startVector = await NelderMead.GetOptimized(optimizationModel, funcForMin);
         }
 
         UpdatePeaks(startVector);

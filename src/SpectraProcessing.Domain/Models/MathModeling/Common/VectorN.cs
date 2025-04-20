@@ -2,33 +2,33 @@
 
 public sealed class VectorN
 {
-    private readonly float[] values;
+    public readonly float[] Values;
 
     public VectorN(int dimension)
     {
-        values = new float[dimension];
+        Values = new float[dimension];
     }
 
     public VectorN(float[] values)
     {
-        this.values = values;
+        Values = values;
     }
 
-    public int Dimension => values.Length;
+    public int Dimension => Values.Length;
 
     public float this[int index]
     {
-        get => values[index];
-        set => values[index] = value;
+        get => Values[index];
+        set => Values[index] = value;
     }
 
-    public float GetLength() => MathF.Sqrt(values.Sum(v => v * v));
+    public float GetLength() => MathF.Sqrt(Values.Sum(v => v * v));
 
     public VectorNRefStruct ToVectorNRefStruct(in Span<float> buffer)
     {
         for (var d = 0; d < Dimension; d++)
         {
-            buffer[d] = values[d];
+            buffer[d] = Values[d];
         }
 
         return new VectorNRefStruct(Dimension, buffer);
@@ -43,7 +43,7 @@ public sealed class VectorN
 
         for (var d = 0; d < Dimension; d++)
         {
-            values[d] = vector[d];
+            Values[d] = vector[d];
         }
     }
 
@@ -56,9 +56,9 @@ public sealed class VectorN
 
         for (var d = 0; d < Dimension; d++)
         {
-            values[d] = vector[d];
+            Values[d] = vector[d];
         }
     }
 
-    public override string ToString() => $"({string.Join(", ", values.ToArray())})";
+    public override string ToString() => $"({string.Join(", ", Values.ToArray())})";
 }

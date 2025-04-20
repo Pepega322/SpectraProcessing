@@ -2,7 +2,7 @@ using SpectraProcessing.Domain.Models.MathModeling.Common;
 
 namespace SpectraProcessing.Domain.Models.MathModeling.Peaks;
 
-public sealed record NedlerMeadOptimizationModel
+public sealed record NedlerMeadModel
 {
     public required VectorN Start { get; init; }
 
@@ -10,5 +10,5 @@ public sealed record NedlerMeadOptimizationModel
 
     public required int BufferSize { get; init; }
 
-    public required OptimizationSettings Settings { get; init; }
+    public required NedlerMeadSettings Settings { get; init; }
 }

@@ -47,7 +47,7 @@ public sealed partial class MainForm : Form
         SetupPlotController();
         SetupCoordinateProvider();
         SetupSpectraProcessingController();
-        SetupSpectraProcessingController();
+        SetupPeakProcessingController();
 
         dataContextMenu.Tag = dataStorageTreeView;
         dataSetContextMenu.Tag = dataStorageTreeView;
@@ -522,11 +522,11 @@ public sealed partial class MainForm : Form
             throw new NotImplementedException();
         };
 
-        plotContextMenuSubstractBaseline.Click += (sender, _) =>
+        plotContextMenuSubstractBaseline.Click += async (sender, _) =>
         {
             var plot = TreeViewExtensions.GetContextData<SpectraDataPlot>(sender);
 
-            throw new NotImplementedException();
+            await spectraProcessingController.SubstractBaseline([plot!.SpectraData]);
         };
 
         plotSetContextMenuSubstactBaseline.Click += (sender, _) =>
@@ -548,15 +548,15 @@ public sealed partial class MainForm : Form
 
         var isHighlight = await spectraController.PlotHighlight(plot);
 
-        if (!isHighlight)
+        if (isHighlight)
+        {
+            customPeaksToolStripMenuItem.Checked = await peakProcessingController.CheckoutSpectra(plot.SpectraData);
+            await HighlightNodeUntilNextClick(node);
+        }
+        else
         {
             customPeaksToolStripMenuItem.Checked = await peakProcessingController.CheckoutSpectra(null);
-            return;
         }
-
-        customPeaksToolStripMenuItem.Checked = await peakProcessingController.CheckoutSpectra(plot.SpectraData);
-
-        await HighlightNodeUntilNextClick(node);
     }
 
     private async Task HighlightNodeUntilNextClick(TreeNode node)

@@ -4,7 +4,7 @@ using SpectraProcessing.Bll.Models.ScottPlot.Plottables;
 
 namespace SpectraProcessing.Bll;
 
-public static class PlottableCreator
+internal static class PlottableCreator
 {
     private const float lineWidth = 2f;
     private const float defaultMarkerSize = 20f;

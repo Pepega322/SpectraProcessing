@@ -5,6 +5,8 @@ using SpectraProcessing.Bll.Controllers.Interfaces;
 using SpectraProcessing.Bll.Models.ScottPlot.Peak;
 using SpectraProcessing.Bll.Models.ScottPlot.Spectra.Abstractions;
 using SpectraProcessing.Bll.Models.Settings;
+using SpectraProcessing.Bll.Monitors;
+using SpectraProcessing.Bll.Monitors.Interfaces;
 using SpectraProcessing.Bll.Providers;
 using SpectraProcessing.Bll.Providers.Interfaces;
 using SpectraProcessing.Domain.Collections.Keys;
@@ -25,6 +27,7 @@ public static class ServiceCollectionExtensions
             .AddLogging()
             .ConfigureSettings(configuration)
             .AddProviders()
+            .AddMonitors()
             .AddControllers();
 
         return services;
@@ -35,7 +38,18 @@ public static class ServiceCollectionExtensions
         IConfiguration configuration)
     {
         services
-            .Configure<DataStorageSettings>(configuration.GetSection(nameof(DataStorageSettings)));
+            .Configure<DataStorageSettings>(configuration.GetSection(nameof(DataStorageSettings)))
+            .Configure<SpectraProcessingSettings>(configuration.GetSection(nameof(SpectraProcessingSettings)))
+            .Configure<PeakProcessingSettings>(configuration.GetSection(nameof(PeakProcessingSettings)));
+
+        return services;
+    }
+
+    private static IServiceCollection AddMonitors(this IServiceCollection services)
+    {
+        services
+            .AddSingleton<ISpectraProcessingSettingsMonitor, SpectraProcessingSettingsMonitor>()
+            .AddSingleton<IPeakProcessingSettingsMonitor, PeakProcessingSettingsMonitor>();
 
         return services;
     }

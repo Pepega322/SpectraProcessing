@@ -1,5 +1,6 @@
 ﻿using SpectraProcessing.Bll.Controllers.Interfaces;
 using SpectraProcessing.Bll.Models.ScottPlot.Peak;
+using SpectraProcessing.Bll.Monitors.Interfaces;
 using SpectraProcessing.Bll.Providers.Interfaces;
 using SpectraProcessing.Domain.Collections;
 using SpectraProcessing.Domain.Collections.Keys;
@@ -13,23 +14,10 @@ namespace SpectraProcessing.Bll.Controllers;
 
 internal sealed class PeakProcessingController(
     IDataStorageProvider<SpectraKey, PeakDataPlot> peaksStorageProvider,
-    IPeakDataPlotProvider peakDataPlotProvider
+    IPeakDataPlotProvider peakDataPlotProvider,
+    IPeakProcessingSettingsMonitor peakProcessingSettingsMonitor
 ) : IPeakProcessingController
 {
-    public static readonly OptimizationSettings OptimizationSettings = OptimizationSettings.Default
-        with
-        {
-            RepeatsCount = 3,
-            MaxIterationsCount = 500,
-            Criteria = new OptimizationSettings.CompletionСriteria
-            {
-                AbsoluteValue = 1e-3f,
-                MaxConsecutiveShrinks = 50,
-                MinDeltaBetweenBetweenIterations = 1e-6f,
-                MaxIterationsWithLessThanDelta = 50,
-            },
-        };
-
     private SpectraKey? currentSpectraKey;
 
     private DataSet<PeakDataPlot> CurrentPeaksSet
@@ -152,6 +140,18 @@ internal sealed class PeakProcessingController(
 
     public async Task FitPeaks(IReadOnlyCollection<SpectraData> spectras)
     {
+        var settings = new NedlerMeadSettings
+        {
+            MaxIterationsCount = peakProcessingSettingsMonitor.NedlerMeadMaxIterationsCount,
+            RepeatsCount = peakProcessingSettingsMonitor.NedlerMeadRepeatsCount,
+            MaxConsecutiveShrinks = peakProcessingSettingsMonitor.NedlerMeadMaxConsecutiveShrinks,
+            MinAbsoluteValue = peakProcessingSettingsMonitor.NedlerMeadMinAbsoluteValue,
+            MinDeltaPercentageBetweenIterations =
+                peakProcessingSettingsMonitor.NedlerMeadMinDeltaPercentageBetweenIterations,
+            MaxIterationsWithDeltaLessThanMin =
+                peakProcessingSettingsMonitor.NedlerMeadMaxIterationsWithDeltaLessThanMin,
+        };
+
         foreach (var spectra in spectras)
         {
             await FitPeaksInternal(spectra);
@@ -176,7 +176,7 @@ internal sealed class PeakProcessingController(
                     .Select(d => d.Peak)
                     .ToArray();
 
-                await spectra.FitPeaks(peaks, OptimizationSettings);
+                await spectra.FitPeaks(peaks, settings);
 
                 foreach (var plot in customPlotSet.Data)
                 {
@@ -196,7 +196,7 @@ internal sealed class PeakProcessingController(
 
                 var plots = peakDataPlotProvider.GetPlots(peaks).ToArray();
 
-                await spectra.FitPeaks(peaks, OptimizationSettings);
+                await spectra.FitPeaks(peaks, settings);
 
                 foreach (var peakPlot in plots)
                 {
