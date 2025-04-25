@@ -556,7 +556,7 @@ public sealed partial class MainForm : Form
             await spectraProcessingController.SubstractBaseline([plot!.SpectraData]);
         };
 
-        plotSetContextMenuSubstactBaseline.Click += async (sender, _) =>
+        plotSetContextMenuSubstractBaseline.Click += async (sender, _) =>
         {
             var set = TreeViewExtensions.GetContextSet<SpectraDataPlot>(sender);
 
