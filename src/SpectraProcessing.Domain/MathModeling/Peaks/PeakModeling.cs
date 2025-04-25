@@ -10,20 +10,16 @@ public static class PeakModeling
             center: peak.Center,
             halfWidth: peak.HalfWidth,
             amplitude: peak.Amplitude,
-            gaussianContribution: peak.GaussianContribution,
-            baseline: peak.Baseline);
+            gaussianContribution: peak.GaussianContribution);
 
     public static float GetPeakValueAt(
         float x,
         float center,
         float halfWidth,
         float amplitude,
-        float gaussianContribution,
-        float baseline)
+        float gaussianContribution)
     {
-        var peakValueAt = gaussianContribution * Gaussian() + (1 - gaussianContribution) * Lorentzian();
-
-        return baseline + peakValueAt;
+        return gaussianContribution * Gaussian() + (1 - gaussianContribution) * Lorentzian();
 
         float Gaussian()
         {
@@ -46,21 +42,7 @@ public static class PeakModeling
     }
 
     public static float GetPeaksValueAt(this IEnumerable<IReadOnlyPeakData> peaks, float x)
-    {
-        var sum = 0f;
-        foreach (var peak in peaks)
-        {
-
-            if (Math.Abs(peak.Center - x) > peak.GetPeakEffectiveRadius())
-            {
-                continue;
-            }
-
-            sum += peak.GetPeakValueAt(x);
-        }
-
-        return sum;
-    }
+        => peaks.Sum(p => p.GetPeakValueAt(x));
 
     public static float GetPeakArea(this IReadOnlyPeakData peak)
     {

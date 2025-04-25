@@ -16,14 +16,11 @@ public sealed class PeakData : IReadOnlyPeakData
 
     public float GaussianContribution { get; set; }
 
-    public float Baseline { get; set; }
-
     public PeakData(
         float center,
         float amplitude,
         float halfWidth,
-        float gaussianContribution = 1,
-        float baseline = 0)
+        float gaussianContribution = 1)
     {
         if (gaussianContribution is < 0 or > 1)
         {
@@ -35,7 +32,6 @@ public sealed class PeakData : IReadOnlyPeakData
         HalfWidth = halfWidth;
         Amplitude = amplitude;
         GaussianContribution = gaussianContribution;
-        Baseline = baseline;
     }
 
     public PeakData Copy()
@@ -43,8 +39,7 @@ public sealed class PeakData : IReadOnlyPeakData
             center: Center,
             amplitude: Amplitude,
             halfWidth: HalfWidth,
-            gaussianContribution: GaussianContribution,
-            baseline: Baseline);
+            gaussianContribution: GaussianContribution);
 
     public override string ToString()
     {

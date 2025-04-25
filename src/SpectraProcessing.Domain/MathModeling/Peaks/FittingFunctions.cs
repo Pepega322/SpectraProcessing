@@ -12,8 +12,7 @@ public static class FittingFunctions
         SpectraFittingOptimizationFunction spectraFittingOptimizationFunction,
         SpectraData spectra,
         float startValue,
-        float endValue,
-        float[] baselines)
+        float endValue)
     {
         var startIndex = spectra.Points.X.ClosestIndexBinarySearch(startValue);
         var endIndex = spectra.Points.X.ClosestIndexBinarySearch(endValue);
@@ -36,8 +35,7 @@ public static class FittingFunctions
             for (var i = 0; i < length; i++)
             {
                 var pointIndex = startIndex + i;
-                deltas[i] = spectra.Points.Y[pointIndex] -
-                    vector.GetPeaksValueAt(spectra.Points.X[pointIndex], baselines);
+                deltas[i] = spectra.Points.Y[pointIndex] - vector.GetPeaksValueAt(spectra.Points.X[pointIndex]);
             }
 
             var averageDelta = deltas.Sum() / length;
@@ -62,8 +60,7 @@ public static class FittingFunctions
             for (var i = 0; i < length; i++)
             {
                 var pointIndex = startIndex + i;
-                deltas[i] = spectra.Points.Y[pointIndex] -
-                    vector.GetPeaksValueAt(spectra.Points.X[pointIndex], baselines);
+                deltas[i] = spectra.Points.Y[pointIndex] - vector.GetPeaksValueAt(spectra.Points.X[pointIndex]);
             }
 
             var averageDelta = deltas.Sum() / length;
@@ -87,8 +84,7 @@ public static class FittingFunctions
             for (var i = 0; i < length; i++)
             {
                 var pointIndex = startIndex + i;
-                deltas[i] = spectra.Points.Y[pointIndex] -
-                    vector.GetPeaksValueAt(spectra.Points.X[pointIndex], baselines);
+                deltas[i] = spectra.Points.Y[pointIndex] - vector.GetPeaksValueAt(spectra.Points.X[pointIndex]);
             }
 
             var sumOfResidualsSquares = deltas.Sum(delta => delta * delta);
@@ -108,8 +104,7 @@ public static class FittingFunctions
             for (var i = 0; i < length; i++)
             {
                 var pointIndex = startIndex + i;
-                deltas[i] = spectra.Points.Y[pointIndex] -
-                    vector.GetPeaksValueAt(spectra.Points.X[pointIndex], baselines);
+                deltas[i] = spectra.Points.Y[pointIndex] - vector.GetPeaksValueAt(spectra.Points.X[pointIndex]);
             }
 
             var sumOfResidualsSquares = deltas.Sum(delta => delta * delta);
@@ -133,8 +128,7 @@ public static class FittingFunctions
             for (var i = 0; i < length; i++)
             {
                 var pointIndex = startIndex + i;
-                deltas[i] = spectra.Points.Y[pointIndex] -
-                    vector.GetPeaksValueAt(spectra.Points.X[pointIndex], baselines);
+                deltas[i] = spectra.Points.Y[pointIndex] - vector.GetPeaksValueAt(spectra.Points.X[pointIndex]);
             }
 
             var averageError = deltas.Sum(Math.Abs) / length;
@@ -143,7 +137,7 @@ public static class FittingFunctions
         }
     }
 
-    private static float GetPeaksValueAt(this in VectorNRefStruct peaksVector, float x, float[] baselines)
+    private static float GetPeaksValueAt(this in VectorNRefStruct peaksVector, float x)
     {
         var peaksCount = peaksVector.Dimension / SpectraModeling.PeakParametersCount;
 
@@ -155,15 +149,13 @@ public static class FittingFunctions
             var halfWidth = peaksVector[SpectraModeling.PeakParametersCount * i + 1];
             var amplitude = peaksVector[SpectraModeling.PeakParametersCount * i + 2];
             var gaussianContribution = peaksVector[SpectraModeling.PeakParametersCount * i + 3];
-            var baseline = baselines[i];
 
             value += PeakModeling.GetPeakValueAt(
                 x: x,
                 center: center,
                 halfWidth: halfWidth,
                 amplitude: amplitude,
-                gaussianContribution: gaussianContribution,
-                baseline: baseline);
+                gaussianContribution: gaussianContribution);
         }
 
         return value;

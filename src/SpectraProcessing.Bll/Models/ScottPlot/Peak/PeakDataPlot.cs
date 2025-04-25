@@ -1,5 +1,4 @@
 ﻿using ScottPlot;
-using SkiaSharp;
 using SpectraProcessing.Bll.Models.ScottPlot.Plottables;
 using SpectraProcessing.Domain.Collections;
 using SpectraProcessing.Domain.DataTypes;
@@ -23,7 +22,6 @@ public sealed class PeakDataPlot : IDataPlot
     private readonly DraggableMarker centerMarker;
     private readonly DraggableMarker rightMarker;
     private readonly DraggableMarker rightEffectiveRadiusMarker;
-    private readonly DraggableMarker baselineMarker;
 
     public PeakData Peak { get; private set; }
 
@@ -37,7 +35,6 @@ public sealed class PeakDataPlot : IDataPlot
             centerMarker,
             rightMarker,
             rightEffectiveRadiusMarker,
-            baselineMarker,
         ];
 
     public PeakDataPlot(PeakData peak)
@@ -82,12 +79,6 @@ public sealed class PeakDataPlot : IDataPlot
             markerColor,
             15f);
 
-        baselineMarker = PlottableCreator.CreateDraggableMarker(
-            x: peak.Center,
-            y: 0,
-            MarkerShape.Cross,
-            markerColor);
-
         Line = PlottableCreator.CreateFunction(x => peak.GetPeakValueAt((float) x), PeakColor);
     }
 
@@ -97,8 +88,7 @@ public sealed class PeakDataPlot : IDataPlot
             center: Peak.Center,
             amplitude: Peak.Amplitude,
             halfWidth: Peak.HalfWidth,
-            gaussianContribution: Peak.GaussianContribution,
-            baseline: Peak.Baseline);
+            gaussianContribution: Peak.GaussianContribution);
     }
 
     public bool TryHit(Pixel pixel, float radius)
@@ -121,12 +111,6 @@ public sealed class PeakDataPlot : IDataPlot
             return true;
         }
 
-        if (baselineMarker.IsHit(pixel, radius))
-        {
-            baselineMarker.Dragged = true;
-            return true;
-        }
-
         return false;
     }
 
@@ -135,7 +119,6 @@ public sealed class PeakDataPlot : IDataPlot
         leftMarker.Dragged = false;
         centerMarker.Dragged = false;
         rightMarker.Dragged = false;
-        baselineMarker.Dragged = false;
     }
 
     public void TryMoveTo(Point<float> to)
@@ -149,30 +132,17 @@ public sealed class PeakDataPlot : IDataPlot
                 center: center,
                 amplitude: amplitude,
                 halfWidth: Peak.HalfWidth,
-                gaussianContribution: Peak.GaussianContribution,
-                Peak.Baseline);
+                gaussianContribution: Peak.GaussianContribution);
         }
         else if (leftMarker.Dragged || rightMarker.Dragged)
         {
-            var halfWidth = Math.Abs((to.X - Peak.Center) * 2);
+            var halfWidth = Math.Abs(value: (to.X - Peak.Center) * 2);
 
             OnPeakEstimateDataUpdate(
                 center: Peak.Center,
                 amplitude: Peak.Amplitude,
                 halfWidth: halfWidth,
-                gaussianContribution: Peak.GaussianContribution,
-                baseline: Peak.Baseline);
-        }
-        else if (baselineMarker.Dragged)
-        {
-            var baseline = to.Y;
-
-            OnPeakEstimateDataUpdate(
-                center: Peak.Center,
-                amplitude: Peak.Amplitude,
-                halfWidth: Peak.HalfWidth,
-                gaussianContribution: Peak.GaussianContribution,
-                baseline: baseline);
+                gaussianContribution: Peak.GaussianContribution);
         }
     }
 
@@ -180,8 +150,7 @@ public sealed class PeakDataPlot : IDataPlot
         float center,
         float amplitude,
         float halfWidth,
-        float gaussianContribution,
-        float baseline)
+        float gaussianContribution)
     {
         locker.Enter();
 
@@ -189,7 +158,6 @@ public sealed class PeakDataPlot : IDataPlot
         Peak.Center = center;
         Peak.HalfWidth = halfWidth;
         Peak.GaussianContribution = gaussianContribution;
-        Peak.Baseline = baseline;
 
         var halfHeight = Peak.Amplitude / 2;
 
@@ -197,13 +165,20 @@ public sealed class PeakDataPlot : IDataPlot
             Peak.HalfWidth,
             Peak.GaussianContribution);
 
-        leftMarker.DragMarkerTo(Peak.Center - Peak.HalfWidth / 2, Peak.Baseline + halfHeight);
-        leftEffectiveRadiusMarker.DragMarkerTo(Peak.Center - effectiveRadius, Peak.Baseline);
-        centerMarker.DragMarkerTo(Peak.Center, Peak.Baseline + Peak.Amplitude);
-        rightMarker.DragMarkerTo(Peak.Center + Peak.HalfWidth / 2, Peak.Baseline + halfHeight);
-        rightEffectiveRadiusMarker.DragMarkerTo(Peak.Center + effectiveRadius, Peak.Baseline);
-        baselineMarker.DragMarkerTo(Peak.Center, Peak.Baseline);
+        DragMarkerTo(leftMarker, new Coordinates(Peak.Center - Peak.HalfWidth / 2, halfHeight));
+        DragMarkerTo(leftEffectiveRadiusMarker, new Coordinates(Peak.Center - effectiveRadius, 0));
+        DragMarkerTo(centerMarker, new Coordinates(Peak.Center, Peak.Amplitude));
+        DragMarkerTo(rightMarker, new Coordinates(Peak.Center + Peak.HalfWidth / 2, halfHeight));
+        DragMarkerTo(rightEffectiveRadiusMarker, new Coordinates(Peak.Center + effectiveRadius, 0));
 
         locker.Exit();
+
+        return;
+
+        static void DragMarkerTo(DraggableMarker marker, Coordinates to)
+        {
+            marker.StartDrag(marker.Coordinates);
+            marker.DragTo(to);
+        }
     }
 }

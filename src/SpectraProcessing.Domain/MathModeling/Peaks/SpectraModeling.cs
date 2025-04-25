@@ -67,7 +67,6 @@ public static class SpectraModeling
     {
         var startValues = new float[peaks.Count * PeakParametersCount];
         var constraints = new Dictionary<int, ValueConstraint>();
-        var baselines = new float[peaks.Count];
 
         for (var i = 0; i < peaks.Count; i++)
         {
@@ -87,8 +86,6 @@ public static class SpectraModeling
             var gaussianContributionIndex = PeakParametersCount * i + 3;
             startValues[gaussianContributionIndex] = peaks[i].GaussianContribution;
             constraints[gaussianContributionIndex] = GaussianContributionConstraint;
-
-            baselines[i] = peaks[i].Baseline;
         }
 
         var startVector = new VectorN(startValues);
@@ -109,8 +106,7 @@ public static class SpectraModeling
                 SpectraFittingOptimizationFunction.ThroughR2,
                 spectra,
                 startValue,
-                endValue,
-                baselines);
+                endValue);
 
             startVector = await NelderMead.GetOptimized(optimizationModel, funcForMin);
         }
