@@ -1,0 +1,30 @@
+name: publish-app
+
+on:
+  push:
+    branches:
+      - 'master'
+      - 'release/*'
+  pull_request:
+    branches:
+      - 'master'
+      - 'release/*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: 'checkout'
+        uses: 'actions/checkout@v3'
+      - name: 'dotnet-setup'
+        uses: 'actions/setup-dotnet@v3'
+        with:
+          dotnet-version: '9.0-latest'
+      - name: 'dotnet-restore'
+        run: 'dotnet restore SpectraProcessing.sln'
+      - name: 'dotnet-build'
+        run: 'dotnet build SpectraProcessing.sln -c Release --no-restore'
+      - name: 'dotnet-publish'
+        run: 'dotnet publish src/SpectraProcessing.Application/SpectraProcessing.Application.csproj -c Release -r win-x64 --sc true -o publish'
+      - name: 'zip-release'
+        run: 'New-Item -ItemType Directory -Path "releases" -Force; Compress-Archive -Path publish\* -DestinationPath releases\spectra-processing.zip -Force; Remove-Item -Recurse -Force publish'
