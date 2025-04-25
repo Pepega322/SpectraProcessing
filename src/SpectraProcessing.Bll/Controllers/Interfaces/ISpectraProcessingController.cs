@@ -6,7 +6,11 @@ public interface ISpectraProcessingController
 {
     event Action? OnPlotAreaChanged;
 
+    decimal CurrentWidth { get; set; }
+
     Task SmoothSpectras(IReadOnlyCollection<SpectraData> spectras);
+
+    Task ClearBaseline();
 
     Task DrawBaseline(SpectraData spectraData);
 

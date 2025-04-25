@@ -500,6 +500,16 @@ public sealed partial class MainForm : Form
     {
         spectraProcessingController.OnPlotAreaChanged += plotView.Refresh;
 
+        numericUpDown1.Minimum = 1;
+        numericUpDown1.Maximum = decimal.MaxValue;
+        numericUpDown1.Increment = 1;
+        numericUpDown1.DecimalPlaces = 2;
+
+        numericUpDown1.Value = 100;
+        spectraProcessingController.CurrentWidth = numericUpDown1.Value;
+        numericUpDown1.ValueChanged += (_, _) => spectraProcessingController.CurrentWidth = numericUpDown1.Value;
+
+
         plotContextMenuSmooth.Click += async (sender, _) =>
         {
             var plot = TreeViewExtensions.GetContextData<SpectraDataPlot>(sender);
@@ -516,10 +526,27 @@ public sealed partial class MainForm : Form
             await spectraProcessingController.SmoothSpectras(spectras);
         };
 
-        addOrRemoveBaselineAnchorsToolStripMenuItem.Click += (_, _) =>
+        baselineModeToolStripMenuItem.Click += async (_, _) =>
         {
-            var a = 1;
-            throw new NotImplementedException();
+            var isBaselineModeOn = !baselineModeToolStripMenuItem.Checked;
+
+            baselineModeToolStripMenuItem.Checked = isBaselineModeOn;
+
+            var plot = TreeViewExtensions.GetClickData<SpectraDataPlot>(plotContextMenu.Tag);
+
+            if (plot is null)
+            {
+                return;
+            }
+
+            if (isBaselineModeOn)
+            {
+                await spectraProcessingController.DrawBaseline(plot!.SpectraData);
+            }
+            else
+            {
+                await spectraProcessingController.ClearBaseline();
+            }
         };
 
         plotContextMenuSubstractBaseline.Click += async (sender, _) =>
@@ -529,11 +556,15 @@ public sealed partial class MainForm : Form
             await spectraProcessingController.SubstractBaseline([plot!.SpectraData]);
         };
 
-        plotSetContextMenuSubstactBaseline.Click += (sender, _) =>
+        plotSetContextMenuSubstactBaseline.Click += async (sender, _) =>
         {
             var set = TreeViewExtensions.GetContextSet<SpectraDataPlot>(sender);
 
-            throw new NotImplementedException();
+            var spectras = set!.Data
+                .Select(p => p.SpectraData)
+                .ToArray();
+
+            await spectraProcessingController.SubstractBaseline(spectras);
         };
     }
 
@@ -548,15 +579,26 @@ public sealed partial class MainForm : Form
 
         var isHighlight = await spectraController.PlotHighlight(plot);
 
-        if (isHighlight)
-        {
-            customPeaksToolStripMenuItem.Checked = await peakProcessingController.CheckoutSpectra(plot.SpectraData);
-            await HighlightNodeUntilNextClick(node);
-        }
-        else
+        if (isHighlight is false)
         {
             customPeaksToolStripMenuItem.Checked = await peakProcessingController.CheckoutSpectra(null);
+
+            if (baselineModeToolStripMenuItem.Checked)
+            {
+                await spectraProcessingController.ClearBaseline();
+            }
+
+            return;
         }
+
+        customPeaksToolStripMenuItem.Checked = await peakProcessingController.CheckoutSpectra(plot.SpectraData);
+
+        if (baselineModeToolStripMenuItem.Checked)
+        {
+            await spectraProcessingController.DrawBaseline(plot.SpectraData);
+        }
+
+        await HighlightNodeUntilNextClick(node);
     }
 
     private async Task HighlightNodeUntilNextClick(TreeNode node)

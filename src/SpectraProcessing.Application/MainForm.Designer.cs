@@ -33,12 +33,12 @@ sealed partial class MainForm
         tableLayoutPanel2 = new TableLayoutPanel();
         tableLayoutPanel3 = new TableLayoutPanel();
         tableLayoutPanel4 = new TableLayoutPanel();
-        mouseCoordinatesBox = new TextBox();
         menuStrip2 = new MenuStrip();
         resizeToolStripMenuItem = new ToolStripMenuItem();
         addOrRemovePeaksToolStripMenuItem = new ToolStripMenuItem();
         customPeaksToolStripMenuItem = new ToolStripMenuItem();
         clearPeaksToolStripMenuItem = new ToolStripMenuItem();
+        baselineModeToolStripMenuItem = new ToolStripMenuItem();
         plotView = new ScottPlot.WinForms.FormsPlot();
         tableLayoutPanel5 = new TableLayoutPanel();
         dataStorageTreeView = new TreeView();
@@ -85,7 +85,8 @@ sealed partial class MainForm
         plotSetContextMenuExportPeaks = new ToolStripMenuItem();
         plotSetContextMenuFitPeaks = new ToolStripMenuItem();
         plotSetContextMenuClear = new ToolStripMenuItem();
-        addOrRemoveBaselineAnchorsToolStripMenuItem = new ToolStripMenuItem();
+        numericUpDown1 = new NumericUpDown();
+        mouseCoordinatesBox = new TextBox();
         tableLayoutPanel1.SuspendLayout();
         tableLayoutPanel2.SuspendLayout();
         tableLayoutPanel3.SuspendLayout();
@@ -97,6 +98,7 @@ sealed partial class MainForm
         dataSetContextMenu.SuspendLayout();
         plotContextMenu.SuspendLayout();
         plotSetContextMenu.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
         SuspendLayout();
         // 
         // tableLayoutPanel1
@@ -147,11 +149,13 @@ sealed partial class MainForm
         // 
         // tableLayoutPanel4
         // 
-        tableLayoutPanel4.ColumnCount = 2;
+        tableLayoutPanel4.ColumnCount = 3;
         tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 75F));
-        tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-        tableLayoutPanel4.Controls.Add(mouseCoordinatesBox, 1, 0);
+        tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 10F));
+        tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15F));
+        tableLayoutPanel4.Controls.Add(mouseCoordinatesBox, 2, 0);
         tableLayoutPanel4.Controls.Add(menuStrip2, 0, 0);
+        tableLayoutPanel4.Controls.Add(numericUpDown1, 1, 0);
         tableLayoutPanel4.Dock = DockStyle.Fill;
         tableLayoutPanel4.Location = new Point(3, 3);
         tableLayoutPanel4.Name = "tableLayoutPanel4";
@@ -160,19 +164,11 @@ sealed partial class MainForm
         tableLayoutPanel4.Size = new Size(1498, 44);
         tableLayoutPanel4.TabIndex = 0;
         // 
-        // mouseCoordinatesBox
-        // 
-        mouseCoordinatesBox.Dock = DockStyle.Fill;
-        mouseCoordinatesBox.Location = new Point(1126, 3);
-        mouseCoordinatesBox.Name = "mouseCoordinatesBox";
-        mouseCoordinatesBox.Size = new Size(369, 39);
-        mouseCoordinatesBox.TabIndex = 0;
-        // 
         // menuStrip2
         // 
         menuStrip2.Dock = DockStyle.Fill;
         menuStrip2.ImageScalingSize = new Size(32, 32);
-        menuStrip2.Items.AddRange(new ToolStripItem[] { resizeToolStripMenuItem, addOrRemovePeaksToolStripMenuItem, customPeaksToolStripMenuItem, clearPeaksToolStripMenuItem, addOrRemoveBaselineAnchorsToolStripMenuItem });
+        menuStrip2.Items.AddRange(new ToolStripItem[] { resizeToolStripMenuItem, addOrRemovePeaksToolStripMenuItem, customPeaksToolStripMenuItem, clearPeaksToolStripMenuItem, baselineModeToolStripMenuItem });
         menuStrip2.Location = new Point(0, 0);
         menuStrip2.Name = "menuStrip2";
         menuStrip2.Size = new Size(1123, 44);
@@ -204,6 +200,12 @@ sealed partial class MainForm
         clearPeaksToolStripMenuItem.Name = "clearPeaksToolStripMenuItem";
         clearPeaksToolStripMenuItem.Size = new Size(156, 40);
         clearPeaksToolStripMenuItem.Text = "Clear peaks";
+        // 
+        // baselineModeToolStripMenuItem
+        // 
+        baselineModeToolStripMenuItem.Name = "baselineModeToolStripMenuItem";
+        baselineModeToolStripMenuItem.Size = new Size(191, 40);
+        baselineModeToolStripMenuItem.Text = "Baseline mode";
         // 
         // plotView
         // 
@@ -513,11 +515,20 @@ sealed partial class MainForm
         plotSetContextMenuClear.Size = new Size(288, 38);
         plotSetContextMenuClear.Text = "Clear";
         // 
-        // addOrRemoveBaselineAnchorsToolStripMenuItem
+        // numericUpDown1
         // 
-        addOrRemoveBaselineAnchorsToolStripMenuItem.Name = "addOrRemoveBaselineAnchorsToolStripMenuItem";
-        addOrRemoveBaselineAnchorsToolStripMenuItem.Size = new Size(354, 40);
-        addOrRemoveBaselineAnchorsToolStripMenuItem.Text = "Add|Remove baseline anchors";
+        numericUpDown1.Location = new Point(1126, 3);
+        numericUpDown1.Name = "numericUpDown1";
+        numericUpDown1.Size = new Size(143, 39);
+        numericUpDown1.TabIndex = 2;
+        // 
+        // mouseCoordinatesBox
+        // 
+        mouseCoordinatesBox.Dock = DockStyle.Fill;
+        mouseCoordinatesBox.Location = new Point(1275, 3);
+        mouseCoordinatesBox.Name = "mouseCoordinatesBox";
+        mouseCoordinatesBox.Size = new Size(220, 39);
+        mouseCoordinatesBox.TabIndex = 3;
         // 
         // MainForm
         // 
@@ -543,10 +554,9 @@ sealed partial class MainForm
         dataSetContextMenu.ResumeLayout(false);
         plotContextMenu.ResumeLayout(false);
         plotSetContextMenu.ResumeLayout(false);
+        ((System.ComponentModel.ISupportInitialize)numericUpDown1).EndInit();
         ResumeLayout(false);
     }
-
-    private System.Windows.Forms.TextBox mouseCoordinatesBox;
 
     private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
 
@@ -613,5 +623,7 @@ sealed partial class MainForm
     private ToolStripMenuItem plotContextMenuExportPeaks;
     private ToolStripMenuItem plotContextMenuFitPeaks;
     private ToolStripMenuItem plotSetContextMenuImportPeaks;
-    private ToolStripMenuItem addOrRemoveBaselineAnchorsToolStripMenuItem;
+    private ToolStripMenuItem baselineModeToolStripMenuItem;
+    private TextBox mouseCoordinatesBox;
+    private NumericUpDown numericUpDown1;
 }

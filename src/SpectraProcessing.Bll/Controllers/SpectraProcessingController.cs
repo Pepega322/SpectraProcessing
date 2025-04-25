@@ -1,4 +1,5 @@
-﻿using SpectraProcessing.Bll.Controllers.Interfaces;
+﻿using ScottPlot;
+using SpectraProcessing.Bll.Controllers.Interfaces;
 using SpectraProcessing.Bll.Monitors.Interfaces;
 using SpectraProcessing.Bll.Providers.Interfaces;
 using SpectraProcessing.Domain.Collections;
@@ -14,9 +15,16 @@ internal sealed class SpectraProcessingController(
     ISpectraProcessingSettingsMonitor spectraProcessingSettingsMonitor
 ) : ISpectraProcessingController
 {
-    private SpectraData? currentBaseline;
+    private decimal currentWidth;
+    private (SpectraData Spectra, SpectraData Baseline)? current;
 
     public event Action? OnPlotAreaChanged;
+
+    public decimal CurrentWidth
+    {
+        get => currentWidth;
+        set => ChangeWidth(value);
+    }
 
     public async Task SmoothSpectras(IReadOnlyCollection<SpectraData> spectras)
     {
@@ -29,25 +37,40 @@ internal sealed class SpectraProcessingController(
 
     public async Task DrawBaseline(SpectraData spectraData)
     {
-        var baselineY = await AirPLS.GetBaseline(spectraData.Points.Y, GetAirPLSSettings());
+        var baselineY = await AirPLS.GetBaseline(spectraData.Points.Y, GetAirPlsSettings());
 
         var newBaseline = new SimpleSpectraData("baseline", new SpectraPoints(spectraData.Points.X, baselineY));
 
-        if (currentBaseline is not null)
+        if (current is not null)
         {
-            await spectraDataPlotProvider.Erase([currentBaseline]);
+            await spectraDataPlotProvider.Erase([current.Value.Baseline]);
         }
 
-        await spectraDataPlotProvider.Draw([newBaseline]);
+        var plot = (await spectraDataPlotProvider.Draw([newBaseline])).Single();
 
-        currentBaseline = newBaseline;
+        plot.ChangeColor(Colors.Red);
+
+        current = (spectraData, newBaseline);
+
+        OnPlotAreaChanged?.Invoke();
+    }
+
+    public async Task ClearBaseline()
+    {
+        if (current is null)
+        {
+            return;
+        }
+
+        await spectraDataPlotProvider.Erase([current.Value.Baseline]);
+        current = null;
 
         OnPlotAreaChanged?.Invoke();
     }
 
     public async Task SubstractBaseline(IReadOnlyCollection<SpectraData> spectras)
     {
-        var settings = GetAirPLSSettings();
+        var settings = GetAirPlsSettings();
 
         await Parallel.ForEachAsync(
             spectras,
@@ -61,16 +84,37 @@ internal sealed class SpectraProcessingController(
                 }
             });
 
+        if (current is not null && spectras.Any(s => s.Equals(current.Value.Spectra)))
+        {
+            await DrawBaseline(current.Value.Spectra);
+        }
+
         OnPlotAreaChanged?.Invoke();
     }
 
-    private AirPLSSettings GetAirPLSSettings()
-        => new()
+    private AirPLSSettings GetAirPlsSettings()
+    {
+        var airPlsSettings = new AirPLSSettings
         {
             IterationsCount = spectraProcessingSettingsMonitor.AirPLSIterations,
             SmoothCoefficient = Math.Pow(
                 10,
-                1.75 * Math.Log(spectraProcessingSettingsMonitor.AirPLSMaxPeaksWidth) - 0.6),
+                1.75 * Math.Log((double) currentWidth) - 0.6),
             SmoothingTolerance = 0.001f,
         };
+
+        return airPlsSettings;
+    }
+
+    private async void ChangeWidth(decimal newWidth)
+    {
+        currentWidth = newWidth;
+
+        if (current is null)
+        {
+            return;
+        }
+
+        await DrawBaseline(current.Value.Spectra);
+    }
 }
