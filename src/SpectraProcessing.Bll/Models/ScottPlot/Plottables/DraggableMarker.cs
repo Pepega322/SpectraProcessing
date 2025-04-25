@@ -6,13 +6,15 @@ namespace SpectraProcessing.Bll.Models.ScottPlot.Plottables;
 
 public sealed class DraggableMarker(Marker marker) : DraggablePlottableDecorator(marker)
 {
-    public Coordinates Coordinates => marker.Coordinates;
-
-    public Point<float> Point => new(X, Y);
-
-    public float X => (float) marker.X;
-
-    public float Y => (float) marker.Y;
+    private Coordinates tempCoordinates = new(0, 0);
 
     public bool Dragged { get; set; }
+
+    public void DragMarkerTo(float x, float y)
+    {
+        StartDrag(marker.Coordinates);
+        tempCoordinates.X = x;
+        tempCoordinates.Y = y;
+        DragTo(tempCoordinates);
+    }
 }

@@ -12,5 +12,7 @@ public interface IReadOnlyPeakData : IPlottableData
 
     float GaussianContribution { get; }
 
+    float Baseline { get; }
+
     PeakData Copy();
 }
