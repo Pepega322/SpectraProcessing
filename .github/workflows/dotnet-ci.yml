@@ -27,4 +27,4 @@ jobs:
       - name: 'dotnet-publish'
         run: 'dotnet publish src/SpectraProcessing.Application/SpectraProcessing.Application.csproj -c Release -r win-x64 --sc true -o publish'
       - name: 'zip-release'
-        run: 'New-Item -ItemType Directory -Path "releases" -Force; Compress-Archive -Path publish\* -DestinationPath release-build\spectra-processing.zip -Force; Remove-Item -Recurse -Force publish'
+        run: 'New-Item -ItemType Directory -Path "release-build" -Force; Compress-Archive -Path publish\* -DestinationPath release-build\spectra-processing.zip -Force; Remove-Item -Recurse -Force publish'
