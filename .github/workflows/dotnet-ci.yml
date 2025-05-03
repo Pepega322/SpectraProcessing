@@ -13,7 +13,10 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
+          cache: true
+      - name: dotnet-restore
+        run: 'dotnet restore SpectraProcessing.sln'
       - name: dotnet-build
-        run: 'dotnet build SpectraProcessing.sln'
+        run: 'dotnet build SpectraProcessing.sln --no-restore'
       - name: dotnet-tests
         run: 'dotnet test tests/SpectraProcessing.Tests/SpectraProcessing.Tests.csproj'
