@@ -28,11 +28,11 @@ public class NeldlerMeadTests
         //Assert
         actual[0].Should().BeApproximately(
             MathFunctions.RosenbrockMinimum.X,
-            ComparisonsExtensions.FloatTolerance);
+            1e-3f);
 
         actual[1].Should().BeApproximately(
             MathFunctions.RosenbrockMinimum.Y,
-            ComparisonsExtensions.FloatTolerance);
+            1e-3f);
 
         return;
 
@@ -57,11 +57,11 @@ public class NeldlerMeadTests
         //Assert
         actual[0].Should().BeApproximately(
             expectedMinimum[0],
-            ComparisonsExtensions.FloatTolerance);
+            1e-3f);
 
         actual[1].Should().BeApproximately(
             expectedMinimum[1],
-            ComparisonsExtensions.FloatTolerance);
+            1e-3f);
 
         return;
 

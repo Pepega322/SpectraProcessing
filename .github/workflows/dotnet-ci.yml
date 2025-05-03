@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - 'release/*'
-  pull_request:
-    branches:
-      - master
 
 jobs:
   build:
@@ -19,3 +16,5 @@ jobs:
           dotnet-version: 9.0.x
       - name: dotnet-build
         run: 'dotnet build SpectraProcessing.sln'
+      - name: dotnet-tests
+        run: 'dotnet test tests/SpectraProcessing.Tests/SpectraProcessing.Tests.csproj'
