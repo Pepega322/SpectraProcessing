@@ -1,4 +1,4 @@
-name: publish-app
+name: build
 
 on:
   push:
@@ -10,8 +10,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: dotnet-setup
-        uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
       - name: dotnet-build
