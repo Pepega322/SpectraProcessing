@@ -19,4 +19,4 @@ jobs:
       - name: dotnet-build
         run: 'dotnet build SpectraProcessing.sln --no-restore'
       - name: dotnet-tests
-        run: 'dotnet test tests/SpectraProcessing.Tests/SpectraProcessing.Tests.csproj'
+        run: 'dotnet test tests/SpectraProcessing.Tests/SpectraProcessing.Tests.csproj --no-build'
