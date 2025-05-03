@@ -1,4 +1,4 @@
-﻿namespace SpectraProcessing.Domain.Models.MathModeling;
+﻿namespace SpectraProcessing.Domain.Models.MathModeling.Common;
 
 public sealed class VectorN
 {
@@ -22,6 +22,8 @@ public sealed class VectorN
         set => Values[index] = value;
     }
 
+    public float GetLength() => MathF.Sqrt(Values.Sum(v => v * v));
+
     public VectorNRefStruct ToVectorNRefStruct(in Span<float> buffer)
     {
         for (var d = 0; d < Dimension; d++)
@@ -29,7 +31,7 @@ public sealed class VectorN
             buffer[d] = Values[d];
         }
 
-        return new VectorNRefStruct(buffer);
+        return new VectorNRefStruct(Dimension, buffer);
     }
 
     public void Update(in VectorNRefStruct vector)
@@ -41,7 +43,7 @@ public sealed class VectorN
 
         for (var d = 0; d < Dimension; d++)
         {
-            Values[d] = vector.Values[d];
+            Values[d] = vector[d];
         }
     }
 
@@ -54,7 +56,7 @@ public sealed class VectorN
 
         for (var d = 0; d < Dimension; d++)
         {
-            Values[d] = vector.Values[d];
+            Values[d] = vector[d];
         }
     }
 

@@ -1,35 +1,23 @@
 ﻿using SpectraProcessing.Bll.Controllers.Interfaces;
 using SpectraProcessing.Bll.Models.ScottPlot.Peak;
+using SpectraProcessing.Bll.Monitors.Interfaces;
 using SpectraProcessing.Bll.Providers.Interfaces;
 using SpectraProcessing.Domain.Collections;
 using SpectraProcessing.Domain.Collections.Keys;
 using SpectraProcessing.Domain.Extensions;
-using SpectraProcessing.Domain.MathModeling;
-using SpectraProcessing.Domain.Models.MathModeling;
+using SpectraProcessing.Domain.MathModeling.Peaks;
+using SpectraProcessing.Domain.Models.MathModeling.Peaks;
 using SpectraProcessing.Domain.Models.Peak;
 using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
 namespace SpectraProcessing.Bll.Controllers;
 
-internal sealed class ProcessingController(
+internal sealed class PeakProcessingController(
     IDataStorageProvider<SpectraKey, PeakDataPlot> peaksStorageProvider,
-    IPeakDataPlotProvider peakDataPlotProvider
-) : IProcessingController
+    IPeakDataPlotProvider peakDataPlotProvider,
+    IPeakProcessingSettingsMonitor peakProcessingSettingsMonitor
+) : IPeakProcessingController
 {
-    public static readonly OptimizationSettings OptimizationSettings = OptimizationSettings.Default
-        with
-        {
-            RepeatsCount = 3,
-            MaxIterationsCount = 500,
-            Criteria = new OptimizationSettings.CompletionСriteria
-            {
-                AbsoluteValue = 1e-3f,
-                MaxConsecutiveShrinks = 50,
-                MinDeltaBetweenBetweenIterations = 1e-6f,
-                MaxIterationsWithLessThanDelta = 50,
-            },
-        };
-
     private SpectraKey? currentSpectraKey;
 
     private DataSet<PeakDataPlot> CurrentPeaksSet
@@ -40,15 +28,6 @@ internal sealed class ProcessingController(
     public IReadOnlyList<PeakDataPlot> CurrentPeaks => CurrentPeaksSet.Data;
 
     public event Action? OnPlotAreaChanged;
-
-    public async Task SmoothSpectras(IReadOnlyCollection<SpectraData> spectras)
-    {
-        var smoothingTasks = spectras.Select(s => Task.Run(() => s.Points.Smooth()));
-
-        await Task.WhenAll(smoothingTasks);
-
-        OnPlotAreaChanged?.Invoke();
-    }
 
     public Task<IReadOnlyCollection<PeakData>> ExportPeaks(SpectraData spectra)
     {
@@ -161,6 +140,18 @@ internal sealed class ProcessingController(
 
     public async Task FitPeaks(IReadOnlyCollection<SpectraData> spectras)
     {
+        var settings = new NedlerMeadSettings
+        {
+            MaxIterationsCount = peakProcessingSettingsMonitor.NedlerMeadMaxIterationsCount,
+            RepeatsCount = peakProcessingSettingsMonitor.NedlerMeadRepeatsCount,
+            MaxConsecutiveShrinks = peakProcessingSettingsMonitor.NedlerMeadMaxConsecutiveShrinks,
+            MinAbsoluteValue = peakProcessingSettingsMonitor.NedlerMeadMinAbsoluteValue,
+            MinDeltaPercentageBetweenIterations =
+                peakProcessingSettingsMonitor.NedlerMeadMinDeltaPercentageBetweenIterations,
+            MaxIterationsWithDeltaLessThanMin =
+                peakProcessingSettingsMonitor.NedlerMeadMaxIterationsWithDeltaLessThanMin,
+        };
+
         foreach (var spectra in spectras)
         {
             await FitPeaksInternal(spectra);
@@ -185,7 +176,7 @@ internal sealed class ProcessingController(
                     .Select(d => d.Peak)
                     .ToArray();
 
-                await spectra.FitPeaks(peaks, OptimizationSettings);
+                await spectra.FitPeaks(peaks, settings);
 
                 foreach (var plot in customPlotSet.Data)
                 {
@@ -205,7 +196,7 @@ internal sealed class ProcessingController(
 
                 var plots = peakDataPlotProvider.GetPlots(peaks).ToArray();
 
-                await spectra.FitPeaks(peaks, OptimizationSettings);
+                await spectra.FitPeaks(peaks, settings);
 
                 foreach (var peakPlot in plots)
                 {

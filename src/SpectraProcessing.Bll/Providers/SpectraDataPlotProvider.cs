@@ -147,6 +147,7 @@ internal sealed class SpectraDataPlotProvider(
         {
             AspSpectraData asp => new AspSpectraDataPlot(asp, color),
             EspSpectraData esp => new EspSpectraDataPlot(esp, color),
+            SimpleSpectraData simple => new SimpleSpectraDataPlot(simple, color),
             _                  => throw new NotSupportedException(data.GetType().Name + " is not supported"),
         };
 

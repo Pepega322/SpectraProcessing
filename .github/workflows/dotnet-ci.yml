@@ -1,0 +1,21 @@
+name: build
+
+on:
+  push:
+    branches:
+      - 'release/*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: dotnet-restore
+        run: 'dotnet restore SpectraProcessing.sln'
+      - name: dotnet-build
+        run: 'dotnet build SpectraProcessing.sln --no-restore'
+      - name: dotnet-tests
+        run: 'dotnet test tests/SpectraProcessing.Tests/SpectraProcessing.Tests.csproj --no-build'

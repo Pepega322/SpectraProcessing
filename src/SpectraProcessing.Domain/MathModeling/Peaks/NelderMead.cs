@@ -1,7 +1,8 @@
 ﻿using SpectraProcessing.Domain.Extensions;
-using SpectraProcessing.Domain.Models.MathModeling;
+using SpectraProcessing.Domain.Models.MathModeling.Common;
+using SpectraProcessing.Domain.Models.MathModeling.Peaks;
 
-namespace SpectraProcessing.Domain.MathModeling;
+namespace SpectraProcessing.Domain.MathModeling.Peaks;
 
 public static class NelderMead
 {
@@ -9,14 +10,14 @@ public static class NelderMead
         = Comparer<SimplexPoint>.Create((x, y) => x.Value.CompareTo(y.Value));
 
     public static Task<VectorN> GetOptimized(
-        NedlerMeadOptimizationModel model,
+        NedlerMeadModel model,
         Func<VectorNRefStruct, Span<float>, float> funcForMin)
     {
         return Task.Run(() => GetOptimizedInternal(model, funcForMin));
     }
 
     private static VectorN GetOptimizedInternal(
-        NedlerMeadOptimizationModel model,
+        NedlerMeadModel model,
         Func<VectorNRefStruct, Span<float>, float> funcForMin)
     {
         Span<float> funcBuffer = stackalloc float[model.BufferSize];
@@ -75,6 +76,8 @@ public static class NelderMead
 
             for (var d = 0; d < dimension; d++)
             {
+                const float initialShiftPercent = 0.1f;
+
                 var simplexPoint = simplexPoints[d + 1];
 
                 var vector = simplexPoint.Vector;
@@ -83,9 +86,9 @@ public static class NelderMead
 
                 var m = Random.Shared.Next() % 2 == 0 ? -1 : 1;
 
-                vector[d] = vector[d].ApproximatelyEqual(0, settings.InitialShift)
-                    ? settings.InitialShift * m
-                    : vector[d] * (1 + settings.InitialShift * m);
+                vector[d] = vector[d].ApproximatelyEqual(0, initialShiftPercent)
+                    ? initialShiftPercent * m
+                    : vector[d] * (1 + initialShiftPercent * m);
 
                 vector = vector.WithConstraints(constraints);
 
@@ -95,23 +98,21 @@ public static class NelderMead
 
         bool IsCriteriaReached(SimplexPoint best)
         {
-            if (settings.Criteria.AbsoluteValue is not null &&
-                best.Value.ApproximatelyEqual(settings.Criteria.AbsoluteValue.Value))
+            if (settings.MinAbsoluteValue is not null && best.Value.ApproximatelyEqual(settings.MinAbsoluteValue.Value))
             {
                 return true;
             }
 
-            if (settings.Criteria.MaxConsecutiveShrinks is not null &&
-                consecutiveShrinks > settings.Criteria.MaxConsecutiveShrinks)
+            if (settings.MaxConsecutiveShrinks is not null &&
+                consecutiveShrinks > settings.MaxConsecutiveShrinks)
             {
                 return true;
             }
 
-            if (settings.Criteria is
-                not
+            if (settings is not
                 {
-                    MinDeltaBetweenBetweenIterations: not null,
-                    MaxIterationsWithLessThanDelta: not null,
+                    MinDeltaPercentageBetweenIterations: not null,
+                    MaxIterationsWithDeltaLessThanMin: not null,
                 })
             {
                 return false;
@@ -119,7 +120,7 @@ public static class NelderMead
 
             var currentDelta = best.Value - previousBestValue;
 
-            var tolerance = settings.Criteria.MinDeltaBetweenBetweenIterations.Value;
+            var tolerance = settings.MinDeltaPercentageBetweenIterations.Value;
 
             if (previousDelta.ApproximatelyEqual(currentDelta, tolerance))
             {
@@ -133,11 +134,16 @@ public static class NelderMead
             previousBestValue = best.Value;
             previousDelta = currentDelta;
 
-            return iterationsWithLessThanDelta >= settings.Criteria.MaxIterationsWithLessThanDelta;
+            return iterationsWithLessThanDelta >= settings.MaxIterationsWithDeltaLessThanMin;
         }
 
         void MoveSimplex(in Span<float> funcBuffer)
         {
+            const int reflectionCoefficient = 1;
+            const int expansionCoefficient = 2;
+            const float contractionCoefficient = 0.5f;
+            const float shrinkCoefficient = 0.5f;
+
             var best = simplexPoints[0];
             var worst = simplexPoints[^1];
 
@@ -148,7 +154,7 @@ public static class NelderMead
                 .Divide(simplexPoints.Length - 1);
 
             var reflected = VectorNRefStruct.Difference(center, worst.Vector, stackalloc float[dimension])
-                .Multiply(settings.Coefficients.Reflection)
+                .Multiply(reflectionCoefficient)
                 .Add(center)
                 .WithConstraints(constraints);
 
@@ -158,7 +164,7 @@ public static class NelderMead
             if (reflectedValue < best.Value)
             {
                 var expanded = VectorNRefStruct.Difference(reflected, center, stackalloc float[dimension])
-                    .Multiply(settings.Coefficients.Expansion)
+                    .Multiply(expansionCoefficient)
                     .Add(center)
                     .WithConstraints(constraints);
 
@@ -191,7 +197,7 @@ public static class NelderMead
             }
 
             var contracted = VectorNRefStruct.Difference(worst.Vector, center, stackalloc float[dimension])
-                .Multiply(settings.Coefficients.Contraction)
+                .Multiply(contractionCoefficient)
                 .Add(center)
                 .WithConstraints(constraints);
 
@@ -212,7 +218,7 @@ public static class NelderMead
             foreach (var point in simplexPoints.Skip(1))
             {
                 var shrinked = VectorNRefStruct.Difference(point.Vector, best.Vector, buffer)
-                    .Multiply(settings.Coefficients.Shrink)
+                    .Multiply(shrinkCoefficient)
                     .Add(best.Vector)
                     .WithConstraints(constraints);
 
@@ -234,7 +240,7 @@ public static class NelderMead
         {
             if (constraints.TryGetValue(d, out var constraint))
             {
-                constraint.ApplyWithReflection(ref vector.Values[d]);
+                vector[d] = constraint.WithReflection(vector[d]);
             }
         }
 
@@ -249,7 +255,7 @@ public static class NelderMead
         {
             if (constraints.TryGetValue(d, out var constraint))
             {
-                constraint.ApplyWithReflection(ref vector.Values[d]);
+                vector[d] = constraint.WithReflection(vector[d]);
             }
         }
 

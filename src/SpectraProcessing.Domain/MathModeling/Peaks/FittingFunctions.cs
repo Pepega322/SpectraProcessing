@@ -1,9 +1,10 @@
 ﻿using SpectraProcessing.Domain.Enums;
 using SpectraProcessing.Domain.Extensions;
-using SpectraProcessing.Domain.Models.MathModeling;
+using SpectraProcessing.Domain.MathModeling.Common;
+using SpectraProcessing.Domain.Models.MathModeling.Common;
 using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
-namespace SpectraProcessing.Domain.MathModeling;
+namespace SpectraProcessing.Domain.MathModeling.Peaks;
 
 public static class FittingFunctions
 {
@@ -144,10 +145,10 @@ public static class FittingFunctions
 
         for (var i = 0; i < peaksCount; i++)
         {
-            var center = peaksVector.Values[SpectraModeling.PeakParametersCount * i];
-            var halfWidth = peaksVector.Values[SpectraModeling.PeakParametersCount * i + 1];
-            var amplitude = peaksVector.Values[SpectraModeling.PeakParametersCount * i + 2];
-            var gaussianContribution = peaksVector.Values[SpectraModeling.PeakParametersCount * i + 3];
+            var center = peaksVector[SpectraModeling.PeakParametersCount * i];
+            var halfWidth = peaksVector[SpectraModeling.PeakParametersCount * i + 1];
+            var amplitude = peaksVector[SpectraModeling.PeakParametersCount * i + 2];
+            var gaussianContribution = peaksVector[SpectraModeling.PeakParametersCount * i + 3];
 
             value += PeakModeling.GetPeakValueAt(
                 x: x,

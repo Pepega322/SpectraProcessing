@@ -1,9 +1,10 @@
 using SpectraProcessing.Domain.Enums;
-using SpectraProcessing.Domain.Models.MathModeling;
+using SpectraProcessing.Domain.Models.MathModeling.Common;
+using SpectraProcessing.Domain.Models.MathModeling.Peaks;
 using SpectraProcessing.Domain.Models.Peak;
 using SpectraProcessing.Domain.Models.Spectra.Abstractions;
 
-namespace SpectraProcessing.Domain.MathModeling;
+namespace SpectraProcessing.Domain.MathModeling.Peaks;
 
 public static class SpectraModeling
 {
@@ -12,21 +13,14 @@ public static class SpectraModeling
     private static readonly ValueConstraint GaussianContributionConstraint = new(0, 1);
     private static readonly ValueConstraint HalfWidthConstraint = new(0, float.MaxValue);
 
-    public static async Task FitPeaks(
+    public static Task FitPeaks(
         this SpectraData spectra,
         IReadOnlyCollection<PeakData> peaks,
-        OptimizationSettings settings)
+        NedlerMeadSettings settings)
     {
         var groups = peaks.GroupPeaksByEffectiveRadius();
 
-        foreach (var g in groups)
-        {
-            await g.FitPeaksGroup(spectra, settings);
-        }
-
-        // return Parallel.ForEachAsync(
-        // groups,
-        // (g, _) => g.FitPeaksGroup(spectra, settings));
+        return Parallel.ForEachAsync(groups, (g, _) => g.FitPeaksGroup(spectra, settings));
     }
 
     private static List<List<PeakData>> GroupPeaksByEffectiveRadius(this IReadOnlyCollection<PeakData> peaks)
@@ -69,7 +63,7 @@ public static class SpectraModeling
     private static async ValueTask FitPeaksGroup(
         this List<PeakData> peaks,
         SpectraData spectra,
-        OptimizationSettings settings)
+        NedlerMeadSettings settings)
     {
         var startValues = new float[peaks.Count * PeakParametersCount];
         var constraints = new Dictionary<int, ValueConstraint>();
@@ -98,7 +92,7 @@ public static class SpectraModeling
 
         for (var i = 0; i < 2; i++)
         {
-            var optimizationModel = new NedlerMeadOptimizationModel
+            var optimizationModel = new NedlerMeadModel
             {
                 Start = startVector,
                 Constraints = constraints,
@@ -125,10 +119,10 @@ public static class SpectraModeling
         {
             for (var i = 0; i < peaks.Count; i++)
             {
-                peaks[i].Center = vector.Values[PeakParametersCount * i];
-                peaks[i].HalfWidth = vector.Values[PeakParametersCount * i + 1];
-                peaks[i].Amplitude = vector.Values[PeakParametersCount * i + 2];
-                peaks[i].GaussianContribution = vector.Values[PeakParametersCount * i + 3];
+                peaks[i].Center = vector[PeakParametersCount * i];
+                peaks[i].HalfWidth = vector[PeakParametersCount * i + 1];
+                peaks[i].Amplitude = vector[PeakParametersCount * i + 2];
+                peaks[i].GaussianContribution = vector[PeakParametersCount * i + 3];
             }
         }
     }
@@ -142,9 +136,9 @@ public static class SpectraModeling
 
         for (var i = 0; i < peaksCount; i++)
         {
-            var center = peaksVector.Values[PeakParametersCount * i];
-            var halfWidth = peaksVector.Values[PeakParametersCount * i + 1];
-            var gaussianContribution = peaksVector.Values[PeakParametersCount * i + 3];
+            var center = peaksVector[PeakParametersCount * i];
+            var halfWidth = peaksVector[PeakParametersCount * i + 1];
+            var gaussianContribution = peaksVector[PeakParametersCount * i + 3];
 
             var effectiveRadius = PeakModeling.GetPeakEffectiveRadius(
                 halfWidth: halfWidth,
