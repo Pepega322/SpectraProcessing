@@ -84,17 +84,17 @@ public sealed partial class MainForm : Form
     {
         readFolderToolStripMenuItem.Click += async (_, _) =>
         {
-            await Prepare();
-            // var path = dialogController.GetFolderPath();
-            //
-            // if (path is null)
-            // {
-            //     return;
-            // }
-            //
-            // var set = await dataSourceController.ReadFolderAsync(path);
-            //
-            // await dataStorageController.AddDataSet(set);
+            // await Prepare();
+            var path = dialogController.GetFolderPath();
+
+            if (path is null)
+            {
+                return;
+            }
+
+            var set = await spectraDataProvider.ReadFolderAsync(path);
+
+            await dataStorageProvider.AddDataSet(new StringKey(set.Name), set);
         };
 
         readFolderRecursiveToolStripMenuItem.Click += async (_, _) =>

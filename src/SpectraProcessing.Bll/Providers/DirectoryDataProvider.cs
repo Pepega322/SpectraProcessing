@@ -13,7 +13,7 @@ internal sealed class DirectoryDataProvider<TData>(
 ) : IDataProvider<TData>
     where TData : class, IWriteableData
 {
-    public async Task<TData> ReadDataAsync(string fullName)
+    public async Task<TData?> ReadDataAsync(string fullName)
     {
         TData? data = null;
         try
@@ -28,7 +28,7 @@ internal sealed class DirectoryDataProvider<TData>(
                 e.Message);
         }
 
-        return data!;
+        return data;
     }
 
     public async Task<DataSet<TData>> ReadFolderAsync(string fullName)
@@ -40,7 +40,11 @@ internal sealed class DirectoryDataProvider<TData>(
         foreach (var file in folder.GetFiles())
         {
             var data = await ReadDataAsync(file.FullName);
-            set.AddThreadSafe(data);
+
+            if (data is not null)
+            {
+                set.AddThreadSafe(data);
+            }
         }
 
         return set;

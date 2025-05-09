@@ -6,7 +6,7 @@ namespace SpectraProcessing.Bll.Providers.Interfaces;
 public interface IDataProvider<TData>
     where TData : IWriteableData
 {
-    Task<TData> ReadDataAsync(string fullName);
+    Task<TData?> ReadDataAsync(string fullName);
 
     Task<DataSet<TData>> ReadFolderAsync(string fullName);
 
