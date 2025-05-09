@@ -71,9 +71,9 @@ public sealed partial class MainForm : Form
 
         var spectra = set.Data.Single(s => s.Name == "Gauss.esp");
 
-        await spectraController.DataAddToPlotAreaToDefault(spectra);
+        await spectraController.AddDataToPlotToDefault(spectra);
 
-        await spectraController.PlotAreaResize();
+        await spectraController.PlotResize();
 
         plotView.Refresh();
 
@@ -187,33 +187,33 @@ public sealed partial class MainForm : Form
         dataContextMenuPlot.Click += async (sender, _) =>
         {
             var spectra = TreeViewExtensions.GetContextData<SpectraData>(sender);
-            await spectraController.ContextDataAddToClearPlotToDefault(spectra!);
+            await spectraController.AddDataToClearPlotToDefault(spectra!);
         };
 
         dataSetContextMenuPlot.Click += async (s, _) =>
         {
             var set = TreeViewExtensions.GetContextSet<SpectraData>(s);
-            await spectraController.ContextDataAddToClearPlotArea(set!);
+            await spectraController.AddDataSetToClearPlot(set!);
         };
 
         dataSetContextMenuAddToPlot.Click += async (s, _) =>
         {
             var set = TreeViewExtensions.GetContextSet<SpectraData>(s);
-            await spectraController.AddToPlotArea(set!);
+            await spectraController.AddDataSetToPlot(set!);
         };
 
         dataStorageTreeView.NodeMouseDoubleClick += async (_, e) =>
         {
             if (e is { Button: MouseButtons.Left, Node.Tag: SpectraData spectra })
             {
-                await spectraController.DataAddToPlotAreaToDefault(spectra);
+                await spectraController.AddDataToPlotToDefault(spectra);
             }
         };
     }
 
     private void SetupPlotController()
     {
-        resizeToolStripMenuItem.Click += async (_, _) => await spectraController.PlotAreaResize();
+        resizeToolStripMenuItem.Click += async (_, _) => await spectraController.PlotResize();
 
         spectraController.OnPlotStorageChanged +=
             async () => await plotStorageTreeView.BuildTreeAsync(spectraController.GetPlotNodes);
@@ -222,7 +222,7 @@ public sealed partial class MainForm : Form
 
         plotContextMenuClear.Click += async (_, _) =>
         {
-            await spectraController.PlotAreaClear();
+            await spectraController.PlotClear();
             await peakProcessingController.ClearPeaks();
         };
 
@@ -232,7 +232,7 @@ public sealed partial class MainForm : Form
 
             var plot = TreeViewExtensions.GetContextData<SpectraDataPlot>(sender);
 
-            await spectraController.ContextPlotDelete(ownerSet!, plot!);
+            await spectraController.ErasePlot(ownerSet!, plot!);
 
             await peakProcessingController.RemovePeaks(plot!.SpectraData);
 
@@ -245,9 +245,26 @@ public sealed partial class MainForm : Form
             {
                 case SpectraDataPlot plot:
                     await spectraController.ChangePlotVisibility(plot, e.Node.Checked);
+
+                    var isPlotHighlighted = await spectraController.IsPlotHighlighted(plot);
+
+                    if (isPlotHighlighted)
+                    {
+                        await ChangePlotCheckout(plot, e.Node.Checked);
+                    }
+
                     break;
+
                 case DataSet<SpectraDataPlot> set:
                     await spectraController.ChangePlotSetVisibility(set, e.Node.Checked);
+
+                    var highlightedPlot = set.Data.FirstOrDefault(p => spectraController.IsPlotHighlighted(p).Result);
+
+                    if (highlightedPlot is not null)
+                    {
+                        await ChangePlotCheckout(highlightedPlot, e.Node.Checked);
+                    }
+
                     break;
             }
         };
@@ -255,7 +272,7 @@ public sealed partial class MainForm : Form
         plotSetContextMenuDelete.Click += async (sender, _) =>
         {
             var set = TreeViewExtensions.GetContextSet<SpectraDataPlot>(sender);
-            await spectraController.ContextPlotSetDelete(set!);
+            await spectraController.ErasePlotSet(set!);
 
             foreach (var plot in set!.Data)
             {
@@ -266,7 +283,7 @@ public sealed partial class MainForm : Form
 
         plotSetContextMenuClear.Click += async (_, _) =>
         {
-            await spectraController.PlotAreaClear();
+            await spectraController.PlotClear();
             await peakProcessingController.ClearPeaks();
         };
 
@@ -469,6 +486,11 @@ public sealed partial class MainForm : Form
 
             var peaksSet = await peakDataProvider.ReadDataAsync(fullName);
 
+            if (peaksSet is null)
+            {
+                return;
+            }
+
             var plot = TreeViewExtensions.GetContextData<SpectraDataPlot>(sender, out var node);
 
             await peakProcessingController.ImportPeaks(plot!.SpectraData, peaksSet.Peaks);
@@ -577,9 +599,50 @@ public sealed partial class MainForm : Form
             return;
         }
 
-        var isHighlight = await spectraController.PlotHighlight(plot);
+        var isHighlighted = await spectraController.PlotHighlight(plot);
 
-        if (isHighlight is false)
+        await ChangePlotCheckout(plot, isHighlighted);
+
+        if (isHighlighted)
+        {
+            await HighlightNodeUntilNextClick();
+        }
+
+        return;
+
+        async Task HighlightNodeUntilNextClick()
+        {
+            node.NodeFont = new Font(plotStorageTreeView.Font, FontStyle.Bold);
+
+            var tcs = new TaskCompletionSource();
+
+            TreeNodeMouseClickEventHandler? moveBackFont = (_, _) =>
+            {
+                node.NodeFont = new Font(plotStorageTreeView.Font, FontStyle.Regular);
+                tcs.TrySetResult();
+            };
+
+            plotStorageTreeView.NodeMouseDoubleClick += moveBackFont;
+
+
+            await tcs.Task;
+
+            plotStorageTreeView.NodeMouseDoubleClick -= moveBackFont;
+        }
+    }
+
+    private async Task ChangePlotCheckout(SpectraDataPlot plot, bool isChecked)
+    {
+        if (isChecked)
+        {
+            customPeaksToolStripMenuItem.Checked = await peakProcessingController.CheckoutSpectra(plot.SpectraData);
+
+            if (baselineModeToolStripMenuItem.Checked)
+            {
+                await spectraProcessingController.DrawBaseline(plot.SpectraData);
+            }
+        }
+        else
         {
             customPeaksToolStripMenuItem.Checked = await peakProcessingController.CheckoutSpectra(null);
 
@@ -587,38 +650,7 @@ public sealed partial class MainForm : Form
             {
                 await spectraProcessingController.ClearBaseline();
             }
-
-            return;
         }
-
-        customPeaksToolStripMenuItem.Checked = await peakProcessingController.CheckoutSpectra(plot.SpectraData);
-
-        if (baselineModeToolStripMenuItem.Checked)
-        {
-            await spectraProcessingController.DrawBaseline(plot.SpectraData);
-        }
-
-        await HighlightNodeUntilNextClick(node);
-    }
-
-    private async Task HighlightNodeUntilNextClick(TreeNode node)
-    {
-        node.NodeFont = new Font(plotStorageTreeView.Font, FontStyle.Bold);
-
-        var tcs = new TaskCompletionSource();
-
-        TreeNodeMouseClickEventHandler? moveBackFont = (_, _) =>
-        {
-            node.NodeFont = new Font(plotStorageTreeView.Font, FontStyle.Regular);
-            tcs.TrySetResult();
-        };
-
-        plotStorageTreeView.NodeMouseDoubleClick += moveBackFont;
-
-
-        await tcs.Task;
-
-        plotStorageTreeView.NodeMouseDoubleClick -= moveBackFont;
     }
 
     private static void TreeNodeClickSelect(object? sender, TreeNodeMouseClickEventArgs e)

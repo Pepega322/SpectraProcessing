@@ -12,15 +12,17 @@ public interface ISpectraController
 
     IReadOnlyCollection<DataSet<SpectraDataPlot>> Plots { get; }
 
-    Task AddToPlotArea(DataSet<SpectraData> set);
+    Task AddDataSetToPlot(DataSet<SpectraData> set);
 
-    Task ContextDataAddToClearPlotArea(DataSet<SpectraData> set);
+    Task AddDataSetToClearPlot(DataSet<SpectraData> set);
 
-    Task DataAddToPlotAreaToDefault(SpectraData data);
+    Task AddDataToPlotToDefault(SpectraData data);
 
-    Task ContextDataAddToClearPlotToDefault(SpectraData data);
+    Task AddDataToClearPlotToDefault(SpectraData data);
 
     Task<bool> IsPlotVisible(SpectraDataPlot plot);
+
+    Task<bool> IsPlotHighlighted(SpectraDataPlot plot);
 
     Task ChangePlotSetVisibility(DataSet<SpectraDataPlot> set, bool isVisible);
 
@@ -32,11 +34,11 @@ public interface ISpectraController
 
     Task PlotRemoveHighlight(SpectraDataPlot plot);
 
-    Task ContextPlotSetDelete(DataSet<SpectraDataPlot> set);
+    Task ErasePlotSet(DataSet<SpectraDataPlot> set);
 
-    Task ContextPlotDelete(DataSet<SpectraDataPlot> ownerSet, SpectraDataPlot plot);
+    Task ErasePlot(DataSet<SpectraDataPlot> ownerSet, SpectraDataPlot plot);
 
-    Task PlotAreaClear();
+    Task PlotClear();
 
-    Task PlotAreaResize();
+    Task PlotResize();
 }
