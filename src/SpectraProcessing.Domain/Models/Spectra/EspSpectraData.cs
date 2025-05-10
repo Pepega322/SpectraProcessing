@@ -16,6 +16,8 @@ public sealed class EspSpectraData(
 
     protected override SpectraFormat Format => SpectraFormat.Esp;
 
+    public override SpectraData Copy() => new EspSpectraData(Name, Points.Copy(), Info);
+
     public override IEnumerable<string> ToContents()
         => new[]
         {

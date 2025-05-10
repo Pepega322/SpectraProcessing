@@ -19,6 +19,8 @@ public sealed record SpectraPoints
         Y = y.ToArray();
     }
 
+    public SpectraPoints Copy() => new(X, Y);
+
     public void Smooth()
     {
         const int centerIndex = 2;
@@ -65,7 +67,7 @@ public sealed record SpectraPoints
     {
         for (var i = 0; i < Count; i++)
         {
-            yield return $"{X[i]: 0.00} {Y[i]: 0.00}";
+            yield return $"{X[i]:0.00} {Y[i]:0.00}";
         }
     }
 }

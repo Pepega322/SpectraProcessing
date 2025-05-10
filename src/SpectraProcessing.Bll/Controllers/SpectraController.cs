@@ -31,7 +31,11 @@ internal sealed class SpectraController(
 
     public async Task AddDataSetToPlot(DataSet<SpectraData> set)
     {
-        var plots = await spectraDataPlotProvider.Draw(set.Data);
+        var spectrasCopy = set.Data
+            .Select(d => d.Copy())
+            .ToArray();
+
+        var plots = await spectraDataPlotProvider.Draw(spectrasCopy);
 
         var plotSet = new DataSet<SpectraDataPlot>(set.Name, plots);
 
@@ -50,7 +54,7 @@ internal sealed class SpectraController(
 
     public async Task AddDataToPlotToDefault(SpectraData data)
     {
-        var plot = (await spectraDataPlotProvider.Draw([data])).Single();
+        var plot = (await spectraDataPlotProvider.Draw([data.Copy()])).Single();
 
         await storageProvider.AddDataToDefaultSet(plot);
 

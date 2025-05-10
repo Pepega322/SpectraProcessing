@@ -122,20 +122,6 @@ public sealed partial class MainForm : Form
 
         dataContextMenuClear.Click += (_, _) => dataStorageProvider.Clear();
 
-        dataContextMenuSaveAsEsp.Click += async (sender, _) =>
-        {
-            var data = TreeViewExtensions.GetContextData<SpectraData>(sender);
-
-            var fullname = dialogController.GetSaveFileFullName(data!.Name, ".esp");
-
-            if (fullname is null)
-            {
-                return;
-            }
-
-            await spectraDataProvider.DataWriteAs(data, fullname);
-        };
-
         dataContextMenuDelete.Click += async (sender, _) =>
         {
             var ownerSet = TreeViewExtensions.GetContextParentSet<SpectraData>(sender);
@@ -144,38 +130,6 @@ public sealed partial class MainForm : Form
         };
 
         dataSetContextMenuClear.Click += (_, _) => dataStorageProvider.Clear();
-
-        dataSetContextMenuSaveAsEspCurrent.Click += async (sender, _) =>
-        {
-            var path = dialogController.GetFolderPath();
-
-            if (path is null)
-            {
-                return;
-            }
-
-            var set = TreeViewExtensions.GetContextSet<SpectraData>(sender);
-
-            var outputPath = Path.Combine(path, $"{set!.Name} (converted)");
-
-            await spectraDataProvider.DataWriteAs(set.Data, outputPath, ".esp");
-        };
-
-        dataSetContextMenuSaveAsEspRecursive.Click += async (sender, _) =>
-        {
-            var path = dialogController.GetFolderPath();
-
-            if (path is null)
-            {
-                return;
-            }
-
-            var set = TreeViewExtensions.GetContextSet<SpectraData>(sender);
-
-            var outputPath = Path.Combine(path, $"{set!.Name} (converted full depth)");
-
-            await spectraDataProvider.SetWriteAs(set, outputPath, ".esp");
-        };
 
         dataSetContextMenuDelete.Click += async (sender, _) =>
         {
@@ -220,10 +174,18 @@ public sealed partial class MainForm : Form
 
         spectraController.OnPlotAreaChanged += () => plotView.Refresh();
 
-        plotContextMenuClear.Click += async (_, _) =>
+        plotContextMenuSaveAsEsp.Click += async (sender, _) =>
         {
-            await spectraController.PlotClear();
-            await peakProcessingController.ClearPeaks();
+            var plot = TreeViewExtensions.GetContextData<SpectraDataPlot>(sender);
+
+            var fullname = dialogController.GetSaveFileFullName(plot!.Name, ".esp");
+
+            if (fullname is null)
+            {
+                return;
+            }
+
+            await spectraDataProvider.DataWriteAs(plot.SpectraData, fullname);
         };
 
         plotContextMenuDelete.Click += async (sender, _) =>
@@ -237,6 +199,12 @@ public sealed partial class MainForm : Form
             await peakProcessingController.RemovePeaks(plot!.SpectraData);
 
             await spectraController.PlotRemoveHighlight(plot);
+        };
+
+        plotContextMenuClear.Click += async (_, _) =>
+        {
+            await spectraController.PlotClear();
+            await peakProcessingController.ClearPeaks();
         };
 
         plotStorageTreeView.AfterCheck += async (_, e) =>
@@ -267,6 +235,26 @@ public sealed partial class MainForm : Form
 
                     break;
             }
+        };
+
+        plotSetContextMenuSaveAsEsp.Click += async (sender, _) =>
+        {
+            var path = dialogController.GetFolderPath();
+
+            if (path is null)
+            {
+                return;
+            }
+
+            var set = TreeViewExtensions.GetContextSet<SpectraDataPlot>(sender);
+
+            // var outputPath = Path.Combine(path, $"{set!.Name}");
+
+            var spectrasToSave = set!.Data
+                .Select(plot => plot.SpectraData)
+                .ToArray();
+
+            await spectraDataProvider.DataWriteAs(spectrasToSave, path, ".esp");
         };
 
         plotSetContextMenuDelete.Click += async (sender, _) =>
@@ -301,7 +289,7 @@ public sealed partial class MainForm : Form
         {
             coordinateProvider.UpdateCoordinates(e.X, e.Y);
             var c = coordinateProvider.Coordinates;
-            mouseCoordinatesBox.Text = $@"X:{c.X: 0.00} Y:{c.Y: 0.00}";
+            mouseCoordinatesBox.Text = $@"X:{c.X:0.00} Y:{c.Y:0.00}";
         };
     }
 

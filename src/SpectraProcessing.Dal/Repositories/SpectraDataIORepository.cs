@@ -90,7 +90,7 @@ internal class SpectraDataIORepository : IDataRepository<SpectraData>
 
         foreach (var pair in contents
                      .Skip(firstEspPointIndex)
-                     .Select(line => line.Split(' ')))
+                     .Select(line => line.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)))
         {
             xPoints.Add(float.Parse(pair[0], CultureInfo.InvariantCulture));
             yPoints.Add(float.Parse(pair[1], CultureInfo.InvariantCulture));

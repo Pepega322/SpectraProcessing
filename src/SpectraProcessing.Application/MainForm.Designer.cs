@@ -54,15 +54,11 @@ sealed partial class MainForm
         importPeaksToolStripMenuItem = new ToolStripMenuItem();
         dataContextMenu = new ContextMenuStrip(components);
         dataContextMenuPlot = new ToolStripMenuItem();
-        dataContextMenuSaveAsEsp = new ToolStripMenuItem();
         dataContextMenuDelete = new ToolStripMenuItem();
         dataContextMenuClear = new ToolStripMenuItem();
         dataSetContextMenu = new ContextMenuStrip(components);
         dataSetContextMenuPlot = new ToolStripMenuItem();
         dataSetContextMenuAddToPlot = new ToolStripMenuItem();
-        dataSetContextMenuSaveAsEsp = new ToolStripMenuItem();
-        dataSetContextMenuSaveAsEspCurrent = new ToolStripMenuItem();
-        dataSetContextMenuSaveAsEspRecursive = new ToolStripMenuItem();
         dataSetContextMenuDelete = new ToolStripMenuItem();
         dataSetContextMenuClear = new ToolStripMenuItem();
         plotContextMenu = new ContextMenuStrip(components);
@@ -87,6 +83,8 @@ sealed partial class MainForm
         plotSetContextMenuExportPeaks = new ToolStripMenuItem();
         plotSetContextMenuFitPeaks = new ToolStripMenuItem();
         plotSetContextMenuClear = new ToolStripMenuItem();
+        plotContextMenuSaveAsEsp = new ToolStripMenuItem();
+        plotSetContextMenuSaveAsEsp = new ToolStripMenuItem();
         tableLayoutPanel1.SuspendLayout();
         tableLayoutPanel2.SuspendLayout();
         tableLayoutPanel3.SuspendLayout();
@@ -314,90 +312,65 @@ sealed partial class MainForm
         // dataContextMenu
         // 
         dataContextMenu.ImageScalingSize = new Size(32, 32);
-        dataContextMenu.Items.AddRange(new ToolStripItem[] { dataContextMenuPlot, dataContextMenuSaveAsEsp, dataContextMenuDelete, dataContextMenuClear });
+        dataContextMenu.Items.AddRange(new ToolStripItem[] { dataContextMenuPlot, dataContextMenuDelete, dataContextMenuClear });
         dataContextMenu.Name = "dataContextMenu";
-        dataContextMenu.Size = new Size(217, 156);
+        dataContextMenu.Size = new Size(159, 118);
         // 
         // dataContextMenuPlot
         // 
         dataContextMenuPlot.Name = "dataContextMenuPlot";
-        dataContextMenuPlot.Size = new Size(216, 38);
+        dataContextMenuPlot.Size = new Size(158, 38);
         dataContextMenuPlot.Text = "Plot";
-        // 
-        // dataContextMenuSaveAsEsp
-        // 
-        dataContextMenuSaveAsEsp.Name = "dataContextMenuSaveAsEsp";
-        dataContextMenuSaveAsEsp.Size = new Size(216, 38);
-        dataContextMenuSaveAsEsp.Text = "Save as .esp";
         // 
         // dataContextMenuDelete
         // 
         dataContextMenuDelete.Name = "dataContextMenuDelete";
-        dataContextMenuDelete.Size = new Size(216, 38);
+        dataContextMenuDelete.Size = new Size(158, 38);
         dataContextMenuDelete.Text = "Delete";
         // 
         // dataContextMenuClear
         // 
         dataContextMenuClear.Name = "dataContextMenuClear";
-        dataContextMenuClear.Size = new Size(216, 38);
+        dataContextMenuClear.Size = new Size(158, 38);
         dataContextMenuClear.Text = "Clear";
         // 
         // dataSetContextMenu
         // 
         dataSetContextMenu.ImageScalingSize = new Size(32, 32);
-        dataSetContextMenu.Items.AddRange(new ToolStripItem[] { dataSetContextMenuPlot, dataSetContextMenuAddToPlot, dataSetContextMenuSaveAsEsp, dataSetContextMenuDelete, dataSetContextMenuClear });
+        dataSetContextMenu.Items.AddRange(new ToolStripItem[] { dataSetContextMenuPlot, dataSetContextMenuAddToPlot, dataSetContextMenuDelete, dataSetContextMenuClear });
         dataSetContextMenu.Name = "dataSetContextMenu";
-        dataSetContextMenu.Size = new Size(217, 194);
+        dataSetContextMenu.Size = new Size(210, 156);
         // 
         // dataSetContextMenuPlot
         // 
         dataSetContextMenuPlot.Name = "dataSetContextMenuPlot";
-        dataSetContextMenuPlot.Size = new Size(216, 38);
+        dataSetContextMenuPlot.Size = new Size(209, 38);
         dataSetContextMenuPlot.Text = "Plot";
         // 
         // dataSetContextMenuAddToPlot
         // 
         dataSetContextMenuAddToPlot.Name = "dataSetContextMenuAddToPlot";
-        dataSetContextMenuAddToPlot.Size = new Size(216, 38);
+        dataSetContextMenuAddToPlot.Size = new Size(209, 38);
         dataSetContextMenuAddToPlot.Text = "Add to plot";
-        // 
-        // dataSetContextMenuSaveAsEsp
-        // 
-        dataSetContextMenuSaveAsEsp.DropDownItems.AddRange(new ToolStripItem[] { dataSetContextMenuSaveAsEspCurrent, dataSetContextMenuSaveAsEspRecursive });
-        dataSetContextMenuSaveAsEsp.Name = "dataSetContextMenuSaveAsEsp";
-        dataSetContextMenuSaveAsEsp.Size = new Size(216, 38);
-        dataSetContextMenuSaveAsEsp.Text = "Save as .esp";
-        // 
-        // dataSetContextMenuSaveAsEspCurrent
-        // 
-        dataSetContextMenuSaveAsEspCurrent.Name = "dataSetContextMenuSaveAsEspCurrent";
-        dataSetContextMenuSaveAsEspCurrent.Size = new Size(283, 44);
-        dataSetContextMenuSaveAsEspCurrent.Text = "Current set";
-        // 
-        // dataSetContextMenuSaveAsEspRecursive
-        // 
-        dataSetContextMenuSaveAsEspRecursive.Name = "dataSetContextMenuSaveAsEspRecursive";
-        dataSetContextMenuSaveAsEspRecursive.Size = new Size(283, 44);
-        dataSetContextMenuSaveAsEspRecursive.Text = "Set recursive";
         // 
         // dataSetContextMenuDelete
         // 
         dataSetContextMenuDelete.Name = "dataSetContextMenuDelete";
-        dataSetContextMenuDelete.Size = new Size(216, 38);
+        dataSetContextMenuDelete.Size = new Size(209, 38);
         dataSetContextMenuDelete.Text = "Delete";
         // 
         // dataSetContextMenuClear
         // 
         dataSetContextMenuClear.Name = "dataSetContextMenuClear";
-        dataSetContextMenuClear.Size = new Size(216, 38);
+        dataSetContextMenuClear.Size = new Size(209, 38);
         dataSetContextMenuClear.Text = "Clear";
         // 
         // plotContextMenu
         // 
         plotContextMenu.ImageScalingSize = new Size(32, 32);
-        plotContextMenu.Items.AddRange(new ToolStripItem[] { plotContextMenuDelete, spectraProcessingToolStripMenuItem1, peaksProcessingToolStripMenuItem1, plotContextMenuClear });
+        plotContextMenu.Items.AddRange(new ToolStripItem[] { plotContextMenuDelete, spectraProcessingToolStripMenuItem1, peaksProcessingToolStripMenuItem1, plotContextMenuClear, plotContextMenuSaveAsEsp });
         plotContextMenu.Name = "plotContextMenu";
-        plotContextMenu.Size = new Size(289, 156);
+        plotContextMenu.Size = new Size(289, 194);
         // 
         // plotContextMenuDelete
         // 
@@ -458,27 +431,27 @@ sealed partial class MainForm
         // plotSetContextMenu
         // 
         plotSetContextMenu.ImageScalingSize = new Size(32, 32);
-        plotSetContextMenu.Items.AddRange(new ToolStripItem[] { plotSetContextMenuHighlight, plotSetContextMenuDelete, spectraProcessingToolStripMenuItem, peaksProcessingToolStripMenuItem, plotSetContextMenuClear });
+        plotSetContextMenu.Items.AddRange(new ToolStripItem[] { plotSetContextMenuSaveAsEsp, plotSetContextMenuHighlight, plotSetContextMenuDelete, spectraProcessingToolStripMenuItem, peaksProcessingToolStripMenuItem, plotSetContextMenuClear });
         plotSetContextMenu.Name = "plotSetContextMenu";
-        plotSetContextMenu.Size = new Size(289, 194);
+        plotSetContextMenu.Size = new Size(289, 232);
         // 
         // plotSetContextMenuHighlight
         // 
         plotSetContextMenuHighlight.Name = "plotSetContextMenuHighlight";
-        plotSetContextMenuHighlight.Size = new Size(288, 38);
+        plotSetContextMenuHighlight.Size = new Size(300, 38);
         plotSetContextMenuHighlight.Text = "Highlight";
         // 
         // plotSetContextMenuDelete
         // 
         plotSetContextMenuDelete.Name = "plotSetContextMenuDelete";
-        plotSetContextMenuDelete.Size = new Size(288, 38);
+        plotSetContextMenuDelete.Size = new Size(300, 38);
         plotSetContextMenuDelete.Text = "Delete";
         // 
         // spectraProcessingToolStripMenuItem
         // 
         spectraProcessingToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { plotSetContextMenuSmooth, plotSetContextMenuSubstractBaseline, plotSetContextMenuGetAverage });
         spectraProcessingToolStripMenuItem.Name = "spectraProcessingToolStripMenuItem";
-        spectraProcessingToolStripMenuItem.Size = new Size(288, 38);
+        spectraProcessingToolStripMenuItem.Size = new Size(300, 38);
         spectraProcessingToolStripMenuItem.Text = "Spectra processing";
         // 
         // plotSetContextMenuSmooth
@@ -503,7 +476,7 @@ sealed partial class MainForm
         // 
         peaksProcessingToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { plotSetContextMenuImportPeaks, plotSetContextMenuExportPeaks, plotSetContextMenuFitPeaks });
         peaksProcessingToolStripMenuItem.Name = "peaksProcessingToolStripMenuItem";
-        peaksProcessingToolStripMenuItem.Size = new Size(288, 38);
+        peaksProcessingToolStripMenuItem.Size = new Size(300, 38);
         peaksProcessingToolStripMenuItem.Text = "Peaks processing";
         // 
         // plotSetContextMenuImportPeaks
@@ -527,8 +500,20 @@ sealed partial class MainForm
         // plotSetContextMenuClear
         // 
         plotSetContextMenuClear.Name = "plotSetContextMenuClear";
-        plotSetContextMenuClear.Size = new Size(288, 38);
+        plotSetContextMenuClear.Size = new Size(300, 38);
         plotSetContextMenuClear.Text = "Clear";
+        // 
+        // dataContextMenuSaveAsEsp
+        // 
+        plotContextMenuSaveAsEsp.Name = "plotContextMenuSaveAsEsp";
+        plotContextMenuSaveAsEsp.Size = new Size(288, 38);
+        plotContextMenuSaveAsEsp.Text = "Save as .esp";
+        // 
+        // dataSetContextMenuSaveAsEspCurrent
+        // 
+        plotSetContextMenuSaveAsEsp.Name = "plotSetContextMenuSaveAsEsp";
+        plotSetContextMenuSaveAsEsp.Size = new Size(300, 38);
+        plotSetContextMenuSaveAsEsp.Text = "Save as .esp";
         // 
         // MainForm
         // 
@@ -576,13 +561,9 @@ sealed partial class MainForm
     private TableLayoutPanel tableLayoutPanel5;
     private TreeView dataStorageTreeView;
     private ContextMenuStrip dataContextMenu;
-    private ToolStripMenuItem dataContextMenuSaveAsEsp;
     private ToolStripMenuItem dataContextMenuDelete;
     private ToolStripMenuItem dataContextMenuPlot;
     private ContextMenuStrip dataSetContextMenu;
-    private ToolStripMenuItem dataSetContextMenuSaveAsEsp;
-    private ToolStripMenuItem dataSetContextMenuSaveAsEspCurrent;
-    private ToolStripMenuItem dataSetContextMenuSaveAsEspRecursive;
     private ToolStripMenuItem dataSetContextMenuDelete;
     private ToolStripMenuItem dataSetContextMenuPlot;
     private ToolStripMenuItem dataSetContextMenuAddToPlot;
@@ -622,4 +603,6 @@ sealed partial class MainForm
     private ToolStripMenuItem baselineModeToolStripMenuItem;
     private TextBox mouseCoordinatesBox;
     private NumericUpDown numericUpDown1;
+    private ToolStripMenuItem plotContextMenuSaveAsEsp;
+    private ToolStripMenuItem plotSetContextMenuSaveAsEsp;
 }

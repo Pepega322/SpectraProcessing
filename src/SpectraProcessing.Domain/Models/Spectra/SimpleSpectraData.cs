@@ -8,4 +8,5 @@ public class SimpleSpectraData(string name, SpectraPoints points) : SpectraData(
 {
     public override string Extension => "estimated";
     protected override SpectraFormat Format => SpectraFormat.Estimated;
+    public override SpectraData Copy() => new SimpleSpectraData(Name, Points.Copy());
 }
