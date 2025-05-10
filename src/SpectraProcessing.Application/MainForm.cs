@@ -61,6 +61,12 @@ public sealed partial class MainForm : Form
         plotStorageTreeView.NodeMouseClick += PlotDrawContextMenu;
         plotStorageTreeView.NodeMouseClick += PlotSetDrawContextMenu;
         plotStorageTreeView.NodeMouseDoubleClick += TreeNodeClickSelect;
+
+        tempToolStripMenuItem.Click +=  (_, _) =>
+        {
+            spectraController.HighlightedData?.SpectraData.Points
+                .Transform((_, y) => y + (float) numericUpDown1.Value);
+        };
     }
 
     private async Task<int> Prepare()

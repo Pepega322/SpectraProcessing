@@ -71,7 +71,9 @@ sealed partial class MainForm
         plotContextMenuExportPeaks = new ToolStripMenuItem();
         plotContextMenuFitPeaks = new ToolStripMenuItem();
         plotContextMenuClear = new ToolStripMenuItem();
+        plotContextMenuSaveAsEsp = new ToolStripMenuItem();
         plotSetContextMenu = new ContextMenuStrip(components);
+        plotSetContextMenuSaveAsEsp = new ToolStripMenuItem();
         plotSetContextMenuHighlight = new ToolStripMenuItem();
         plotSetContextMenuDelete = new ToolStripMenuItem();
         spectraProcessingToolStripMenuItem = new ToolStripMenuItem();
@@ -83,8 +85,7 @@ sealed partial class MainForm
         plotSetContextMenuExportPeaks = new ToolStripMenuItem();
         plotSetContextMenuFitPeaks = new ToolStripMenuItem();
         plotSetContextMenuClear = new ToolStripMenuItem();
-        plotContextMenuSaveAsEsp = new ToolStripMenuItem();
-        plotSetContextMenuSaveAsEsp = new ToolStripMenuItem();
+        tempToolStripMenuItem = new ToolStripMenuItem();
         tableLayoutPanel1.SuspendLayout();
         tableLayoutPanel2.SuspendLayout();
         tableLayoutPanel3.SuspendLayout();
@@ -292,7 +293,7 @@ sealed partial class MainForm
         // 
         // peaksToolStripMenuItem
         // 
-        peaksToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportPeaksToolStripMenuItem, importPeaksToolStripMenuItem });
+        peaksToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportPeaksToolStripMenuItem, importPeaksToolStripMenuItem, tempToolStripMenuItem });
         peaksToolStripMenuItem.Name = "peaksToolStripMenuItem";
         peaksToolStripMenuItem.Size = new Size(93, 36);
         peaksToolStripMenuItem.Text = "Peaks";
@@ -428,6 +429,12 @@ sealed partial class MainForm
         plotContextMenuClear.Size = new Size(288, 38);
         plotContextMenuClear.Text = "Clear";
         // 
+        // plotContextMenuSaveAsEsp
+        // 
+        plotContextMenuSaveAsEsp.Name = "plotContextMenuSaveAsEsp";
+        plotContextMenuSaveAsEsp.Size = new Size(288, 38);
+        plotContextMenuSaveAsEsp.Text = "Save as .esp";
+        // 
         // plotSetContextMenu
         // 
         plotSetContextMenu.ImageScalingSize = new Size(32, 32);
@@ -435,23 +442,29 @@ sealed partial class MainForm
         plotSetContextMenu.Name = "plotSetContextMenu";
         plotSetContextMenu.Size = new Size(289, 232);
         // 
+        // plotSetContextMenuSaveAsEsp
+        // 
+        plotSetContextMenuSaveAsEsp.Name = "plotSetContextMenuSaveAsEsp";
+        plotSetContextMenuSaveAsEsp.Size = new Size(288, 38);
+        plotSetContextMenuSaveAsEsp.Text = "Save as .esp";
+        // 
         // plotSetContextMenuHighlight
         // 
         plotSetContextMenuHighlight.Name = "plotSetContextMenuHighlight";
-        plotSetContextMenuHighlight.Size = new Size(300, 38);
+        plotSetContextMenuHighlight.Size = new Size(288, 38);
         plotSetContextMenuHighlight.Text = "Highlight";
         // 
         // plotSetContextMenuDelete
         // 
         plotSetContextMenuDelete.Name = "plotSetContextMenuDelete";
-        plotSetContextMenuDelete.Size = new Size(300, 38);
+        plotSetContextMenuDelete.Size = new Size(288, 38);
         plotSetContextMenuDelete.Text = "Delete";
         // 
         // spectraProcessingToolStripMenuItem
         // 
         spectraProcessingToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { plotSetContextMenuSmooth, plotSetContextMenuSubstractBaseline, plotSetContextMenuGetAverage });
         spectraProcessingToolStripMenuItem.Name = "spectraProcessingToolStripMenuItem";
-        spectraProcessingToolStripMenuItem.Size = new Size(300, 38);
+        spectraProcessingToolStripMenuItem.Size = new Size(288, 38);
         spectraProcessingToolStripMenuItem.Text = "Spectra processing";
         // 
         // plotSetContextMenuSmooth
@@ -476,7 +489,7 @@ sealed partial class MainForm
         // 
         peaksProcessingToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { plotSetContextMenuImportPeaks, plotSetContextMenuExportPeaks, plotSetContextMenuFitPeaks });
         peaksProcessingToolStripMenuItem.Name = "peaksProcessingToolStripMenuItem";
-        peaksProcessingToolStripMenuItem.Size = new Size(300, 38);
+        peaksProcessingToolStripMenuItem.Size = new Size(288, 38);
         peaksProcessingToolStripMenuItem.Text = "Peaks processing";
         // 
         // plotSetContextMenuImportPeaks
@@ -500,20 +513,14 @@ sealed partial class MainForm
         // plotSetContextMenuClear
         // 
         plotSetContextMenuClear.Name = "plotSetContextMenuClear";
-        plotSetContextMenuClear.Size = new Size(300, 38);
+        plotSetContextMenuClear.Size = new Size(288, 38);
         plotSetContextMenuClear.Text = "Clear";
         // 
-        // dataContextMenuSaveAsEsp
+        // tempToolStripMenuItem
         // 
-        plotContextMenuSaveAsEsp.Name = "plotContextMenuSaveAsEsp";
-        plotContextMenuSaveAsEsp.Size = new Size(288, 38);
-        plotContextMenuSaveAsEsp.Text = "Save as .esp";
-        // 
-        // dataSetContextMenuSaveAsEspCurrent
-        // 
-        plotSetContextMenuSaveAsEsp.Name = "plotSetContextMenuSaveAsEsp";
-        plotSetContextMenuSaveAsEsp.Size = new Size(300, 38);
-        plotSetContextMenuSaveAsEsp.Text = "Save as .esp";
+        tempToolStripMenuItem.Name = "tempToolStripMenuItem";
+        tempToolStripMenuItem.Size = new Size(359, 44);
+        tempToolStripMenuItem.Text = "temp";
         // 
         // MainForm
         // 
@@ -605,4 +612,5 @@ sealed partial class MainForm
     private NumericUpDown numericUpDown1;
     private ToolStripMenuItem plotContextMenuSaveAsEsp;
     private ToolStripMenuItem plotSetContextMenuSaveAsEsp;
+    private ToolStripMenuItem tempToolStripMenuItem;
 }

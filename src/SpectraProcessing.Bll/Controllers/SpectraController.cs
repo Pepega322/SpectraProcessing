@@ -24,6 +24,8 @@ internal sealed class SpectraController(
 
     public event Action? OnPlotStorageChanged;
 
+    public SpectraDataPlot? HighlightedData => highlightedData;
+
     public IReadOnlyCollection<DataSet<SpectraDataPlot>> Plots
         => new[] { storageProvider.DefaultSet }
             .Concat(storageProvider.Sets.Values)
