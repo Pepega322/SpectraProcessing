@@ -10,6 +10,8 @@ public interface ISpectraController
 
     event Action? OnPlotStorageChanged;
 
+    SpectraDataPlot? HighlightedData { get; }
+
     IReadOnlyCollection<DataSet<SpectraDataPlot>> Plots { get; }
 
     Task AddDataSetToPlot(DataSet<SpectraData> set);
