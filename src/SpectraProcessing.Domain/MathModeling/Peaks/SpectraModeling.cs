@@ -11,7 +11,6 @@ public static class SpectraModeling
     public const int PeakParametersCount = 4;
 
     private static readonly ValueConstraint GaussianContributionConstraint = new(0, 1);
-    private static readonly ValueConstraint HalfWidthConstraint = new(0, float.MaxValue);
 
     public static Task FitPeaks(
         this SpectraData spectra,
@@ -79,9 +78,11 @@ public static class SpectraModeling
 
             var halfWidthIndex = PeakParametersCount * i + 1;
             startValues[halfWidthIndex] = halfWidth;
-            constraints[halfWidthIndex] = HalfWidthConstraint;
+            constraints[halfWidthIndex] = new ValueConstraint(0, halfWidth * 1.25f);
 
-            startValues[PeakParametersCount * i + 2] = peaks[i].Amplitude;
+            var amplitudeIndex = PeakParametersCount * i + 2;
+            startValues[amplitudeIndex] = peaks[i].Amplitude;
+            constraints[amplitudeIndex] = new ValueConstraint(0, float.MaxValue);
 
             var gaussianContributionIndex = PeakParametersCount * i + 3;
             startValues[gaussianContributionIndex] = peaks[i].GaussianContribution;
