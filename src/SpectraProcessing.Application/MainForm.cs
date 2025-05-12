@@ -341,7 +341,7 @@ public sealed partial class MainForm : Form
                     new PeakData(
                         center: coordinateProvider.Coordinates.X,
                         amplitude: coordinateProvider.Coordinates.Y,
-                        halfWidth: 30f,
+                        halfWidth: (float) plotView.Plot.Axes.Bottom.Width * 0.025f,
                         gaussianContribution: 1f),
                 ]);
             }

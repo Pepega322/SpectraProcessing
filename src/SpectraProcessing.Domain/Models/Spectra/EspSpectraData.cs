@@ -10,7 +10,7 @@ public sealed class EspSpectraData(
     EspSpectraData.EspInfo info
 ) : SpectraData(name, points)
 {
-    private EspInfo Info { get; } = info;
+    public EspInfo Info { get; } = info;
 
     public override string Extension => "esp";
 
