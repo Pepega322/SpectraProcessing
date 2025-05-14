@@ -51,8 +51,8 @@ public static class PeakModeling
 
         static float GaussianSquare(IReadOnlyPeakData peak)
         {
-            // constant = 2 * Math.Sqrt(Math.PI / Math.Log(2));
-            const float constant = 4.2578680777249049f;
+            // constant = Math.Sqrt(Math.PI / 2Math.Log(2));
+            const float constant = 1.064467019431f;
 
             return constant * peak.Amplitude * peak.HalfWidth;
         }
