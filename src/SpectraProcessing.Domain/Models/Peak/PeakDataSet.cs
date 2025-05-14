@@ -12,17 +12,21 @@ public class PeakDataSet : IWriteableData
     public static PeakDataSet Parse(string name, string[] contents)
     {
         var peaks = contents.Skip(1)
-            .Select(
-                line =>
-                {
-                    var lineParts = line.Split(separator);
+            .Select(line =>
+            {
+                var lineParts = line.Split(separator);
 
-                    return new PeakData(
-                        center: float.Parse(lineParts[0]),
-                        halfWidth: float.Parse(lineParts[2]),
-                        amplitude: float.Parse(lineParts[3]),
-                        gaussianContribution: float.Parse(lineParts[4]));
-                })
+                var center = float.Parse(lineParts[0]);
+                var halfWidth = float.Parse(lineParts[2]);
+                var amplitude = float.Parse(lineParts[3]);
+                var gaussianContribution = float.Parse(lineParts[4]);
+
+                return new PeakData(
+                    center,
+                    amplitude,
+                    halfWidth,
+                    gaussianContribution);
+            })
             .ToArray();
 
         return new PeakDataSet(peaks, name);
@@ -51,7 +55,7 @@ public class PeakDataSet : IWriteableData
             var area = peak.GetPeakArea();
 
             yield return
-                $"{peak.Center:#.#####}{s}{area:#.#####}{s}{peak.HalfWidth:#.#####}{s}{peak.Amplitude:#.#####}{s}{peak.GaussianContribution:#.#####}";
+                $"{peak.Center:0.#####}{s}{area:0.#####}{s}{peak.HalfWidth:0.#####}{s}{peak.Amplitude:0.#####}{s}{peak.GaussianContribution:0.#####}";
         }
     }
 }

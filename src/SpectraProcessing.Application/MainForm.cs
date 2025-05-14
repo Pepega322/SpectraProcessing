@@ -342,7 +342,7 @@ public sealed partial class MainForm : Form
                         center: coordinateProvider.Coordinates.X,
                         amplitude: coordinateProvider.Coordinates.Y,
                         halfWidth: (float) plotView.Plot.Axes.Bottom.Width * 0.025f,
-                        gaussianContribution: 1f),
+                        gaussianContribution: 0.8f),
                 ]);
             }
         };
