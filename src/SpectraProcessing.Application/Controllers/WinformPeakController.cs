@@ -1,4 +1,3 @@
-using ScottPlot;
 using ScottPlot.WinForms;
 using SpectraProcessing.Bll.Controllers.Interfaces;
 using SpectraProcessing.Bll.Models.ScottPlot.Peak;
@@ -12,19 +11,16 @@ internal sealed class WinformPeakController(
     IPeakProcessingController peakProcessingController
 ) : IPeakController
 {
-    private Coordinates coordinates = new Coordinates(0, 0);
-
     public event Action? OnPeakChanges;
 
     public Task<PeakDataPlot?> TryGetPeak()
     {
-        coordinates.X = coordinateProvider.Coordinates.X;
-        coordinates.Y = coordinateProvider.Coordinates.Y;
-
-        var pixel = plotView.Plot.GetPixel(coordinates);
-
         var hitPeak = peakProcessingController.CurrentPeaks
-            .FirstOrDefault(p => p.TryHit(pixel, 20f));
+            .FirstOrDefault(p => p.TryHit(
+                coordinateProvider.Coordinates.X,
+                coordinateProvider.Coordinates.Y,
+                coordinateProvider.Width / 100,
+                coordinateProvider.Heigth / 100));
 
         return Task.FromResult(hitPeak);
     }

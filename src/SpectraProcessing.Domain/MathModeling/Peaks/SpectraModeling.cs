@@ -33,7 +33,7 @@ public static class SpectraModeling
             .OrderBy(x => x.Center - effectiveRadius[x])
             .ToArray();
 
-        var groups = new List<List<PeakData>>()
+        var groups = new List<List<PeakData>>
         {
             new() { peaksByLeftBorder.First() },
         };

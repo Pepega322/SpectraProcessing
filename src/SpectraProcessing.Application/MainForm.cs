@@ -62,7 +62,7 @@ public sealed partial class MainForm : Form
         plotStorageTreeView.NodeMouseClick += PlotSetDrawContextMenu;
         plotStorageTreeView.NodeMouseDoubleClick += TreeNodeClickSelect;
 
-        tempToolStripMenuItem.Click +=  (_, _) =>
+        tempToolStripMenuItem.Click += (_, _) =>
         {
             spectraController.HighlightedData?.SpectraData.Points
                 .Transform((_, y) => y + (float) numericUpDown1.Value);
@@ -341,7 +341,7 @@ public sealed partial class MainForm : Form
                     new PeakData(
                         center: coordinateProvider.Coordinates.X,
                         amplitude: coordinateProvider.Coordinates.Y,
-                        halfWidth: (float) plotView.Plot.Axes.Bottom.Width * 0.025f,
+                        halfWidth: coordinateProvider.Width * 0.025f,
                         gaussianContribution: 0.8f),
                 ]);
             }
