@@ -91,7 +91,7 @@ internal sealed class DirectoryDataProvider<TData>(
             Directory.CreateDirectory(path);
         }
 
-        return Task.WhenAll(dataSet.Select(data => DataWriteAs(data, Path.Combine(path, $"{data.Name}{extension}"))));
+        return Task.WhenAll(dataSet.Select(data => DataWriteAs(data, Path.Combine(path, $"{data.Name}.{extension}"))));
     }
 
     public async Task SetWriteAs(DataSet<TData> root, string path, string extension)
