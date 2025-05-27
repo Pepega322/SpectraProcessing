@@ -1,3 +1,5 @@
+using SpectraProcessing.Domain.Extensions;
+
 namespace SpectraProcessing.Domain.Models.MathModeling.Peaks;
 
 public sealed record ValueConstraint
@@ -10,6 +12,11 @@ public sealed record ValueConstraint
         if (min > max)
         {
             (min, max) = (max, min);
+        }
+
+        if (min.ApproximatelyEqual(max, 1e-2f))
+        {
+            throw new Exception("Invalid value constraint");
         }
 
         this.min = min;
