@@ -152,10 +152,7 @@ internal sealed class PeakProcessingController(
                 peakProcessingSettingsMonitor.NedlerMeadMaxIterationsWithDeltaLessThanMin,
         };
 
-        foreach (var spectra in spectras)
-        {
-            await FitPeaksInternal(spectra);
-        }
+        await Parallel.ForEachAsync(spectras, async (spectra, _) => await FitPeaksInternal(spectra));
 
         OnPlotAreaChanged?.Invoke();
 

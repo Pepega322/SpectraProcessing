@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SpectraProcessing.Application.Extensions;
 using SpectraProcessing.Bll.Controllers.Interfaces;
+using SpectraProcessing.Bll.Extensions;
 using SpectraProcessing.Bll.Models.ScottPlot.Spectra.Abstractions;
 using SpectraProcessing.Bll.Providers.Interfaces;
 using SpectraProcessing.Domain.Collections;
@@ -67,23 +68,6 @@ public sealed partial class MainForm : Form
             spectraController.HighlightedData?.SpectraData.Points
                 .Transform((_, y) => y + (float) numericUpDown1.Value);
         };
-    }
-
-    private async Task<int> Prepare()
-    {
-        var set = await spectraDataProvider.ReadFolderAsync("d:\\Study\\Chemfuck\\диплом\\DEV\\");
-
-        await dataStorageProvider.AddDataSet(new StringKey(set.Name), set);
-
-        var spectra = set.Data.Single(s => s.Name == "Gauss.esp");
-
-        await spectraController.AddDataToPlotToDefault(spectra);
-
-        await spectraController.PlotResize();
-
-        plotView.Refresh();
-
-        return 1;
     }
 
     private void SetupDataReaderController()
@@ -184,7 +168,7 @@ public sealed partial class MainForm : Form
         {
             var plot = TreeViewExtensions.GetContextData<SpectraDataPlot>(sender);
 
-            var fullname = dialogController.GetSaveFileFullName(plot!.Name, ".esp");
+            var fullname = dialogController.GetSaveFileFullName(plot!.Name, "esp");
 
             if (fullname is null)
             {
@@ -260,7 +244,7 @@ public sealed partial class MainForm : Form
                 .Select(plot => plot.SpectraData)
                 .ToArray();
 
-            await spectraDataProvider.DataWriteAs(spectrasToSave, path, ".esp");
+            await spectraDataProvider.DataWriteAs(spectrasToSave, path, "esp");
         };
 
         plotSetContextMenuDelete.Click += async (sender, _) =>
@@ -286,6 +270,16 @@ public sealed partial class MainForm : Form
             var set = TreeViewExtensions.GetContextSet<SpectraDataPlot>(sender);
 
             await spectraController.ContextPlotSetHighlight(set!);
+        };
+
+        plotSetContextMenuGetAverage.Click += async (sender, args) =>
+        {
+            var set = TreeViewExtensions.GetContextSet<SpectraDataPlot>(sender);
+
+            var spectras = set!.Data.Select(spectra => spectra.SpectraData).ToArray();
+            var average = await spectras.GetAverageSpectra();
+
+            await spectraController.AddDataToClearPlotToDefault(average);
         };
     }
 
@@ -466,7 +460,7 @@ public sealed partial class MainForm : Form
 
             var set = await peakDataProvider.ReadDataAsync(fullName);
 
-            await peakProcessingController.AddPeaksForCurrentSpectra(set.Peaks);
+            await peakProcessingController.AddPeaksForCurrentSpectra(set!.Peaks);
         };
 
         plotContextMenuImportPeaks.Click += async (sender, _) =>
@@ -507,7 +501,7 @@ public sealed partial class MainForm : Form
 
             foreach (var spectraData in plotSet!.Data.Select(p => p.SpectraData))
             {
-                await peakProcessingController.ImportPeaks(spectraData, peaksSet.Peaks);
+                await peakProcessingController.ImportPeaks(spectraData, peaksSet!.Peaks);
             }
         };
     }
@@ -524,7 +518,6 @@ public sealed partial class MainForm : Form
         numericUpDown1.Value = 100;
         spectraProcessingController.CurrentWidth = numericUpDown1.Value;
         numericUpDown1.ValueChanged += (_, _) => spectraProcessingController.CurrentWidth = numericUpDown1.Value;
-
 
         plotContextMenuSmooth.Click += async (sender, _) =>
         {

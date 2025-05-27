@@ -156,7 +156,9 @@ public sealed class PeakDataPlot : IDataPlot
 
         leftMarker.DragTo(Peak.Center - halfHalfWidth, halfHeight);
         Line.MinX = Peak.Center - effectiveRadius;
+
         centerMarker.DragTo(Peak.Center, Peak.Amplitude);
+
         rightMarker.DragTo(Peak.Center + halfHalfWidth, halfHeight);
         Line.MaxX = Peak.Center + effectiveRadius;
 

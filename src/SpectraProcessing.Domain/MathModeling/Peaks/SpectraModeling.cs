@@ -12,7 +12,7 @@ public static class SpectraModeling
 
     private static readonly ValueConstraint GaussianContributionConstraint = new(0, 1);
 
-    public static Task FitPeaks(
+    public static   Task FitPeaks(
         this SpectraData spectra,
         IReadOnlyCollection<PeakData> peaks,
         NedlerMeadSettings settings)
@@ -91,26 +91,23 @@ public static class SpectraModeling
 
         var startVector = new VectorN(startValues);
 
-        for (var i = 0; i < 2; i++)
+        var optimizationModel = new NedlerMeadModel
         {
-            var optimizationModel = new NedlerMeadModel
-            {
-                Start = startVector,
-                Constraints = constraints,
-                BufferSize = spectra.Points.Count,
-                Settings = settings,
-            };
+            Start = startVector,
+            Constraints = constraints,
+            BufferSize = spectra.Points.Count,
+            Settings = settings,
+        };
 
-            var (startValue, endValue) = GetBorders(startVector);
+        var (startValue, endValue) = GetBorders(startVector);
 
-            var funcForMin = FittingFunctions.GetOptimizationFunc(
-                SpectraFittingOptimizationFunction.ThroughR2,
-                spectra,
-                startValue,
-                endValue);
+        var funcForMin = FittingFunctions.GetOptimizationFunc(
+            SpectraFittingOptimizationFunction.ThroughR2,
+            spectra,
+            startValue,
+            endValue);
 
-            startVector = await NelderMead.GetOptimized(optimizationModel, funcForMin);
-        }
+        startVector = await NelderMead.GetOptimized(optimizationModel, funcForMin);
 
         UpdatePeaks(startVector);
 
