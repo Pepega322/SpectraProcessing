@@ -17,6 +17,8 @@ public sealed class AspSpectraData(
 
     protected override SpectraFormat Format => SpectraFormat.Asp;
 
+    public override SpectraData Copy() => new AspSpectraData(Name, Points.Copy(), Info);
+
     public override IEnumerable<string> ToContents()
         => new[]
         {

@@ -13,7 +13,7 @@
   </ItemGroup>
   <!--  ScottPlot-->
   <PropertyGroup>
-    <ScottPlotVersion>5.0.54</ScottPlotVersion>
+    <ScottPlotVersion>5.0.55</ScottPlotVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="ScottPlot" Version="$(ScottPlotVersion)" />

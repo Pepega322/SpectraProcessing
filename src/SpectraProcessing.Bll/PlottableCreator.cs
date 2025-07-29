@@ -1,4 +1,5 @@
 ﻿using ScottPlot;
+using ScottPlot.DataSources;
 using ScottPlot.Plottables;
 using SpectraProcessing.Bll.Models.ScottPlot.Plottables;
 
@@ -6,45 +7,40 @@ namespace SpectraProcessing.Bll;
 
 internal static class PlottableCreator
 {
+    private static long _counter;
+    private static readonly IPalette Palette = new ScottPlot.Palettes.Category20();
+
     private const float lineWidth = 2f;
     private const float defaultMarkerSize = 20f;
 
     public static Signal CreateSignal(float[] ys, float delta, Color? color = null)
     {
-        using var builder = new Plot();
-
-        var signal = builder.Add.Signal(ys, delta, color);
-
-        signal.LineWidth = lineWidth;
-
-        return signal;
+        return new Signal(new SignalSourceGenericArray<float>(ys, delta))
+        {
+            Color = color ?? GetNextColor(),
+            LineWidth = lineWidth,
+        };
     }
 
     public static SignalXY CreateSignalXY(float[] xs, float[] ys, Color? color = null)
     {
-        using var builder = new Plot();
-
-        var signalXy = builder.Add.SignalXY(xs, ys, color);
-
-        signalXy.LineWidth = lineWidth;
-
-        return signalXy;
+        return new SignalXY(new SignalXYSourceGenericArray<float, float>(xs, ys))
+        {
+            Color = color ?? GetNextColor(),
+            LineWidth = lineWidth,
+        };
     }
 
     public static FunctionPlot CreateFunction(Func<double, double> func, Color? color = null)
     {
-        using var builder = new Plot();
-
-        var function = builder.Add.Function(func);
-
-        if (color is not null)
+        return new FunctionPlot(new FunctionSource(func))
         {
-            function.LineColor = color.Value;
-        }
-
-        function.LineWidth = lineWidth;
-
-        return function;
+            LineStyle =
+            {
+                Color = color ?? GetNextColor(),
+            },
+            LineWidth = lineWidth,
+        };
     }
 
     public static DraggableMarker CreateDraggableMarker(
@@ -54,10 +50,14 @@ internal static class PlottableCreator
         Color? color = null,
         float markerSize = defaultMarkerSize)
     {
-        using var builder = new Plot();
-
-        var marker = builder.Add.Marker(x, y, shape, markerSize, color);
-
-        return new DraggableMarker(marker);
+        return new DraggableMarker
+        {
+            MarkerShape = shape,
+            MarkerSize = markerSize,
+            Color = color ?? GetNextColor(),
+            Location = new Coordinates(x, y),
+        };
     }
+
+    private static Color GetNextColor() => Palette.GetColor((int) Interlocked.Increment(ref _counter));
 }

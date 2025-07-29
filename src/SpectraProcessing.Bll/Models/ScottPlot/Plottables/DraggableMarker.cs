@@ -1,18 +1,19 @@
-﻿using ScottPlot;
-using ScottPlot.Plottables;
-using SpectraProcessing.Domain.Collections;
+﻿using ScottPlot.Plottables;
 
 namespace SpectraProcessing.Bll.Models.ScottPlot.Plottables;
 
-public sealed class DraggableMarker(Marker marker) : DraggablePlottableDecorator(marker)
+public sealed class DraggableMarker : Marker
 {
-    public Coordinates Coordinates => marker.Coordinates;
-
-    public Point<float> Point => new(X, Y);
-
-    public float X => (float) marker.X;
-
-    public float Y => (float) marker.Y;
-
     public bool Dragged { get; set; }
+
+    public bool IsHit(float x, float y, float xRadius, float yRadius)
+    {
+        return Math.Abs(X - x) < xRadius && Math.Abs(Y - y) < yRadius;
+    }
+
+    public void DragTo(double x, double y)
+    {
+        X = x;
+        Y = y;
+    }
 }

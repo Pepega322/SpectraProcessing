@@ -11,9 +11,8 @@ public static class SpectraModeling
     public const int PeakParametersCount = 4;
 
     private static readonly ValueConstraint GaussianContributionConstraint = new(0, 1);
-    private static readonly ValueConstraint HalfWidthConstraint = new(0, float.MaxValue);
 
-    public static Task FitPeaks(
+    public static   Task FitPeaks(
         this SpectraData spectra,
         IReadOnlyCollection<PeakData> peaks,
         NedlerMeadSettings settings)
@@ -34,7 +33,7 @@ public static class SpectraModeling
             .OrderBy(x => x.Center - effectiveRadius[x])
             .ToArray();
 
-        var groups = new List<List<PeakData>>()
+        var groups = new List<List<PeakData>>
         {
             new() { peaksByLeftBorder.First() },
         };
@@ -79,9 +78,11 @@ public static class SpectraModeling
 
             var halfWidthIndex = PeakParametersCount * i + 1;
             startValues[halfWidthIndex] = halfWidth;
-            constraints[halfWidthIndex] = HalfWidthConstraint;
+            constraints[halfWidthIndex] = new ValueConstraint(0, halfWidth * 1.25f);
 
-            startValues[PeakParametersCount * i + 2] = peaks[i].Amplitude;
+            var amplitudeIndex = PeakParametersCount * i + 2;
+            startValues[amplitudeIndex] = peaks[i].Amplitude;
+            constraints[amplitudeIndex] = new ValueConstraint(0, float.MaxValue);
 
             var gaussianContributionIndex = PeakParametersCount * i + 3;
             startValues[gaussianContributionIndex] = peaks[i].GaussianContribution;
@@ -90,26 +91,23 @@ public static class SpectraModeling
 
         var startVector = new VectorN(startValues);
 
-        for (var i = 0; i < 2; i++)
+        var optimizationModel = new NedlerMeadModel
         {
-            var optimizationModel = new NedlerMeadModel
-            {
-                Start = startVector,
-                Constraints = constraints,
-                BufferSize = spectra.Points.Count,
-                Settings = settings,
-            };
+            Start = startVector,
+            Constraints = constraints,
+            BufferSize = spectra.Points.Count,
+            Settings = settings,
+        };
 
-            var (startValue, endValue) = GetBorders(startVector);
+        var (startValue, endValue) = GetBorders(startVector);
 
-            var funcForMin = FittingFunctions.GetOptimizationFunc(
-                SpectraFittingOptimizationFunction.ThroughR2,
-                spectra,
-                startValue,
-                endValue);
+        var funcForMin = FittingFunctions.GetOptimizationFunc(
+            SpectraFittingOptimizationFunction.ThroughR2,
+            spectra,
+            startValue,
+            endValue);
 
-            startVector = await NelderMead.GetOptimized(optimizationModel, funcForMin);
-        }
+        startVector = await NelderMead.GetOptimized(optimizationModel, funcForMin);
 
         UpdatePeaks(startVector);
 

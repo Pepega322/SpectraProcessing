@@ -18,6 +18,8 @@ public abstract class SpectraData(string name, SpectraPoints points) : IWriteabl
 
     protected abstract SpectraFormat Format { get; }
 
+    public abstract SpectraData Copy();
+
     public virtual IEnumerable<string> ToContents() => Points.ToContents();
 
     public override bool Equals(object? obj) => obj is SpectraData s && s.Id == Id;

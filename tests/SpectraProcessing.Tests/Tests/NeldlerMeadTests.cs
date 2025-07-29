@@ -1,5 +1,4 @@
 using FluentAssertions;
-using SpectraProcessing.Domain.Extensions;
 using SpectraProcessing.Domain.MathModeling.Peaks;
 using SpectraProcessing.Domain.Models.MathModeling.Common;
 using SpectraProcessing.Domain.Models.MathModeling.Peaks;

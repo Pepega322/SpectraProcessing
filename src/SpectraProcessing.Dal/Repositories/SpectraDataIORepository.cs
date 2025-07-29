@@ -52,7 +52,19 @@ internal class SpectraDataIORepository : IDataRepository<SpectraData>
     {
         await using var writer = new StreamWriter(fullName, options);
 
-        var text = string.Join(Environment.NewLine, data.ToContents());
+        string[] headers = data is EspSpectraData esp
+            ?
+            [
+                esp.Info.ExpCfg,
+                esp.Info.ProcCfg,
+            ]
+            :
+            [
+                string.Empty,
+                string.Empty,
+            ];
+
+        var text = string.Join(Environment.NewLine, headers.Concat(data.Points.ToContents()));
 
         await writer.WriteAsync(text);
     }
@@ -90,7 +102,9 @@ internal class SpectraDataIORepository : IDataRepository<SpectraData>
 
         foreach (var pair in contents
                      .Skip(firstEspPointIndex)
-                     .Select(line => line.Split(' ')))
+                     .Select(line => line.Split(
+                         ' ',
+                         StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)))
         {
             xPoints.Add(float.Parse(pair[0], CultureInfo.InvariantCulture));
             yPoints.Add(float.Parse(pair[1], CultureInfo.InvariantCulture));

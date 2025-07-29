@@ -33,12 +33,14 @@ sealed partial class MainForm
         tableLayoutPanel2 = new TableLayoutPanel();
         tableLayoutPanel3 = new TableLayoutPanel();
         tableLayoutPanel4 = new TableLayoutPanel();
+        mouseCoordinatesBox = new TextBox();
         menuStrip2 = new MenuStrip();
         resizeToolStripMenuItem = new ToolStripMenuItem();
         addOrRemovePeaksToolStripMenuItem = new ToolStripMenuItem();
         customPeaksToolStripMenuItem = new ToolStripMenuItem();
         clearPeaksToolStripMenuItem = new ToolStripMenuItem();
         baselineModeToolStripMenuItem = new ToolStripMenuItem();
+        numericUpDown1 = new NumericUpDown();
         plotView = new ScottPlot.WinForms.FormsPlot();
         tableLayoutPanel5 = new TableLayoutPanel();
         dataStorageTreeView = new TreeView();
@@ -50,59 +52,54 @@ sealed partial class MainForm
         peaksToolStripMenuItem = new ToolStripMenuItem();
         exportPeaksToolStripMenuItem = new ToolStripMenuItem();
         importPeaksToolStripMenuItem = new ToolStripMenuItem();
+        tempToolStripMenuItem = new ToolStripMenuItem();
         dataContextMenu = new ContextMenuStrip(components);
         dataContextMenuPlot = new ToolStripMenuItem();
-        dataContextMenuSaveAsEsp = new ToolStripMenuItem();
         dataContextMenuDelete = new ToolStripMenuItem();
         dataContextMenuClear = new ToolStripMenuItem();
         dataSetContextMenu = new ContextMenuStrip(components);
         dataSetContextMenuPlot = new ToolStripMenuItem();
         dataSetContextMenuAddToPlot = new ToolStripMenuItem();
-        dataSetContextMenuSaveAsEsp = new ToolStripMenuItem();
-        dataSetContextMenuSaveAsEspCurrent = new ToolStripMenuItem();
-        dataSetContextMenuSaveAsEspRecursive = new ToolStripMenuItem();
         dataSetContextMenuDelete = new ToolStripMenuItem();
         dataSetContextMenuClear = new ToolStripMenuItem();
         plotContextMenu = new ContextMenuStrip(components);
+        plotContextMenuSaveAsEsp = new ToolStripMenuItem();
         plotContextMenuDelete = new ToolStripMenuItem();
         spectraProcessingToolStripMenuItem1 = new ToolStripMenuItem();
         plotContextMenuSmooth = new ToolStripMenuItem();
         plotContextMenuSubstractBaseline = new ToolStripMenuItem();
-        peaksProcessingToolStripMenuItem1 = new ToolStripMenuItem();
-        plotContextMenuImportPeaks = new ToolStripMenuItem();
-        plotContextMenuExportPeaks = new ToolStripMenuItem();
-        plotContextMenuFitPeaks = new ToolStripMenuItem();
         plotContextMenuClear = new ToolStripMenuItem();
         plotSetContextMenu = new ContextMenuStrip(components);
+        plotSetContextMenuSaveAsEsp = new ToolStripMenuItem();
         plotSetContextMenuHighlight = new ToolStripMenuItem();
         plotSetContextMenuDelete = new ToolStripMenuItem();
         spectraProcessingToolStripMenuItem = new ToolStripMenuItem();
         plotSetContextMenuSmooth = new ToolStripMenuItem();
         plotSetContextMenuSubstractBaseline = new ToolStripMenuItem();
         plotSetContextMenuGetAverage = new ToolStripMenuItem();
-        peaksProcessingToolStripMenuItem = new ToolStripMenuItem();
         plotSetContextMenuImportPeaks = new ToolStripMenuItem();
-        plotSetContextMenuExportPeaks = new ToolStripMenuItem();
         plotSetContextMenuFitPeaks = new ToolStripMenuItem();
         plotSetContextMenuClear = new ToolStripMenuItem();
-        numericUpDown1 = new NumericUpDown();
-        mouseCoordinatesBox = new TextBox();
+        plotContextMenuFitPeaks = new ToolStripMenuItem();
+        plotContextMenuImportPeaks = new ToolStripMenuItem();
+        plotContextMenuExportPeaks = new ToolStripMenuItem();
+        plotSetContextMenuExportPeaks = new ToolStripMenuItem();
         tableLayoutPanel1.SuspendLayout();
         tableLayoutPanel2.SuspendLayout();
         tableLayoutPanel3.SuspendLayout();
         tableLayoutPanel4.SuspendLayout();
         menuStrip2.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
         tableLayoutPanel5.SuspendLayout();
         menuStrip1.SuspendLayout();
         dataContextMenu.SuspendLayout();
         dataSetContextMenu.SuspendLayout();
         plotContextMenu.SuspendLayout();
         plotSetContextMenu.SuspendLayout();
-        ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
         SuspendLayout();
-        //
+        // 
         // tableLayoutPanel1
-        //
+        // 
         tableLayoutPanel1.ColumnCount = 1;
         tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
         tableLayoutPanel1.Controls.Add(tableLayoutPanel2, 0, 1);
@@ -116,9 +113,9 @@ sealed partial class MainForm
         tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 2F));
         tableLayoutPanel1.Size = new Size(1894, 1009);
         tableLayoutPanel1.TabIndex = 0;
-        //
+        // 
         // tableLayoutPanel2
-        //
+        // 
         tableLayoutPanel2.ColumnCount = 2;
         tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 80F));
         tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
@@ -131,9 +128,9 @@ sealed partial class MainForm
         tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
         tableLayoutPanel2.Size = new Size(1888, 938);
         tableLayoutPanel2.TabIndex = 0;
-        //
+        // 
         // tableLayoutPanel3
-        //
+        // 
         tableLayoutPanel3.ColumnCount = 1;
         tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
         tableLayoutPanel3.Controls.Add(tableLayoutPanel4, 0, 0);
@@ -146,9 +143,9 @@ sealed partial class MainForm
         tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
         tableLayoutPanel3.Size = new Size(1504, 932);
         tableLayoutPanel3.TabIndex = 0;
-        //
+        // 
         // tableLayoutPanel4
-        //
+        // 
         tableLayoutPanel4.ColumnCount = 3;
         tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 75F));
         tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 10F));
@@ -163,9 +160,17 @@ sealed partial class MainForm
         tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
         tableLayoutPanel4.Size = new Size(1498, 44);
         tableLayoutPanel4.TabIndex = 0;
-        //
+        // 
+        // mouseCoordinatesBox
+        // 
+        mouseCoordinatesBox.Dock = DockStyle.Fill;
+        mouseCoordinatesBox.Location = new Point(1275, 3);
+        mouseCoordinatesBox.Name = "mouseCoordinatesBox";
+        mouseCoordinatesBox.Size = new Size(220, 39);
+        mouseCoordinatesBox.TabIndex = 3;
+        // 
         // menuStrip2
-        //
+        // 
         menuStrip2.Dock = DockStyle.Fill;
         menuStrip2.ImageScalingSize = new Size(32, 32);
         menuStrip2.Items.AddRange(new ToolStripItem[] { resizeToolStripMenuItem, addOrRemovePeaksToolStripMenuItem, customPeaksToolStripMenuItem, clearPeaksToolStripMenuItem, baselineModeToolStripMenuItem });
@@ -174,50 +179,57 @@ sealed partial class MainForm
         menuStrip2.Size = new Size(1123, 44);
         menuStrip2.TabIndex = 1;
         menuStrip2.Text = "menuStrip2";
-        //
+        // 
         // resizeToolStripMenuItem
-        //
+        // 
         resizeToolStripMenuItem.Name = "resizeToolStripMenuItem";
-        resizeToolStripMenuItem.Size = new Size(100, 40);
-        resizeToolStripMenuItem.Text = "Resize";
-        //
+        resizeToolStripMenuItem.Size = new Size(134, 40);
+        resizeToolStripMenuItem.Text = "Масштаб";
+        // 
         // addOrRemovePeaksToolStripMenuItem
-        //
+        // 
         addOrRemovePeaksToolStripMenuItem.CheckOnClick = true;
         addOrRemovePeaksToolStripMenuItem.Name = "addOrRemovePeaksToolStripMenuItem";
-        addOrRemovePeaksToolStripMenuItem.Size = new Size(237, 40);
-        addOrRemovePeaksToolStripMenuItem.Text = "Add|Remove peaks";
-        //
+        addOrRemovePeaksToolStripMenuItem.Size = new Size(295, 40);
+        addOrRemovePeaksToolStripMenuItem.Text = "Добавить|Удалить пики";
+        // 
         // customPeaksToolStripMenuItem
-        //
+        // 
         customPeaksToolStripMenuItem.CheckOnClick = true;
         customPeaksToolStripMenuItem.Name = "customPeaksToolStripMenuItem";
-        customPeaksToolStripMenuItem.Size = new Size(182, 40);
-        customPeaksToolStripMenuItem.Text = "Custom Peaks";
-        //
+        customPeaksToolStripMenuItem.Size = new Size(209, 40);
+        customPeaksToolStripMenuItem.Text = "Закрепить пики";
+        // 
         // clearPeaksToolStripMenuItem
-        //
+        // 
         clearPeaksToolStripMenuItem.Name = "clearPeaksToolStripMenuItem";
-        clearPeaksToolStripMenuItem.Size = new Size(156, 40);
-        clearPeaksToolStripMenuItem.Text = "Clear peaks";
-        //
+        clearPeaksToolStripMenuItem.Size = new Size(183, 40);
+        clearPeaksToolStripMenuItem.Text = "Удалить пики";
+        // 
         // baselineModeToolStripMenuItem
-        //
+        // 
         baselineModeToolStripMenuItem.Name = "baselineModeToolStripMenuItem";
-        baselineModeToolStripMenuItem.Size = new Size(191, 40);
-        baselineModeToolStripMenuItem.Text = "Baseline mode";
-        //
+        baselineModeToolStripMenuItem.Size = new Size(196, 40);
+        baselineModeToolStripMenuItem.Text = "Базовая линия";
+        // 
+        // numericUpDown1
+        // 
+        numericUpDown1.Location = new Point(1126, 3);
+        numericUpDown1.Name = "numericUpDown1";
+        numericUpDown1.Size = new Size(143, 39);
+        numericUpDown1.TabIndex = 2;
+        // 
         // plotView
-        //
+        // 
         plotView.DisplayScale = 2F;
         plotView.Dock = DockStyle.Fill;
         plotView.Location = new Point(3, 53);
         plotView.Name = "plotView";
         plotView.Size = new Size(1498, 876);
         plotView.TabIndex = 1;
-        //
+        // 
         // tableLayoutPanel5
-        //
+        // 
         tableLayoutPanel5.ColumnCount = 1;
         tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
         tableLayoutPanel5.Controls.Add(dataStorageTreeView, 0, 1);
@@ -230,315 +242,279 @@ sealed partial class MainForm
         tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 40F));
         tableLayoutPanel5.Size = new Size(372, 932);
         tableLayoutPanel5.TabIndex = 1;
-        //
+        // 
         // dataStorageTreeView
-        //
+        // 
         dataStorageTreeView.Dock = DockStyle.Fill;
         dataStorageTreeView.Location = new Point(3, 562);
         dataStorageTreeView.Name = "dataStorageTreeView";
         dataStorageTreeView.Size = new Size(366, 367);
         dataStorageTreeView.TabIndex = 0;
-        //
+        // 
         // plotStorageTreeView
-        //
+        // 
         plotStorageTreeView.CheckBoxes = true;
         plotStorageTreeView.Dock = DockStyle.Fill;
         plotStorageTreeView.Location = new Point(3, 3);
         plotStorageTreeView.Name = "plotStorageTreeView";
         plotStorageTreeView.Size = new Size(366, 553);
         plotStorageTreeView.TabIndex = 1;
-        //
+        // 
         // menuStrip1
-        //
+        // 
         menuStrip1.ImageScalingSize = new Size(32, 32);
         menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, peaksToolStripMenuItem });
         menuStrip1.Location = new Point(0, 0);
         menuStrip1.Name = "menuStrip1";
-        menuStrip1.Size = new Size(1894, 40);
+        menuStrip1.Size = new Size(1894, 42);
         menuStrip1.TabIndex = 1;
         menuStrip1.Text = "menuStrip1";
-        //
+        // 
         // fileToolStripMenuItem
-        //
+        // 
         fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { readFolderToolStripMenuItem, readFolderRecursiveToolStripMenuItem });
         fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-        fileToolStripMenuItem.Size = new Size(71, 36);
-        fileToolStripMenuItem.Text = "File";
-        //
+        fileToolStripMenuItem.Size = new Size(129, 38);
+        fileToolStripMenuItem.Text = "Спектры";
+        // 
         // readFolderToolStripMenuItem
-        //
+        // 
         readFolderToolStripMenuItem.Name = "readFolderToolStripMenuItem";
-        readFolderToolStripMenuItem.Size = new Size(371, 44);
-        readFolderToolStripMenuItem.Text = "Read folder";
-        //
+        readFolderToolStripMenuItem.Size = new Size(359, 44);
+        readFolderToolStripMenuItem.Text = "Прочитать";
+        // 
         // readFolderRecursiveToolStripMenuItem
-        //
+        // 
         readFolderRecursiveToolStripMenuItem.Name = "readFolderRecursiveToolStripMenuItem";
-        readFolderRecursiveToolStripMenuItem.Size = new Size(371, 44);
-        readFolderRecursiveToolStripMenuItem.Text = "Read folder recursive";
-        //
+        readFolderRecursiveToolStripMenuItem.Size = new Size(359, 44);
+        readFolderRecursiveToolStripMenuItem.Text = "Прочитать вглубь";
+        // 
         // peaksToolStripMenuItem
-        //
-        peaksToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportPeaksToolStripMenuItem, importPeaksToolStripMenuItem });
+        // 
+        peaksToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportPeaksToolStripMenuItem, importPeaksToolStripMenuItem, tempToolStripMenuItem });
         peaksToolStripMenuItem.Name = "peaksToolStripMenuItem";
-        peaksToolStripMenuItem.Size = new Size(93, 36);
-        peaksToolStripMenuItem.Text = "Peaks";
-        //
+        peaksToolStripMenuItem.Size = new Size(91, 36);
+        peaksToolStripMenuItem.Text = "Пики";
+        // 
         // exportPeaksToolStripMenuItem
-        //
+        // 
         exportPeaksToolStripMenuItem.Name = "exportPeaksToolStripMenuItem";
-        exportPeaksToolStripMenuItem.Size = new Size(286, 44);
-        exportPeaksToolStripMenuItem.Text = "Export peaks";
-        //
+        exportPeaksToolStripMenuItem.Size = new Size(311, 44);
+        exportPeaksToolStripMenuItem.Text = "Экспорт пиков";
+        // 
         // importPeaksToolStripMenuItem
-        //
+        // 
         importPeaksToolStripMenuItem.Name = "importPeaksToolStripMenuItem";
-        importPeaksToolStripMenuItem.Size = new Size(286, 44);
-        importPeaksToolStripMenuItem.Text = "Import peaks";
-        //
+        importPeaksToolStripMenuItem.Size = new Size(311, 44);
+        importPeaksToolStripMenuItem.Text = "Импорт пиков";
+        // 
+        // tempToolStripMenuItem
+        // 
+        tempToolStripMenuItem.Name = "tempToolStripMenuItem";
+        tempToolStripMenuItem.Size = new Size(311, 44);
+        tempToolStripMenuItem.Text = "temp";
+        // 
         // dataContextMenu
-        //
+        // 
         dataContextMenu.ImageScalingSize = new Size(32, 32);
-        dataContextMenu.Items.AddRange(new ToolStripItem[] { dataContextMenuPlot, dataContextMenuSaveAsEsp, dataContextMenuDelete, dataContextMenuClear });
+        dataContextMenu.Items.AddRange(new ToolStripItem[] { dataContextMenuPlot, dataContextMenuDelete, dataContextMenuClear });
         dataContextMenu.Name = "dataContextMenu";
-        dataContextMenu.Size = new Size(217, 156);
-        //
+        dataContextMenu.Size = new Size(221, 118);
+        // 
         // dataContextMenuPlot
-        //
+        // 
         dataContextMenuPlot.Name = "dataContextMenuPlot";
-        dataContextMenuPlot.Size = new Size(216, 38);
-        dataContextMenuPlot.Text = "Plot";
-        //
-        // dataContextMenuSaveAsEsp
-        //
-        dataContextMenuSaveAsEsp.Name = "dataContextMenuSaveAsEsp";
-        dataContextMenuSaveAsEsp.Size = new Size(216, 38);
-        dataContextMenuSaveAsEsp.Text = "Save as .esp";
-        //
+        dataContextMenuPlot.Size = new Size(220, 38);
+        dataContextMenuPlot.Text = "График";
+        // 
         // dataContextMenuDelete
-        //
+        // 
         dataContextMenuDelete.Name = "dataContextMenuDelete";
-        dataContextMenuDelete.Size = new Size(216, 38);
-        dataContextMenuDelete.Text = "Delete";
-        //
+        dataContextMenuDelete.Size = new Size(220, 38);
+        dataContextMenuDelete.Text = "Удалить";
+        // 
         // dataContextMenuClear
-        //
+        // 
         dataContextMenuClear.Name = "dataContextMenuClear";
-        dataContextMenuClear.Size = new Size(216, 38);
-        dataContextMenuClear.Text = "Clear";
-        //
+        dataContextMenuClear.Size = new Size(220, 38);
+        dataContextMenuClear.Text = "Удалить всё";
+        // 
         // dataSetContextMenu
-        //
+        // 
         dataSetContextMenu.ImageScalingSize = new Size(32, 32);
-        dataSetContextMenu.Items.AddRange(new ToolStripItem[] { dataSetContextMenuPlot, dataSetContextMenuAddToPlot, dataSetContextMenuSaveAsEsp, dataSetContextMenuDelete, dataSetContextMenuClear });
+        dataSetContextMenu.Items.AddRange(new ToolStripItem[] { dataSetContextMenuPlot, dataSetContextMenuAddToPlot, dataSetContextMenuDelete, dataSetContextMenuClear });
         dataSetContextMenu.Name = "dataSetContextMenu";
-        dataSetContextMenu.Size = new Size(217, 194);
-        //
+        dataSetContextMenu.Size = new Size(312, 156);
+        // 
         // dataSetContextMenuPlot
-        //
+        // 
         dataSetContextMenuPlot.Name = "dataSetContextMenuPlot";
-        dataSetContextMenuPlot.Size = new Size(216, 38);
-        dataSetContextMenuPlot.Text = "Plot";
-        //
+        dataSetContextMenuPlot.Size = new Size(311, 38);
+        dataSetContextMenuPlot.Text = "График";
+        // 
         // dataSetContextMenuAddToPlot
-        //
+        // 
         dataSetContextMenuAddToPlot.Name = "dataSetContextMenuAddToPlot";
-        dataSetContextMenuAddToPlot.Size = new Size(216, 38);
-        dataSetContextMenuAddToPlot.Text = "Add to plot";
-        //
-        // dataSetContextMenuSaveAsEsp
-        //
-        dataSetContextMenuSaveAsEsp.DropDownItems.AddRange(new ToolStripItem[] { dataSetContextMenuSaveAsEspCurrent, dataSetContextMenuSaveAsEspRecursive });
-        dataSetContextMenuSaveAsEsp.Name = "dataSetContextMenuSaveAsEsp";
-        dataSetContextMenuSaveAsEsp.Size = new Size(216, 38);
-        dataSetContextMenuSaveAsEsp.Text = "Save as .esp";
-        //
-        // dataSetContextMenuSaveAsEspCurrent
-        //
-        dataSetContextMenuSaveAsEspCurrent.Name = "dataSetContextMenuSaveAsEspCurrent";
-        dataSetContextMenuSaveAsEspCurrent.Size = new Size(283, 44);
-        dataSetContextMenuSaveAsEspCurrent.Text = "Current set";
-        //
-        // dataSetContextMenuSaveAsEspRecursive
-        //
-        dataSetContextMenuSaveAsEspRecursive.Name = "dataSetContextMenuSaveAsEspRecursive";
-        dataSetContextMenuSaveAsEspRecursive.Size = new Size(283, 44);
-        dataSetContextMenuSaveAsEspRecursive.Text = "Set recursive";
-        //
+        dataSetContextMenuAddToPlot.Size = new Size(311, 38);
+        dataSetContextMenuAddToPlot.Text = "Добавить на график";
+        // 
         // dataSetContextMenuDelete
-        //
+        // 
         dataSetContextMenuDelete.Name = "dataSetContextMenuDelete";
-        dataSetContextMenuDelete.Size = new Size(216, 38);
-        dataSetContextMenuDelete.Text = "Delete";
-        //
+        dataSetContextMenuDelete.Size = new Size(311, 38);
+        dataSetContextMenuDelete.Text = "Удалить";
+        // 
         // dataSetContextMenuClear
-        //
+        // 
         dataSetContextMenuClear.Name = "dataSetContextMenuClear";
-        dataSetContextMenuClear.Size = new Size(216, 38);
-        dataSetContextMenuClear.Text = "Clear";
-        //
+        dataSetContextMenuClear.Size = new Size(311, 38);
+        dataSetContextMenuClear.Text = "Удалить всё";
+        // 
         // plotContextMenu
-        //
+        // 
         plotContextMenu.ImageScalingSize = new Size(32, 32);
-        plotContextMenu.Items.AddRange(new ToolStripItem[] { plotContextMenuDelete, spectraProcessingToolStripMenuItem1, peaksProcessingToolStripMenuItem1, plotContextMenuClear });
+        plotContextMenu.Items.AddRange(new ToolStripItem[] { plotContextMenuSaveAsEsp, plotContextMenuDelete, spectraProcessingToolStripMenuItem1, plotContextMenuClear });
         plotContextMenu.Name = "plotContextMenu";
-        plotContextMenu.Size = new Size(289, 156);
-        //
+        plotContextMenu.Size = new Size(302, 156);
+        // 
+        // plotContextMenuSaveAsEsp
+        // 
+        plotContextMenuSaveAsEsp.Name = "plotContextMenuSaveAsEsp";
+        plotContextMenuSaveAsEsp.Size = new Size(301, 38);
+        plotContextMenuSaveAsEsp.Text = "Сохранить как .esp";
+        // 
         // plotContextMenuDelete
-        //
+        // 
         plotContextMenuDelete.Name = "plotContextMenuDelete";
-        plotContextMenuDelete.Size = new Size(288, 38);
-        plotContextMenuDelete.Text = "Delete";
-        //
+        plotContextMenuDelete.Size = new Size(301, 38);
+        plotContextMenuDelete.Text = "Удалить";
+        // 
         // spectraProcessingToolStripMenuItem1
-        //
-        spectraProcessingToolStripMenuItem1.DropDownItems.AddRange(new ToolStripItem[] { plotContextMenuSmooth, plotContextMenuSubstractBaseline });
+        // 
+        spectraProcessingToolStripMenuItem1.DropDownItems.AddRange(new ToolStripItem[] { plotContextMenuSmooth, plotContextMenuSubstractBaseline, plotContextMenuImportPeaks, plotContextMenuExportPeaks, plotContextMenuFitPeaks });
         spectraProcessingToolStripMenuItem1.Name = "spectraProcessingToolStripMenuItem1";
-        spectraProcessingToolStripMenuItem1.Size = new Size(288, 38);
-        spectraProcessingToolStripMenuItem1.Text = "Spectra processing";
-        //
+        spectraProcessingToolStripMenuItem1.Size = new Size(301, 38);
+        spectraProcessingToolStripMenuItem1.Text = "Обработка спектра";
+        // 
         // plotContextMenuSmooth
-        //
+        // 
         plotContextMenuSmooth.Name = "plotContextMenuSmooth";
-        plotContextMenuSmooth.Size = new Size(340, 44);
-        plotContextMenuSmooth.Text = "Smooth ";
-        //
+        plotContextMenuSmooth.Size = new Size(332, 44);
+        plotContextMenuSmooth.Text = "Сглаживание";
+        // 
         // plotContextMenuSubstractBaseline
-        //
+        // 
         plotContextMenuSubstractBaseline.Name = "plotContextMenuSubstractBaseline";
-        plotContextMenuSubstractBaseline.Size = new Size(340, 44);
-        plotContextMenuSubstractBaseline.Text = "Substract baseline";
-        //
-        // peaksProcessingToolStripMenuItem1
-        //
-        peaksProcessingToolStripMenuItem1.DropDownItems.AddRange(new ToolStripItem[] { plotContextMenuImportPeaks, plotContextMenuExportPeaks, plotContextMenuFitPeaks });
-        peaksProcessingToolStripMenuItem1.Name = "peaksProcessingToolStripMenuItem1";
-        peaksProcessingToolStripMenuItem1.Size = new Size(288, 38);
-        peaksProcessingToolStripMenuItem1.Text = "Peaks processing";
-        //
-        // plotContextMenuImportPeaks
-        //
-        plotContextMenuImportPeaks.Name = "plotContextMenuImportPeaks";
-        plotContextMenuImportPeaks.Size = new Size(286, 44);
-        plotContextMenuImportPeaks.Text = "Import peaks";
-        //
-        // plotContextMenuExportPeaks
-        //
-        plotContextMenuExportPeaks.Name = "plotContextMenuExportPeaks";
-        plotContextMenuExportPeaks.Size = new Size(286, 44);
-        plotContextMenuExportPeaks.Text = "Export peaks";
-        //
-        // plotContextMenuFitPeaks
-        //
-        plotContextMenuFitPeaks.Name = "plotContextMenuFitPeaks";
-        plotContextMenuFitPeaks.Size = new Size(286, 44);
-        plotContextMenuFitPeaks.Text = "Fit peaks";
-        //
+        plotContextMenuSubstractBaseline.Size = new Size(332, 44);
+        plotContextMenuSubstractBaseline.Text = "Вычитание фона";
+        // 
         // plotContextMenuClear
-        //
+        // 
         plotContextMenuClear.Name = "plotContextMenuClear";
-        plotContextMenuClear.Size = new Size(288, 38);
-        plotContextMenuClear.Text = "Clear";
-        //
+        plotContextMenuClear.Size = new Size(301, 38);
+        plotContextMenuClear.Text = "Удалить всё";
+        // 
         // plotSetContextMenu
-        //
+        // 
         plotSetContextMenu.ImageScalingSize = new Size(32, 32);
-        plotSetContextMenu.Items.AddRange(new ToolStripItem[] { plotSetContextMenuHighlight, plotSetContextMenuDelete, spectraProcessingToolStripMenuItem, peaksProcessingToolStripMenuItem, plotSetContextMenuClear });
+        plotSetContextMenu.Items.AddRange(new ToolStripItem[] { plotSetContextMenuSaveAsEsp, plotSetContextMenuHighlight, plotSetContextMenuDelete, spectraProcessingToolStripMenuItem, plotSetContextMenuClear });
         plotSetContextMenu.Name = "plotSetContextMenu";
-        plotSetContextMenu.Size = new Size(289, 194);
-        //
+        plotSetContextMenu.Size = new Size(317, 194);
+        // 
+        // plotSetContextMenuSaveAsEsp
+        // 
+        plotSetContextMenuSaveAsEsp.Name = "plotSetContextMenuSaveAsEsp";
+        plotSetContextMenuSaveAsEsp.Size = new Size(316, 38);
+        plotSetContextMenuSaveAsEsp.Text = "Сохранить как .esp";
+        // 
         // plotSetContextMenuHighlight
-        //
+        // 
         plotSetContextMenuHighlight.Name = "plotSetContextMenuHighlight";
-        plotSetContextMenuHighlight.Size = new Size(288, 38);
-        plotSetContextMenuHighlight.Text = "Highlight";
-        //
+        plotSetContextMenuHighlight.Size = new Size(316, 38);
+        plotSetContextMenuHighlight.Text = "Выделить";
+        // 
         // plotSetContextMenuDelete
-        //
+        // 
         plotSetContextMenuDelete.Name = "plotSetContextMenuDelete";
-        plotSetContextMenuDelete.Size = new Size(288, 38);
-        plotSetContextMenuDelete.Text = "Delete";
-        //
+        plotSetContextMenuDelete.Size = new Size(316, 38);
+        plotSetContextMenuDelete.Text = "Удалить";
+        // 
         // spectraProcessingToolStripMenuItem
-        //
-        spectraProcessingToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { plotSetContextMenuSmooth, plotSetContextMenuSubstractBaseline, plotSetContextMenuGetAverage });
+        // 
+        spectraProcessingToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { plotSetContextMenuSmooth, plotSetContextMenuSubstractBaseline, plotSetContextMenuGetAverage, plotSetContextMenuImportPeaks, plotSetContextMenuExportPeaks, plotSetContextMenuFitPeaks });
         spectraProcessingToolStripMenuItem.Name = "spectraProcessingToolStripMenuItem";
-        spectraProcessingToolStripMenuItem.Size = new Size(288, 38);
-        spectraProcessingToolStripMenuItem.Text = "Spectra processing";
-        //
+        spectraProcessingToolStripMenuItem.Size = new Size(316, 38);
+        spectraProcessingToolStripMenuItem.Text = "Обработка спектров";
+        // 
         // plotSetContextMenuSmooth
-        //
+        // 
         plotSetContextMenuSmooth.Name = "plotSetContextMenuSmooth";
-        plotSetContextMenuSmooth.Size = new Size(358, 44);
-        plotSetContextMenuSmooth.Text = "Smooth";
-        //
-        // plotSetContextMenuSubstactBaseline
-        //
+        plotSetContextMenuSmooth.Size = new Size(388, 44);
+        plotSetContextMenuSmooth.Text = "Сглаживание";
+        // 
+        // plotSetContextMenuSubstractBaseline
+        // 
         plotSetContextMenuSubstractBaseline.Name = "plotSetContextMenuSubstractBaseline";
-        plotSetContextMenuSubstractBaseline.Size = new Size(358, 44);
-        plotSetContextMenuSubstractBaseline.Text = "Substract baseline";
-        //
+        plotSetContextMenuSubstractBaseline.Size = new Size(388, 44);
+        plotSetContextMenuSubstractBaseline.Text = "Вычитание фона";
+        // 
         // plotSetContextMenuGetAverage
-        //
+        // 
         plotSetContextMenuGetAverage.Name = "plotSetContextMenuGetAverage";
-        plotSetContextMenuGetAverage.Size = new Size(358, 44);
-        plotSetContextMenuGetAverage.Text = "Get average spectra";
-        //
-        // peaksProcessingToolStripMenuItem
-        //
-        peaksProcessingToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { plotSetContextMenuImportPeaks, plotSetContextMenuExportPeaks, plotSetContextMenuFitPeaks });
-        peaksProcessingToolStripMenuItem.Name = "peaksProcessingToolStripMenuItem";
-        peaksProcessingToolStripMenuItem.Size = new Size(288, 38);
-        peaksProcessingToolStripMenuItem.Text = "Peaks processing";
-        //
+        plotSetContextMenuGetAverage.Size = new Size(388, 44);
+        plotSetContextMenuGetAverage.Text = "Усреднение спектров";
+        // 
         // plotSetContextMenuImportPeaks
-        //
+        // 
         plotSetContextMenuImportPeaks.Name = "plotSetContextMenuImportPeaks";
-        plotSetContextMenuImportPeaks.Size = new Size(286, 44);
-        plotSetContextMenuImportPeaks.Text = "Import peaks";
-        //
-        // plotSetContextMenuExportPeaks
-        //
-        plotSetContextMenuExportPeaks.Name = "plotSetContextMenuExportPeaks";
-        plotSetContextMenuExportPeaks.Size = new Size(286, 44);
-        plotSetContextMenuExportPeaks.Text = "Export peaks";
-        //
+        plotSetContextMenuImportPeaks.Size = new Size(388, 44);
+        plotSetContextMenuImportPeaks.Text = "Импорт пиков";
+        // 
         // plotSetContextMenuFitPeaks
-        //
+        // 
         plotSetContextMenuFitPeaks.Name = "plotSetContextMenuFitPeaks";
-        plotSetContextMenuFitPeaks.Size = new Size(286, 44);
-        plotSetContextMenuFitPeaks.Text = "Fit peaks";
-        //
+        plotSetContextMenuFitPeaks.Size = new Size(388, 44);
+        plotSetContextMenuFitPeaks.Text = "Фиттинг пиков";
+        // 
         // plotSetContextMenuClear
-        //
+        // 
         plotSetContextMenuClear.Name = "plotSetContextMenuClear";
-        plotSetContextMenuClear.Size = new Size(288, 38);
-        plotSetContextMenuClear.Text = "Clear";
-        //
-        // numericUpDown1
-        //
-        numericUpDown1.Location = new Point(1126, 3);
-        numericUpDown1.Name = "numericUpDown1";
-        numericUpDown1.Size = new Size(143, 39);
-        numericUpDown1.TabIndex = 2;
-        //
-        // mouseCoordinatesBox
-        //
-        mouseCoordinatesBox.Dock = DockStyle.Fill;
-        mouseCoordinatesBox.Location = new Point(1275, 3);
-        mouseCoordinatesBox.Name = "mouseCoordinatesBox";
-        mouseCoordinatesBox.Size = new Size(220, 39);
-        mouseCoordinatesBox.TabIndex = 3;
-        //
+        plotSetContextMenuClear.Size = new Size(316, 38);
+        plotSetContextMenuClear.Text = "Удалить всё";
+        // 
+        // plotContextMenuFitPeaks
+        // 
+        plotContextMenuFitPeaks.Name = "plotContextMenuFitPeaks";
+        plotContextMenuFitPeaks.Size = new Size(332, 44);
+        plotContextMenuFitPeaks.Text = "Фиттинг пиков";
+        // 
+        // plotContextMenuImportPeaks
+        // 
+        plotContextMenuImportPeaks.Name = "plotContextMenuImportPeaks";
+        plotContextMenuImportPeaks.Size = new Size(332, 44);
+        plotContextMenuImportPeaks.Text = "Импорт пиков";
+        // 
+        // plotContextMenuExportPeaks
+        // 
+        plotContextMenuExportPeaks.Name = "plotContextMenuExportPeaks";
+        plotContextMenuExportPeaks.Size = new Size(332, 44);
+        plotContextMenuExportPeaks.Text = "Экспорт пиков";
+        // 
+        // plotSetContextMenuExportPeaks
+        // 
+        plotSetContextMenuExportPeaks.Name = "plotSetContextMenuExportPeaks";
+        plotSetContextMenuExportPeaks.Size = new Size(388, 44);
+        plotSetContextMenuExportPeaks.Text = "Экспорт пиков";
+        // 
         // MainForm
-        //
+        // 
         AutoScaleDimensions = new SizeF(13F, 32F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1894, 1009);
         Controls.Add(tableLayoutPanel1);
         MainMenuStrip = menuStrip1;
         Name = "MainForm";
-        Text = "MainForm";
+        Text = "Spectra Processing";
         tableLayoutPanel1.ResumeLayout(false);
         tableLayoutPanel1.PerformLayout();
         tableLayoutPanel2.ResumeLayout(false);
@@ -547,6 +523,7 @@ sealed partial class MainForm
         tableLayoutPanel4.PerformLayout();
         menuStrip2.ResumeLayout(false);
         menuStrip2.PerformLayout();
+        ((System.ComponentModel.ISupportInitialize)numericUpDown1).EndInit();
         tableLayoutPanel5.ResumeLayout(false);
         menuStrip1.ResumeLayout(false);
         menuStrip1.PerformLayout();
@@ -554,7 +531,6 @@ sealed partial class MainForm
         dataSetContextMenu.ResumeLayout(false);
         plotContextMenu.ResumeLayout(false);
         plotSetContextMenu.ResumeLayout(false);
-        ((System.ComponentModel.ISupportInitialize)numericUpDown1).EndInit();
         ResumeLayout(false);
     }
 
@@ -576,13 +552,9 @@ sealed partial class MainForm
     private TableLayoutPanel tableLayoutPanel5;
     private TreeView dataStorageTreeView;
     private ContextMenuStrip dataContextMenu;
-    private ToolStripMenuItem dataContextMenuSaveAsEsp;
     private ToolStripMenuItem dataContextMenuDelete;
     private ToolStripMenuItem dataContextMenuPlot;
     private ContextMenuStrip dataSetContextMenu;
-    private ToolStripMenuItem dataSetContextMenuSaveAsEsp;
-    private ToolStripMenuItem dataSetContextMenuSaveAsEspCurrent;
-    private ToolStripMenuItem dataSetContextMenuSaveAsEspRecursive;
     private ToolStripMenuItem dataSetContextMenuDelete;
     private ToolStripMenuItem dataSetContextMenuPlot;
     private ToolStripMenuItem dataSetContextMenuAddToPlot;
@@ -605,7 +577,6 @@ sealed partial class MainForm
     private ToolStripMenuItem exportPeaksToolStripMenuItem;
     private ToolStripMenuItem importPeaksToolStripMenuItem;
     private ToolStripMenuItem peaksProcessingToolStripMenuItem;
-    private ToolStripMenuItem plotSetContextMenuFitPeaks;
     private ToolStripMenuItem plotSetContextMenuExportPeaks;
     private ToolStripMenuItem spectraProcessingToolStripMenuItem;
     private ToolStripMenuItem plotSetContextMenuSmooth;
@@ -613,13 +584,16 @@ sealed partial class MainForm
     private ToolStripMenuItem plotSetContextMenuGetAverage;
     private ToolStripMenuItem spectraProcessingToolStripMenuItem1;
     private ToolStripMenuItem plotContextMenuSubstractBaseline;
-    private ToolStripMenuItem peaksProcessingToolStripMenuItem1;
     private ToolStripMenuItem plotContextMenuSmooth;
-    private ToolStripMenuItem plotContextMenuImportPeaks;
-    private ToolStripMenuItem plotContextMenuExportPeaks;
-    private ToolStripMenuItem plotContextMenuFitPeaks;
-    private ToolStripMenuItem plotSetContextMenuImportPeaks;
     private ToolStripMenuItem baselineModeToolStripMenuItem;
     private TextBox mouseCoordinatesBox;
     private NumericUpDown numericUpDown1;
+    private ToolStripMenuItem plotContextMenuSaveAsEsp;
+    private ToolStripMenuItem plotSetContextMenuSaveAsEsp;
+    private ToolStripMenuItem tempToolStripMenuItem;
+    private ToolStripMenuItem plotSetContextMenuFitPeaks;
+    private ToolStripMenuItem plotSetContextMenuImportPeaks;
+    private ToolStripMenuItem plotContextMenuImportPeaks;
+    private ToolStripMenuItem plotContextMenuExportPeaks;
+    private ToolStripMenuItem plotContextMenuFitPeaks;
 }

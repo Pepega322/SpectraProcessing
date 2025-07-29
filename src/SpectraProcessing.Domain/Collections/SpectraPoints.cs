@@ -19,6 +19,26 @@ public sealed record SpectraPoints
         Y = y.ToArray();
     }
 
+    public SpectraPoints Copy() => new(X, Y);
+
+    // public void Smooth()
+    // {
+    //     Span<float> tempY = stackalloc float[Count];
+    //
+    //     tempY[0] = (Y[0] + 2 * Y[1]) / 3;
+    //     tempY[Count - 1] = (Y[Count - 1] + 2 * Y[Count - 2]) / 3;
+    //
+    //     for (var i = 1; i < Count - 1; i++)
+    //     {
+    //         tempY[i] = (Y[i - 1] + Y[i] + Y[i + 1]) / 3;
+    //     }
+    //
+    //     for (var i = 0; i < Count; i++)
+    //     {
+    //         Y[i] = tempY[i];
+    //     }
+    // }
+
     public void Smooth()
     {
         const int centerIndex = 2;
@@ -65,7 +85,7 @@ public sealed record SpectraPoints
     {
         for (var i = 0; i < Count; i++)
         {
-            yield return $"{X[i]: 0.00} {Y[i]: 0.00}";
+            yield return $"{X[i]:0.00} {Y[i]:0.00}";
         }
     }
 }
